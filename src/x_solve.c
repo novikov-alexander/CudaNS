@@ -247,6 +247,33 @@ __global__ void x_solve_kernel_four(double* lhs_, double* lhsp_, double* lhsm_, 
 	}
 }
 
+__global__ void x_solve_inversion(double* rhs, double bt, int nx2, int ny2, int nz2)
+{
+    double r1, r2, r3, r4, r5, t1, t2;
+
+	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
+
+	if ((k <= nz2) && (j <= ny2) && (i <= nx2))
+    {
+        r1 = rhs(k,j,i,0);
+        r2 = rhs(k,j,i,1);
+        r3 = rhs(k,j,i,2);
+        r4 = rhs(k,j,i,3);
+        r5 = rhs(k,j,i,4);
+
+        t1 = bt * r3;
+        t2 = 0.5 * (r4 + r5);
+
+        rhs(k,j,i,0) = -r2;
+        rhs(k,j,i,1) = r1;
+        rhs(k,j,i,2) = bt * (r4 - r5);
+        rhs(k,j,i,3) = -t1 + t2;
+        rhs(k,j,i,4) = t1 + t2;
+    }
+}
+
 #undef lhs_
 #undef lhsp_
 #undef lhsm_
@@ -270,14 +297,7 @@ void x_solve()
 
     dim3 blocks2 = dim3(ny2 / 4+1, nz2);
 	dim3 threads2 = dim3(4, 1);
-	
-	CudaSafeCall(cudaMemcpy(lhs_gpu, lhs_, size5, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(lhsp_gpu, lhsp_, size5, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(lhsm_gpu, lhsm_, size5, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuRhs, rhs, size5, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuRho_i, rho_i, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuUs, us, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuSpeed, speed, size, cudaMemcpyHostToDevice));
+
 
     if (timeron) timer_start(t_xsolve);
 
@@ -293,6 +313,21 @@ void x_solve()
 
 	x_solve_kernel_four<<<blocks2, threads2>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuSpeed, c3c4, dx2,  con43,  dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
     cudaDeviceSynchronize();
+
+
+
+
+    //---------------------------------------------------------------------
+    // Do the block-diagonal inversion          
+    //---------------------------------------------------------------------
+    if (timeron) timer_start(t_ninvr);
+
+	x_solve_inversion<<<blocks, threads>>>((double*)gpuRhs, bt, nx2, ny2, nz2);
+
+
+    if (timeron) timer_stop(t_ninvr);
+
+    
     CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
@@ -301,37 +336,5 @@ void x_solve()
 	CudaSafeCall(cudaMemcpy(lhsp_, lhsp_gpu, size5, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(lhsm_, lhsm_gpu, size5, cudaMemcpyDeviceToHost));
 
-
-
-    //---------------------------------------------------------------------
-    // Do the block-diagonal inversion          
-    //---------------------------------------------------------------------
-    double r1, r2, r3, r4, r5, t1, t2;
-    if (timeron) timer_start(t_ninvr);
-
-    for (k = 1; k <= nz2; k++)
-    {
-        for (j = 1; j <= ny2; j++)
-        {
-            for (i = 1; i <= nx2; i++)
-            {
-                r1 = rhs[k][j][i][0];
-                r2 = rhs[k][j][i][1];
-                r3 = rhs[k][j][i][2];
-                r4 = rhs[k][j][i][3];
-                r5 = rhs[k][j][i][4];
-
-                t1 = bt * r3;
-                t2 = 0.5 * (r4 + r5);
-
-                rhs[k][j][i][0] = -r2;
-                rhs[k][j][i][1] = r1;
-                rhs[k][j][i][2] = bt * (r4 - r5);
-                rhs[k][j][i][3] = -t1 + t2;
-                rhs[k][j][i][4] = t1 + t2;
-            }
-        }
-    }
-    if (timeron) timer_stop(t_ninvr);
     if (timeron) timer_stop(t_xsolve);
 }

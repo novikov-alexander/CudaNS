@@ -92,14 +92,6 @@ void xinvr()
 	xinvr_kernel<<<blocks, threads>>>((double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs, (double*)gpuSpeed, nx2, ny2, nz2, c2, bt);
 
     if (timeron) timer_stop(t_txinvr);
-
-	CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(ws, gpuWs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(qs, gpuQs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
 }
 
 void add()
