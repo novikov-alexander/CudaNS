@@ -225,6 +225,59 @@ __global__ void y_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
     }
 }
 
+
+__global__ void y_solve_kernel_four(double* lhs_, double* lhsp_, double* lhsm_, double* rhs, double* rho_i, double* vs, double* speed, double c3c4, double dy3, double  con43, double  dy5, double c1c5, double dy1, double dtty2, double dtty1, double dymax, double c2dtty1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int ny)
+{
+	int  j1, j2, m;
+
+	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+    int j;
+	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
+
+	//part 4
+	if ((k <= nz2) && (i <= nx2))
+	{
+	    for (j = ny2; j >= 1; j--)
+        {
+            j1 = j;
+            j2 = j + 1;
+
+            for (m = 0; m < 3; m++)
+               rhs(k,j - 1,i,m) = rhs(k,j - 1,i,m) - lhs_(k,i,j - 1,3) * rhs(k,j1,i,m) - lhs_(k,i,j - 1,4) * rhs(k,j2,i,m);
+            
+            rhs(k,j - 1,i,3) = rhs(k,j - 1,i,3) - lhsp_(k,i,j - 1,3) * rhs(k,j1,i,3) - lhsp_(k,i,j - 1,4) * rhs(k,j2,i,3);
+            rhs(k,j - 1,i,4) = rhs(k,j - 1,i,4) - lhsm_(k,i,j - 1,3) * rhs(k,j1,i,4) - lhsm_(k,i,j - 1,4) * rhs(k,j2,i,4);
+        }
+	}
+}
+
+__global__ void y_solve_inversion(double* rhs, double bt, int nx2, int ny2, int nz2)
+{
+    double r1, r2, r3, r4, r5, t1, t2;
+
+	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
+
+	if ((k <= nz2) && (j <= ny2) && (i <= nx2))
+    {
+        r1 = rhs(k,j,i,0);
+        r2 = rhs(k,j,i,1);
+        r3 = rhs(k,j,i,2);
+        r4 = rhs(k,j,i,3);
+        r5 = rhs(k,j,i,4);
+
+        t1 = bt * r1;
+        t2 = 0.5 * (r4 + r5);
+        
+        rhs(k,j,i,0) = bt * (r4 - r5);
+        rhs(k,j,i,1) = -r3;
+        rhs(k,j,i,2) = r2;
+        rhs(k,j,i,3) = -t1 + t2;
+        rhs(k,j,i,4) = t1 + t2;
+    }
+}
+
 #undef lhs_
 #undef lhsp_
 #undef lhsm_
@@ -258,7 +311,22 @@ void y_solve()
     cudaDeviceSynchronize();
 
     y_solve_kernel_three<<<blocks2, threads2>>>((double*) lhs_gpu, (double*) lhsp_gpu, (double*) lhsm_gpu, (double*) gpuRhs, (double*) gpuRho_i, (double*) gpuVs, (double*) gpuSpeed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, ny);
-    
+    cudaDeviceSynchronize();
+
+    y_solve_kernel_four<<<blocks2, threads2>>>((double*) lhs_gpu, (double*) lhsp_gpu, (double*) lhsm_gpu, (double*) gpuRhs, (double*) gpuRho_i, (double*) gpuVs, (double*) gpuSpeed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, ny);
+   
+
+	
+
+    //---------------------------------------------------------------------
+    // block-diagonal matrix-vector multiplication                       
+    //---------------------------------------------------------------------
+    if (timeron) timer_start(t_pinvr);
+
+	y_solve_inversion<<<blocks, threads>>>((double*)gpuRhs, bt, nx2, ny2, nz2);
+
+    if (timeron) timer_stop(t_pinvr);
+
     CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
@@ -266,56 +334,5 @@ void y_solve()
 	CudaSafeCall(cudaMemcpy(lhs_, lhs_gpu, size5, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(lhsp_, lhsp_gpu, size5, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(lhsm_, lhsm_gpu, size5, cudaMemcpyDeviceToHost));
-	
-	for (k = 1; k <= nz2; k++)
-    {        
-        for (i = 1; i <= nx2; i++)
-        {
-			for (j = ny2; j >= 1; j--)
-            {
-                j1 = j;
-                j2 = j + 1;
-
-                for (m = 0; m < 3; m++)
-                    rhs[k][j - 1][i][m] = rhs[k][j - 1][i][m] - lhs_[k][i][j - 1][3] * rhs[k][j1][i][m] - lhs_[k][i][j - 1][4] * rhs[k][j2][i][m];
-
-                rhs[k][j - 1][i][3] = rhs[k][j - 1][i][3] - lhsp_[k][i][j - 1][3] * rhs[k][j1][i][3] - lhsp_[k][i][j - 1][4] * rhs[k][j2][i][3];
-                rhs[k][j - 1][i][4] = rhs[k][j - 1][i][4] - lhsm_[k][i][j - 1][3] * rhs[k][j1][i][4] - lhsm_[k][i][j - 1][4] * rhs[k][j2][i][4];
-            }
-        }
-
-    }
-
-
-    //---------------------------------------------------------------------
-    // block-diagonal matrix-vector multiplication                       
-    //---------------------------------------------------------------------
-    double r1, r2, r3, r4, r5, t1, t2;
-    if (timeron) timer_start(t_pinvr);
-
-    for (k = 1; k <= nz2; k++)
-    {
-        for (j = 1; j <= ny2; j++)
-        {
-            for (i = 1; i <= nx2; i++)
-            {
-                r1 = rhs[k][j][i][0];
-                r2 = rhs[k][j][i][1];
-                r3 = rhs[k][j][i][2];
-                r4 = rhs[k][j][i][3];
-                r5 = rhs[k][j][i][4];
-
-                t1 = bt * r1;
-                t2 = 0.5 * (r4 + r5);
-
-                rhs[k][j][i][0] = bt * (r4 - r5);
-                rhs[k][j][i][1] = -r3;
-                rhs[k][j][i][2] = r2;
-                rhs[k][j][i][3] = -t1 + t2;
-                rhs[k][j][i][4] = t1 + t2;
-            }
-        }
-    }
-    if (timeron) timer_stop(t_pinvr);
     if (timeron) timer_stop(t_ysolve);
 }
