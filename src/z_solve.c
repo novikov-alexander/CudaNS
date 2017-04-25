@@ -6,26 +6,70 @@
 // simultaneously. The Thomas algorithm is employed to solve the
 // systems for the z-lines. Boundary conditions are non-periodic
 //---------------------------------------------------------------------
+
+
+#define lhs_(x,y,z,m) lhs_[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define lhsm_(x,y,z,m) lhsm_[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define lhsp_(x,y,z,m) lhsp_[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define rhs(x,y,z,m) rhs[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define rho_i(x,y,z) rho_i[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define vs(x,y,z) vs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define speed(x,y,z) speed[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+__global__ void z_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, int nx2, int ny2, int nz2)
+{
+	int m;
+
+	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+
+	//part 1
+	if (j <= ny2 && i <= nx2)
+    {        
+        for (m = 0; m < 5; m++)
+        {
+            lhs_(j,i,0,m) = lhs_(j,i,nz2 + 1,m) = 0.0;
+            lhsp_(j,i,0,m) = lhsp_(j,i,nz2 + 1,m) = 0.0;
+            lhsm_(j,i,0,m) = lhsm_(j,i,nz2 + 1,m) = 0.0;
+        }
+        lhs_(j,i,0,2) = lhs_(j,i,nz2 + 1,2) = 1.0;
+        lhsp_(j,i,0,2) = lhsp_(j,i,nz2 + 1,2) = 1.0;
+        lhsm_(j,i,0,2) = lhsm_(j,i,nz2 + 1,2) = 1.0;    
+	}
+}
+
 void z_solve()
 {
+
     int i, j, k, k1, k2, m;
     double ru1, rhos1, fac1, fac2;
 
+    const int size5 = sizeof(double)*P_SIZE*P_SIZE*P_SIZE*5;
+	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE;
+
+	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
+	dim3 threads = dim3(32, 4, 1);
+
+    dim3 blocks2 = dim3(nx2 / 4+1, ny2);
+	dim3 threads2 = dim3(4, 1);
+
     if (timeron) timer_start(t_zsolve);
+
+    
+    cudaDeviceSynchronize();
+	z_solve_kernel_one<<<blocks2, threads2>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, nx2, ny2, nz2);
+
+    CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(lhs_, lhs_gpu, size5, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(lhsp_, lhsp_gpu, size5, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(lhsm_, lhsm_gpu, size5, cudaMemcpyDeviceToHost));
 
     for (j = 1; j <= ny2; j++) 
     {
         for (i = 1; i <= nx2; i++)
         {
-            for (m = 0; m < 5; m++)
-            {
-                lhs_[j][i][0][m] = lhs_[j][i][nz2 + 1][m] = 0.0;
-                lhsp_[j][i][0][m] = lhsp_[j][i][nz2 + 1][m] = 0.0;
-                lhsm_[j][i][0][m] = lhsm_[j][i][nz2 + 1][m] = 0.0;
-            }
-            lhs_[j][i][0][2] = lhs_[j][i][nz2 + 1][2] = 1.0;
-            lhsp_[j][i][0][2] = lhsp_[j][i][nz2 + 1][2] = 1.0;
-            lhsm_[j][i][0][2] = lhsm_[j][i][nz2 + 1][2] = 1.0;
 
             for (k = 1; k <= nz2; k++)
             {

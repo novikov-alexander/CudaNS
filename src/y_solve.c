@@ -326,13 +326,5 @@ void y_solve()
 	y_solve_inversion<<<blocks, threads>>>((double*)gpuRhs, bt, nx2, ny2, nz2);
 
     if (timeron) timer_stop(t_pinvr);
-
-    CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(lhs_, lhs_gpu, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(lhsp_, lhsp_gpu, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(lhsm_, lhsm_gpu, size5, cudaMemcpyDeviceToHost));
     if (timeron) timer_stop(t_ysolve);
 }
