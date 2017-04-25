@@ -243,7 +243,9 @@ int deallocateArrays()
 	cudaFree(gpuSquare);
 	cudaFree(gpuSpeed);
 	cudaFree(gpuForcing);
-
+	cudaFree(lhs_gpu);
+	cudaFree(lhsp_gpu);
+	cudaFree(lhsm_gpu);
 
     free(u);
     free(rhs);
