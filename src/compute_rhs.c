@@ -290,7 +290,9 @@ void compute_rhs()
 	blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
 	threads = dim3(32, 4, 1);
 
+    cudaDeviceSynchronize();
     if (timeron) timer_start(t_rhsx);
+
 
 	compute_rhs_x2y2z2<<<blocks, threads>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
 									 	(double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, 
