@@ -12,8 +12,12 @@
 #define lhsm_(x,y,z,m) lhsm_[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
 #define lhsp_(x,y,z,m) lhsp_[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
 #define rhs(x,y,z,m) rhs[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define u(x,y,z,m) u[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
 #define rho_i(x,y,z) rho_i[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 #define ws(x,y,z) ws[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define us(x,y,z) us[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define vs(x,y,z) vs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define qs(x,y,z) qs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 #define speed(x,y,z) speed[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 __global__ void z_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, int nx2, int ny2, int nz2)
 {
@@ -248,6 +252,56 @@ __global__ void z_solve_kernel_four(double* lhs_, double* lhsp_, double* lhsm_, 
     }
 }
 
+__global__ void z_solve_inversion(double* rhs, double* us, double* vs, double* ws, double* qs, double* speed, double* u, int nx2, int ny2, int nz2, double bt, double c2iv)
+{
+	double t1, t2, t3, ac, xvel, yvel, zvel;
+    double btuz, ac2u, uzik1, r1, r2, r3, r4, r5;
+
+	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
+
+	if (i <= nx2 && j <= ny2 && k <= nz2)
+	{
+        xvel = us(k,j,i);
+        yvel = vs(k,j,i);
+        zvel = ws(k,j,i);
+        ac = speed(k,j,i);
+
+        ac2u = ac*ac;
+
+        r1 = rhs(k,j,i,0);
+        r2 = rhs(k,j,i,1);
+        r3 = rhs(k,j,i,2);
+        r4 = rhs(k,j,i,3);
+        r5 = rhs(k,j,i,4);
+
+        uzik1 = u(k,j,i,0);
+        btuz = bt * uzik1;
+
+        t1 = btuz / ac * (r4 + r5);
+        t2 = r3 + t1;
+        t3 = btuz * (r4 - r5);
+
+        rhs(k,j,i,0) = t2;
+        rhs(k,j,i,1) = -uzik1*r2 + xvel*t2;
+        rhs(k,j,i,2) = uzik1*r1 + yvel*t2;
+        rhs(k,j,i,3) = zvel*t2 + t3;
+        rhs(k,j,i,4) = uzik1*(-xvel*r2 + yvel*r1) + qs(k,j,i) * t2 + c2iv*ac2u*t1 + zvel*t3;
+	}
+}
+#undef lhs_
+#undef lhsp_
+#undef lhsm_
+#undef rhs
+#undef rho_i
+#undef us
+#undef vs
+#undef ws
+#undef qs
+#undef u
+#undef speed
+
 void z_solve()
 {
 
@@ -278,7 +332,18 @@ void z_solve()
 	cudaDeviceSynchronize();
     z_solve_kernel_four<<<blocks2, threads2>>>((double*) lhs_gpu, (double*) lhsp_gpu, (double*) lhsm_gpu, (double*) gpuRhs, nx2, ny2, nz2);
 
-    CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
+    //---------------------------------------------------------------------
+    // block-diagonal matrix-vector multiplication                       
+    //---------------------------------------------------------------------
+
+    if (timeron) timer_start(t_tzetar);
+
+	z_solve_inversion<<<blocks, threads>>>((double*)gpuRhs, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs, (double*)gpuSpeed, (double*)gpuU, nx2, ny2, nz2, bt, c2iv);
+
+    if (timeron) timer_stop(t_tzetar);
+    if (timeron) timer_stop(t_zsolve);
+
+	CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
@@ -286,48 +351,4 @@ void z_solve()
 	CudaSafeCall(cudaMemcpy(lhsp_, lhsp_gpu, size5, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(lhsm_, lhsm_gpu, size5, cudaMemcpyDeviceToHost));
 
-
-    //---------------------------------------------------------------------
-    // block-diagonal matrix-vector multiplication                       
-    //---------------------------------------------------------------------
-    double t1, t2, t3, ac, xvel, yvel, zvel;
-    double btuz, ac2u, uzik1, r1, r2, r3, r4, r5;
-    if (timeron) timer_start(t_tzetar);
-
-    for (k = 1; k <= nz2; k++)
-    {
-        for (j = 1; j <= ny2; j++)
-        {
-            for (i = 1; i <= nx2; i++)
-            {
-                xvel = us[k][j][i];
-                yvel = vs[k][j][i];
-                zvel = ws[k][j][i];
-                ac = speed[k][j][i];
-
-                ac2u = ac*ac;
-
-                r1 = rhs[k][j][i][0];
-                r2 = rhs[k][j][i][1];
-                r3 = rhs[k][j][i][2];
-                r4 = rhs[k][j][i][3];
-                r5 = rhs[k][j][i][4];
-
-                uzik1 = u[k][j][i][0];
-                btuz = bt * uzik1;
-
-                t1 = btuz / ac * (r4 + r5);
-                t2 = r3 + t1;
-                t3 = btuz * (r4 - r5);
-
-                rhs[k][j][i][0] = t2;
-                rhs[k][j][i][1] = -uzik1*r2 + xvel*t2;
-                rhs[k][j][i][2] = uzik1*r1 + yvel*t2;
-                rhs[k][j][i][3] = zvel*t2 + t3;
-                rhs[k][j][i][4] = uzik1*(-xvel*r2 + yvel*r1) + qs[k][j][i] * t2 + c2iv*ac2u*t1 + zvel*t3;
-            }
-        }
-    }
-    if (timeron) timer_stop(t_tzetar);
-    if (timeron) timer_stop(t_zsolve);
 }
