@@ -110,6 +110,120 @@ __global__ void z_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
         lhsm_(j,i,k,4) = lhs_(j,i,k,4);
 	}
 }
+
+__global__ void z_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_, double* rhs, double* rho_i, double* ws, double* speed, int nx2, int ny2, int nz2)
+{
+	int  k1, k2, m;
+	double ru1, rhos1, fac1, fac2;
+
+	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k;
+
+	if (i <= nx2 && j <= ny2)
+	{
+		for (k = 1; k <= nz2; k++)
+        {
+            k1 = k;
+            k2 = k + 1;
+
+            fac1 = 1.0 / lhs_(j,i,k - 1,2);
+            lhs_(j,i,k - 1,3) = fac1 * lhs_(j,i,k - 1,3);
+            lhs_(j,i,k - 1,4) = fac1 * lhs_(j,i,k - 1,4);
+            for (m = 0; m < 3; m++)
+                rhs(k - 1,j,i,m) = fac1 * rhs(k - 1,j,i,m);
+
+            lhs_(j,i,k1,2) = lhs_(j,i,k1,2) - lhs_(j,i,k1,1) * lhs_(j,i,k - 1,3);
+            lhs_(j,i,k1,3) = lhs_(j,i,k1,3) - lhs_(j,i,k1,1) * lhs_(j,i,k - 1,4);
+            for (m = 0; m < 3; m++)
+                rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhs_(j,i,k1,1) * rhs(k - 1,j,i,m);
+
+            lhs_(j,i,k2,1) = lhs_(j,i,k2,1) - lhs_(j,i,k2,0) * lhs_(j,i,k - 1,3);
+            lhs_(j,i,k2,2) = lhs_(j,i,k2,2) - lhs_(j,i,k2,0) * lhs_(j,i,k - 1,4);
+            for (m = 0; m < 3; m++)
+                rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhs_(j,i,k2,0) * rhs(k - 1,j,i,m);
+
+            if (k == nz2)
+            {
+                fac1 = 1.0 / lhs_(j,i,k1,2);
+                lhs_(j,i,k1,3) = fac1 * lhs_(j,i,k1,3);
+                lhs_(j,i,k1,4) = fac1 * lhs_(j,i,k1,4);
+                for (m = 0; m < 3; m++)
+                    rhs(k1,j,i,m) = fac1 * rhs(k1,j,i,m);
+
+                lhs_(j,i,k2,2) = lhs_(j,i,k2,2) - lhs_(j,i,k2,1) * lhs_(j,i,k1,3);
+                lhs_(j,i,k2,3) = lhs_(j,i,k2,3) - lhs_(j,i,k2,1) * lhs_(j,i,k1,4);
+                for (m = 0; m < 3; m++)
+                    rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhs_(j,i,k2,1) * rhs(k1,j,i,m);
+
+                fac2 = 1.0 / lhs_(j,i,k2,2);
+                for (m = 0; m < 3; m++)
+                    rhs(k2,j,i,m) = fac2 * rhs(k2,j,i,m);
+            }
+
+            m = 3;
+            fac1 = 1.0 / lhsp_(j,i,k - 1,2);
+            lhsp_(j,i,k - 1,3) = fac1 * lhsp_(j,i,k - 1,3);
+            lhsp_(j,i,k - 1,4) = fac1 * lhsp_(j,i,k - 1,4);
+            rhs(k - 1,j,i,m) = fac1 * rhs(k - 1,j,i,m);
+
+            lhsp_(j,i,k1,2) = lhsp_(j,i,k1,2) - lhsp_(j,i,k1,1) * lhsp_(j,i,k - 1,3);
+            lhsp_(j,i,k1,3) = lhsp_(j,i,k1,3) - lhsp_(j,i,k1,1) * lhsp_(j,i,k - 1,4);
+            rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhsp_(j,i,k1,1) * rhs(k - 1,j,i,m);
+
+            lhsp_(j,i,k2,1) = lhsp_(j,i,k2,1) - lhsp_(j,i,k2,0) * lhsp_(j,i,k - 1,3);
+            lhsp_(j,i,k2,2) = lhsp_(j,i,k2,2) - lhsp_(j,i,k2,0) * lhsp_(j,i,k - 1,4);
+            rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsp_(j,i,k2,0) * rhs(k - 1,j,i,m);
+
+            m = 4;
+            fac1 = 1.0 / lhsm_(j,i,k - 1,2);
+            lhsm_(j,i,k - 1,3) = fac1 * lhsm_(j,i,k - 1,3);
+            lhsm_(j,i,k - 1,4) = fac1 * lhsm_(j,i,k - 1,4);
+            rhs(k - 1,j,i,m) = fac1 * rhs(k - 1,j,i,m);
+
+            lhsm_(j,i,k1,2) = lhsm_(j,i,k1,2) - lhsm_(j,i,k1,1) * lhsm_(j,i,k - 1,3);
+            lhsm_(j,i,k1,3) = lhsm_(j,i,k1,3) - lhsm_(j,i,k1,1) * lhsm_(j,i,k - 1,4);
+            rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhsm_(j,i,k1,1) * rhs(k - 1,j,i,m);
+
+            lhsm_(j,i,k2,1) = lhsm_(j,i,k2,1) - lhsm_(j,i,k2,0) * lhsm_(j,i,k - 1,3);
+            lhsm_(j,i,k2,2) = lhsm_(j,i,k2,2) - lhsm_(j,i,k2,0) * lhsm_(j,i,k - 1,4);
+            rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsm_(j,i,k2,0) * rhs(k - 1,j,i,m);
+
+            if (k == nz2)
+            {
+                m = 3;
+                fac1 = 1.0 / lhsp_(j,i,k1,2);
+                lhsp_(j,i,k1,3) = fac1 * lhsp_(j,i,k1,3);
+                lhsp_(j,i,k1,4) = fac1 * lhsp_(j,i,k1,4);
+                rhs(k1,j,i,m) = fac1 * rhs(k1,j,i,m);
+
+                lhsp_(j,i,k2,2) = lhsp_(j,i,k2,2) - lhsp_(j,i,k2,1) * lhsp_(j,i,k1,3);
+                lhsp_(j,i,k2,3) = lhsp_(j,i,k2,3) - lhsp_(j,i,k2,1) * lhsp_(j,i,k1,4);
+                rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsp_(j,i,k2,1) * rhs(k1,j,i,m);
+
+                m = 4;
+                fac1 = 1.0 / lhsm_(j,i,k1,2);
+                lhsm_(j,i,k1,3) = fac1 * lhsm_(j,i,k1,3);
+                lhsm_(j,i,k1,4) = fac1 * lhsm_(j,i,k1,4);
+                rhs(k1,j,i,m) = fac1 * rhs(k1,j,i,m);
+
+                lhsm_(j,i,k2,2) = lhsm_(j,i,k2,2) - lhsm_(j,i,k2,1) * lhsm_(j,i,k1,3);
+                lhsm_(j,i,k2,3) = lhsm_(j,i,k2,3) - lhsm_(j,i,k2,1) * lhsm_(j,i,k1,4);
+                rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsm_(j,i,k2,1) * rhs(k1,j,i,m);
+
+                rhs(k2,j,i,3) = rhs(k2,j,i,3) / lhsp_(j,i,k2,2);
+                rhs(k2,j,i,4) = rhs(k2,j,i,4) / lhsm_(j,i,k2,2);
+
+                for (m = 0; m < 3; m++)
+                    rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhs_(j,i,k1,3) * rhs(k2,j,i,m);
+
+                rhs(k1,j,i,3) = rhs(k1,j,i,3) - lhsp_(j,i,k1,3) * rhs(k2,j,i,3);
+                rhs(k1,j,i,4) = rhs(k1,j,i,4) - lhsm_(j,i,k1,3) * rhs(k2,j,i,4);
+            }
+        }
+	}
+}
+
 void z_solve()
 {
 
@@ -134,6 +248,9 @@ void z_solve()
 	cudaDeviceSynchronize();
     z_solve_kernel_two<<<blocks, threads>>>((double*) lhs_gpu, (double*) lhsp_gpu, (double*) lhsm_gpu, (double*) gpuRho_i, (double*) gpuWs, (double*) gpuSpeed, nx2, ny2, nz2, c3c4, dz4, con43, dz5, c1c5, dzmax, dz1, dttz2, dttz1, c2dttz1, comz1, comz4, comz5, comz6);
 
+	cudaDeviceSynchronize();
+    z_solve_kernel_three<<<blocks2, threads2>>>((double*) lhs_gpu, (double*) lhsp_gpu, (double*) lhsm_gpu, (double*) gpuRhs, (double*) gpuRho_i, (double*) gpuWs, (double*) gpuSpeed, nx2, ny2, nz2);
+
     CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
 	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
@@ -149,105 +266,7 @@ void z_solve()
 
             
 
-            for (k = 1; k <= nz2; k++)
-            {
-                k1 = k;
-                k2 = k + 1;
-
-                fac1 = 1.0 / lhs_[j][i][k - 1][2];
-                lhs_[j][i][k - 1][3] = fac1 * lhs_[j][i][k - 1][3];
-                lhs_[j][i][k - 1][4] = fac1 * lhs_[j][i][k - 1][4];
-                for (m = 0; m < 3; m++)
-                    rhs[k - 1][j][i][m] = fac1 * rhs[k - 1][j][i][m];
-
-                lhs_[j][i][k1][2] = lhs_[j][i][k1][2] - lhs_[j][i][k1][1] * lhs_[j][i][k - 1][3];
-                lhs_[j][i][k1][3] = lhs_[j][i][k1][3] - lhs_[j][i][k1][1] * lhs_[j][i][k - 1][4];
-                for (m = 0; m < 3; m++)
-                    rhs[k1][j][i][m] = rhs[k1][j][i][m] - lhs_[j][i][k1][1] * rhs[k - 1][j][i][m];
-
-                lhs_[j][i][k2][1] = lhs_[j][i][k2][1] - lhs_[j][i][k2][0] * lhs_[j][i][k - 1][3];
-                lhs_[j][i][k2][2] = lhs_[j][i][k2][2] - lhs_[j][i][k2][0] * lhs_[j][i][k - 1][4];
-                for (m = 0; m < 3; m++)
-                    rhs[k2][j][i][m] = rhs[k2][j][i][m] - lhs_[j][i][k2][0] * rhs[k - 1][j][i][m];
-
-                if (k == nz2)
-                {
-                    fac1 = 1.0 / lhs_[j][i][k1][2];
-                    lhs_[j][i][k1][3] = fac1 * lhs_[j][i][k1][3];
-                    lhs_[j][i][k1][4] = fac1 * lhs_[j][i][k1][4];
-                    for (m = 0; m < 3; m++)
-                        rhs[k1][j][i][m] = fac1 * rhs[k1][j][i][m];
-
-                    lhs_[j][i][k2][2] = lhs_[j][i][k2][2] - lhs_[j][i][k2][1] * lhs_[j][i][k1][3];
-                    lhs_[j][i][k2][3] = lhs_[j][i][k2][3] - lhs_[j][i][k2][1] * lhs_[j][i][k1][4];
-                    for (m = 0; m < 3; m++)
-                        rhs[k2][j][i][m] = rhs[k2][j][i][m] - lhs_[j][i][k2][1] * rhs[k1][j][i][m];
-
-                    fac2 = 1.0 / lhs_[j][i][k2][2];
-                    for (m = 0; m < 3; m++)
-                        rhs[k2][j][i][m] = fac2 * rhs[k2][j][i][m];
-                }
-
-                m = 3;
-                fac1 = 1.0 / lhsp_[j][i][k - 1][2];
-                lhsp_[j][i][k - 1][3] = fac1 * lhsp_[j][i][k - 1][3];
-                lhsp_[j][i][k - 1][4] = fac1 * lhsp_[j][i][k - 1][4];
-                rhs[k - 1][j][i][m] = fac1 * rhs[k - 1][j][i][m];
-
-                lhsp_[j][i][k1][2] = lhsp_[j][i][k1][2] - lhsp_[j][i][k1][1] * lhsp_[j][i][k - 1][3];
-                lhsp_[j][i][k1][3] = lhsp_[j][i][k1][3] - lhsp_[j][i][k1][1] * lhsp_[j][i][k - 1][4];
-                rhs[k1][j][i][m] = rhs[k1][j][i][m] - lhsp_[j][i][k1][1] * rhs[k - 1][j][i][m];
-
-                lhsp_[j][i][k2][1] = lhsp_[j][i][k2][1] - lhsp_[j][i][k2][0] * lhsp_[j][i][k - 1][3];
-                lhsp_[j][i][k2][2] = lhsp_[j][i][k2][2] - lhsp_[j][i][k2][0] * lhsp_[j][i][k - 1][4];
-                rhs[k2][j][i][m] = rhs[k2][j][i][m] - lhsp_[j][i][k2][0] * rhs[k - 1][j][i][m];
-
-                m = 4;
-                fac1 = 1.0 / lhsm_[j][i][k - 1][2];
-                lhsm_[j][i][k - 1][3] = fac1 * lhsm_[j][i][k - 1][3];
-                lhsm_[j][i][k - 1][4] = fac1 * lhsm_[j][i][k - 1][4];
-                rhs[k - 1][j][i][m] = fac1 * rhs[k - 1][j][i][m];
-
-                lhsm_[j][i][k1][2] = lhsm_[j][i][k1][2] - lhsm_[j][i][k1][1] * lhsm_[j][i][k - 1][3];
-                lhsm_[j][i][k1][3] = lhsm_[j][i][k1][3] - lhsm_[j][i][k1][1] * lhsm_[j][i][k - 1][4];
-                rhs[k1][j][i][m] = rhs[k1][j][i][m] - lhsm_[j][i][k1][1] * rhs[k - 1][j][i][m];
-
-                lhsm_[j][i][k2][1] = lhsm_[j][i][k2][1] - lhsm_[j][i][k2][0] * lhsm_[j][i][k - 1][3];
-                lhsm_[j][i][k2][2] = lhsm_[j][i][k2][2] - lhsm_[j][i][k2][0] * lhsm_[j][i][k - 1][4];
-                rhs[k2][j][i][m] = rhs[k2][j][i][m] - lhsm_[j][i][k2][0] * rhs[k - 1][j][i][m];
-
-                if (k == nz2)
-                {
-                    m = 3;
-                    fac1 = 1.0 / lhsp_[j][i][k1][2];
-                    lhsp_[j][i][k1][3] = fac1 * lhsp_[j][i][k1][3];
-                    lhsp_[j][i][k1][4] = fac1 * lhsp_[j][i][k1][4];
-                    rhs[k1][j][i][m] = fac1 * rhs[k1][j][i][m];
-
-                    lhsp_[j][i][k2][2] = lhsp_[j][i][k2][2] - lhsp_[j][i][k2][1] * lhsp_[j][i][k1][3];
-                    lhsp_[j][i][k2][3] = lhsp_[j][i][k2][3] - lhsp_[j][i][k2][1] * lhsp_[j][i][k1][4];
-                    rhs[k2][j][i][m] = rhs[k2][j][i][m] - lhsp_[j][i][k2][1] * rhs[k1][j][i][m];
-
-                    m = 4;
-                    fac1 = 1.0 / lhsm_[j][i][k1][2];
-                    lhsm_[j][i][k1][3] = fac1 * lhsm_[j][i][k1][3];
-                    lhsm_[j][i][k1][4] = fac1 * lhsm_[j][i][k1][4];
-                    rhs[k1][j][i][m] = fac1 * rhs[k1][j][i][m];
-
-                    lhsm_[j][i][k2][2] = lhsm_[j][i][k2][2] - lhsm_[j][i][k2][1] * lhsm_[j][i][k1][3];
-                    lhsm_[j][i][k2][3] = lhsm_[j][i][k2][3] - lhsm_[j][i][k2][1] * lhsm_[j][i][k1][4];
-                    rhs[k2][j][i][m] = rhs[k2][j][i][m] - lhsm_[j][i][k2][1] * rhs[k1][j][i][m];
-
-                    rhs[k2][j][i][3] = rhs[k2][j][i][3] / lhsp_[j][i][k2][2];
-                    rhs[k2][j][i][4] = rhs[k2][j][i][4] / lhsm_[j][i][k2][2];
-
-                    for (m = 0; m < 3; m++)
-                        rhs[k1][j][i][m] = rhs[k1][j][i][m] - lhs_[j][i][k1][3] * rhs[k2][j][i][m];
-
-                    rhs[k1][j][i][3] = rhs[k1][j][i][3] - lhsp_[j][i][k1][3] * rhs[k2][j][i][3];
-                    rhs[k1][j][i][4] = rhs[k1][j][i][4] - lhsm_[j][i][k1][3] * rhs[k2][j][i][4];
-                }
-            }
+            
         }
     }
 
