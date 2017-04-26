@@ -48,67 +48,67 @@ __global__ void y_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
 	//part 2
 	if (k <= nz2 && j <= ny2 && i <= nx2)
     {        
-                lhs_(k,i,j,0) = 0.0;
+        lhs_(k,i,j,0) = 0.0;
 
-                ru1 = c3c4*rho_i(k,j - 1,i);
-                rhoq1 = max(max(dy3 + con43*ru1, dy5 + c1c5*ru1), max(dymax + ru1, dy1));
-                lhs_(k,i,j,1) = -dtty2 * vs(k,j - 1,i) - dtty1 * rhoq1;
+        ru1 = c3c4*rho_i(k,j - 1,i);
+        rhoq1 = max(max(dy3 + con43*ru1, dy5 + c1c5*ru1), max(dymax + ru1, dy1));
+        lhs_(k,i,j,1) = -dtty2 * vs(k,j - 1,i) - dtty1 * rhoq1;
 
-                ru1 = c3c4*rho_i(k,j,i);
-                rhoq1 = max(max(dy3 + con43*ru1, dy5 + c1c5*ru1), max(dymax + ru1, dy1));
-                lhs_(k,i,j,2) = 1.0 + c2dtty1 * rhoq1;
+        ru1 = c3c4*rho_i(k,j,i);
+        rhoq1 = max(max(dy3 + con43*ru1, dy5 + c1c5*ru1), max(dymax + ru1, dy1));
+        lhs_(k,i,j,2) = 1.0 + c2dtty1 * rhoq1;
 
-                ru1 = c3c4*rho_i(k,j + 1,i);
-                rhoq1 = max(max(dy3 + con43*ru1, dy5 + c1c5*ru1), max(dymax + ru1, dy1));
-                lhs_(k,i,j,3) = dtty2 * vs(k,j + 1,i) - dtty1 * rhoq1;
-                lhs_(k,i,j,4) = 0.0;
+        ru1 = c3c4*rho_i(k,j + 1,i);
+        rhoq1 = max(max(dy3 + con43*ru1, dy5 + c1c5*ru1), max(dymax + ru1, dy1));
+        lhs_(k,i,j,3) = dtty2 * vs(k,j + 1,i) - dtty1 * rhoq1;
+        lhs_(k,i,j,4) = 0.0;
 
-                if (j == 1)
-                {
-                    lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz5;
-                    lhs_(k,i,j,3) = lhs_(k,i,j,3) - comz4;
-                    lhs_(k,i,j,4) = lhs_(k,i,j,4) + comz1;
-                }
-                else if (j == 2)
-                {
-                    lhs_(k,i,j,1) = lhs_(k,i,j,1) - comz4;
-                    lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz6;
-                    lhs_(k,i,j,3) = lhs_(k,i,j,3) - comz4;
-                    lhs_(k,i,j,4) = lhs_(k,i,j,4) + comz1;
-                }
-                else if (j == ny - 3)
-                {
-                    lhs_(k,i,j,0) = lhs_(k,i,j,0) + comz1;
-                    lhs_(k,i,j,1) = lhs_(k,i,j,1) - comz4;
-                    lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz6;
-                    lhs_(k,i,j,3) = lhs_(k,i,j,3) - comz4;
-                }
-                else if (j == ny - 2)
-                {
-                    lhs_(k,i,j,0) = lhs_(k,i,j,0) + comz1;
-                    lhs_(k,i,j,1) = lhs_(k,i,j,1) - comz4;
-                    lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz5;
-                }
-                else
-                {
-                    lhs_(k,i,j,0) = lhs_(k,i,j,0) + comz1;
-                    lhs_(k,i,j,1) = lhs_(k,i,j,1) - comz4;
-                    lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz6;
-                    lhs_(k,i,j,3) = lhs_(k,i,j,3) - comz4;
-                    lhs_(k,i,j,4) = lhs_(k,i,j,4) + comz1;
-                }
+        if (j == 1)
+        {
+            lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz5;
+            lhs_(k,i,j,3) = lhs_(k,i,j,3) - comz4;
+            lhs_(k,i,j,4) = lhs_(k,i,j,4) + comz1;
+        }
+        else if (j == 2)
+        {
+            lhs_(k,i,j,1) = lhs_(k,i,j,1) - comz4;
+            lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz6;
+            lhs_(k,i,j,3) = lhs_(k,i,j,3) - comz4;
+            lhs_(k,i,j,4) = lhs_(k,i,j,4) + comz1;
+        }
+        else if (j == ny - 3)
+        {
+            lhs_(k,i,j,0) = lhs_(k,i,j,0) + comz1;
+            lhs_(k,i,j,1) = lhs_(k,i,j,1) - comz4;
+            lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz6;
+            lhs_(k,i,j,3) = lhs_(k,i,j,3) - comz4;
+        }
+        else if (j == ny - 2)
+        {
+            lhs_(k,i,j,0) = lhs_(k,i,j,0) + comz1;
+            lhs_(k,i,j,1) = lhs_(k,i,j,1) - comz4;
+            lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz5;
+        }
+        else
+        {
+            lhs_(k,i,j,0) = lhs_(k,i,j,0) + comz1;
+            lhs_(k,i,j,1) = lhs_(k,i,j,1) - comz4;
+            lhs_(k,i,j,2) = lhs_(k,i,j,2) + comz6;
+            lhs_(k,i,j,3) = lhs_(k,i,j,3) - comz4;
+            lhs_(k,i,j,4) = lhs_(k,i,j,4) + comz1;
+        }
 
-                lhsp_(k,i,j,0) = lhs_(k,i,j,0);
-                lhsp_(k,i,j,1) = lhs_(k,i,j,1) - dtty2 * speed(k,j - 1,i);
-                lhsp_(k,i,j,2) = lhs_(k,i,j,2);
-                lhsp_(k,i,j,3) = lhs_(k,i,j,3) + dtty2 * speed(k,j + 1,i);
-                lhsp_(k,i,j,4) = lhs_(k,i,j,4);
+        lhsp_(k,i,j,0) = lhs_(k,i,j,0);
+        lhsp_(k,i,j,1) = lhs_(k,i,j,1) - dtty2 * speed(k,j - 1,i);
+        lhsp_(k,i,j,2) = lhs_(k,i,j,2);
+        lhsp_(k,i,j,3) = lhs_(k,i,j,3) + dtty2 * speed(k,j + 1,i);
+        lhsp_(k,i,j,4) = lhs_(k,i,j,4);
 
-                lhsm_(k,i,j,0) = lhs_(k,i,j,0);
-                lhsm_(k,i,j,1) = lhs_(k,i,j,1) + dtty2 * speed(k,j - 1,i);
-                lhsm_(k,i,j,2) = lhs_(k,i,j,2);
-                lhsm_(k,i,j,3) = lhs_(k,i,j,3) - dtty2 * speed(k,j + 1,i);
-                lhsm_(k,i,j,4) = lhs_(k,i,j,4);
+        lhsm_(k,i,j,0) = lhs_(k,i,j,0);
+        lhsm_(k,i,j,1) = lhs_(k,i,j,1) + dtty2 * speed(k,j - 1,i);
+        lhsm_(k,i,j,2) = lhs_(k,i,j,2);
+        lhsm_(k,i,j,3) = lhs_(k,i,j,3) - dtty2 * speed(k,j + 1,i);
+        lhsm_(k,i,j,4) = lhs_(k,i,j,4);
 	}
 }
 
@@ -308,15 +308,13 @@ void y_solve()
     
     cudaDeviceSynchronize();
     y_solve_kernel_two<<<blocks, threads>>>((double*) lhs_gpu, (double*) lhsp_gpu, (double*) lhsm_gpu, (double*) gpuRhs, (double*) gpuRho_i, (double*) gpuVs, (double*) gpuSpeed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, ny);
-    cudaDeviceSynchronize();
-
+    
+	cudaDeviceSynchronize();
     y_solve_kernel_three<<<blocks2, threads2>>>((double*) lhs_gpu, (double*) lhsp_gpu, (double*) lhsm_gpu, (double*) gpuRhs, (double*) gpuRho_i, (double*) gpuVs, (double*) gpuSpeed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, ny);
-    cudaDeviceSynchronize();
-
+   
+	cudaDeviceSynchronize();
     y_solve_kernel_four<<<blocks2, threads2>>>((double*) lhs_gpu, (double*) lhsp_gpu, (double*) lhsm_gpu, (double*) gpuRhs, (double*) gpuRho_i, (double*) gpuVs, (double*) gpuSpeed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, ny);
    
-
-	
 
     //---------------------------------------------------------------------
     // block-diagonal matrix-vector multiplication                       
