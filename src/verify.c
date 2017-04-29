@@ -13,11 +13,23 @@ void verify(int no_time_steps, logical *verified)
     char Class[0];
     epsilon = 1.0e-08;
 
+	const int size5 = sizeof(double)*P_SIZE*P_SIZE*P_SIZE*5;
+	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE;
     //---------------------------------------------------------------------
     // compute the error norm and the residual norm, and exit if not printing
     //---------------------------------------------------------------------
     error_norm(xce);
     compute_rhs();
+    CudaSafeCall(cudaMemcpy(u, gpuU, size5, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(ws, gpuWs, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(qs, gpuQs, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(square, gpuSquare, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(forcing, gpuForcing, size5, cudaMemcpyDeviceToHost));
+	CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
     rhs_norm(xcr);
 
     for (m = 0; m < 5; m++)

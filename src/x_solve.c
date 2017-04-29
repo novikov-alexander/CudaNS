@@ -289,9 +289,6 @@ void x_solve()
     int i, j, k, i1, i2, m;
     double ru1, rhon1, fac1, fac2;
 
-	const int size5 = sizeof(double)*P_SIZE*P_SIZE*P_SIZE*5;
-	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE;
-
 	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
 	dim3 threads = dim3(32, 4, 1);
 
@@ -326,15 +323,6 @@ void x_solve()
 
 
     if (timeron) timer_stop(t_ninvr);
-
-    
-    CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(lhs_, lhs_gpu, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(lhsp_, lhsp_gpu, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(lhsm_, lhsm_gpu, size5, cudaMemcpyDeviceToHost));
 
     if (timeron) timer_stop(t_xsolve);
 }

@@ -265,22 +265,8 @@ __global__ void compute_rhs_x2y2z2(double* u, double* rhs, double* rho_i, double
 
 void compute_rhs()
 {
-	const int size5 = sizeof(double)*P_SIZE*P_SIZE*P_SIZE*5;
-	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE;
-
 	dim3 blocks = dim3(nx / 32+1, ny / 4+1, nz);
 	dim3 threads = dim3(32, 4, 1);
-
-	CudaSafeCall(cudaMemcpy(gpuU, u, size5, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuRhs, rhs, size5, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuRho_i, rho_i, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuUs, us, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuVs, vs, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuWs, ws, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuQs, qs, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuSquare, square, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuSpeed, speed, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuForcing, forcing, size5, cudaMemcpyHostToDevice));
 
     if (timeron) timer_start(t_rhs);
 
@@ -302,15 +288,4 @@ void compute_rhs()
 
 	if (timeron) timer_stop(t_rhsx);
 	if (timeron) timer_stop(t_rhs);
-
-	CudaSafeCall(cudaMemcpy(u, gpuU, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(ws, gpuWs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(qs, gpuQs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(square, gpuSquare, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(forcing, gpuForcing, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
 }

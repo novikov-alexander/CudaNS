@@ -79,14 +79,6 @@ void xinvr()
 	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
 	dim3 threads = dim3(32, 4, 1);
 
-	CudaSafeCall(cudaMemcpy(gpuRhs, rhs, size5, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuRho_i, rho_i, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuUs, us, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuVs, vs, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuWs, ws, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuQs, qs, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuSpeed, speed, size, cudaMemcpyHostToDevice));
-
     if (timeron) timer_start(t_txinvr);
 
 	xinvr_kernel<<<blocks, threads>>>((double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs, (double*)gpuSpeed, nx2, ny2, nz2, c2, bt);
@@ -99,20 +91,18 @@ void add()
 	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE*5;
 	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
 	dim3 threads = dim3(32, 4, 1);
-	CudaSafeCall(cudaMemcpy(gpuU, u, size, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuRhs, rhs, size, cudaMemcpyHostToDevice));
 
     if (timeron) timer_start(t_add);
 
 	add_kernel<<<blocks, threads>>>((double*)gpuU, (double*)gpuRhs, nx2, ny2, nz2);
 	
 	if (timeron) timer_stop(t_add);
-
-	CudaSafeCall(cudaMemcpy(u, gpuU, size, cudaMemcpyDeviceToHost));
 }
 
 void adi()
 {
+
+	
     compute_rhs(); //+
     xinvr(); //+
     x_solve();
