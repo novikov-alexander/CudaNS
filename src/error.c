@@ -57,7 +57,7 @@ void rhs_norm(double rms[5])
             {
                 for (m = 0; m < 5; m++) 
                 {
-                    add = rhs[m][i][j][k];
+                    add = rhs[k][j][i][m];
                     rms[m] = rms[m] + add*add;
                 }
             }

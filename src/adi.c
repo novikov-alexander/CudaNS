@@ -47,6 +47,7 @@ __global__ void add_kernel(double* u, double* rhs, int nx2, int ny2, int nz2)
 	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
 	if(i <= nx2 && j <= ny2 && k <= nz2)
 	{
+		#pragma unroll 5
 		for (int m=0; m<5; m++)
 		{
 			u(k,j,i,m) += rhs(k,j,i,m);
@@ -60,8 +61,8 @@ __global__ void add_kernel(double* u, double* rhs, int nx2, int ny2, int nz2)
 void xinvr()
 {
 
-	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
-	dim3 threads = dim3(32, 4, 1);
+	dim3 blocks = dim3(nx2, ny2 / 4+1, nz2 / 32 + 1);
+	dim3 threads = dim3(1, 4, 32);
 
     if (timeron) timer_start(t_txinvr);
 

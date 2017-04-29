@@ -145,27 +145,31 @@ __global__ void compute_rhs_x2y2z2(double* u, double* rhs, double* rho_i, double
 
         if (j == 1)
         {
+            #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (5.0*u(k,j,i,m) - 4.0*u(k,j + 1,i,m) + u(k,j + 2,i,m));
         }
         else if (j == 2)
         {
+            #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (-4.0*u(k,j - 1,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j + 1,i,m) + u(k,j + 2,i,m));
         }
         else if (j == ny2 - 1)
-        {
+        {   
+            #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j - 2,i,m) - 4.0*u(k,j - 1,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j + 1,i,m));
         }
         else if (j == ny2)
-        {
+        {   
+            #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j - 2,i,m) - 4.0*u(k,j - 1,i,m) + 5.0*u(k,j,i,m));
         }
         else
         {
-
+            #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j - 2,i,m) - 4.0*u(k,j - 1,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j + 1,i,m) + u(k,j + 2,i,m));
         }

@@ -35,7 +35,7 @@ double (*qs)      [P_SIZE][P_SIZE];
 double (*rho_i)   [P_SIZE][P_SIZE];
 double (*speed)   [P_SIZE][P_SIZE];
 double (*square)  [P_SIZE][P_SIZE];
-double (*rhs)     [P_SIZE][P_SIZE][P_SIZE];
+double (*rhs)     [P_SIZE][P_SIZE][5];
 double (*forcing) [P_SIZE][P_SIZE][5];
 
 double (*gpuU)    [P_SIZE][P_SIZE][5];
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     print_results(niter, tmax, verified, t_names);
     
     result = deallocateArrays();
-     if (result == 0)
+    if (result == 0)
         return -2;
     return 0;
 }
