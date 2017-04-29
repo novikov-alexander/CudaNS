@@ -81,13 +81,9 @@ extern double (*gpuSquare)  [P_SIZE][P_SIZE];
 extern double (*gpuRhs)  	[P_SIZE][P_SIZE][5];
 extern double (*gpuForcing) [P_SIZE][P_SIZE][5];
 
-extern double (*lhs_) [P_SIZE][P_SIZE][5];
-extern double (*lhsp_)[P_SIZE][P_SIZE][5];
-extern double (*lhsm_)[P_SIZE][P_SIZE][5];
-
-extern double (*lhs_gpu)[P_SIZE][P_SIZE][5];
-extern double (*lhsp_gpu)[P_SIZE][P_SIZE][5];
-extern double (*lhsm_gpu)[P_SIZE][P_SIZE][5];
+extern double (*lhs_gpu)[P_SIZE][P_SIZE][P_SIZE];
+extern double (*lhsp_gpu)[P_SIZE][P_SIZE][P_SIZE];
+extern double (*lhsm_gpu)[P_SIZE][P_SIZE][P_SIZE];
 
 //-----------------------------------------------------------------------
 //initialize functions
@@ -122,3 +118,16 @@ void timer_stop( int n );
 double timer_read( int n );
 void wtime( double *);
 
+#define lhs_(x,y,z,m) lhs_[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+#define lhsm_(x,y,z,m) lhsm_[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+#define lhsp_(x,y,z,m) lhsp_[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+#define rhs(x,y,z,m) rhs[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define rho_i(x,y,z) rho_i[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define us(x,y,z) us[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define ws(x,y,z) ws[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define vs(x,y,z) vs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define qs(x,y,z) qs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define speed(x,y,z) speed[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define u(x,y,z,m) u[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define forcing(x,y,z,m) forcing[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define square(x,y,z) square[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]

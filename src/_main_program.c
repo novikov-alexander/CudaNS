@@ -49,14 +49,9 @@ double (*gpuSquare)  [P_SIZE][P_SIZE];
 double (*gpuRhs)  [P_SIZE][P_SIZE][5];
 double (*gpuForcing) [P_SIZE][P_SIZE][5];
 
-/* tmp arrays lhs */
-double (*lhs_) [P_SIZE][P_SIZE][5];
-double (*lhsp_)[P_SIZE][P_SIZE][5];
-double (*lhsm_)[P_SIZE][P_SIZE][5];
-
-double (*lhs_gpu) [P_SIZE][P_SIZE][5];
-double (*lhsp_gpu)[P_SIZE][P_SIZE][5];
-double (*lhsm_gpu)[P_SIZE][P_SIZE][5];
+double (*lhs_gpu) [P_SIZE][P_SIZE][P_SIZE];
+double (*lhsp_gpu)[P_SIZE][P_SIZE][P_SIZE];
+double (*lhsm_gpu)[P_SIZE][P_SIZE][P_SIZE];
 
 int main(int argc, char *argv[])
 {

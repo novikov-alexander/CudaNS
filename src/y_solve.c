@@ -7,13 +7,6 @@
 // systems for the y-lines. Boundary conditions are non-periodic
 //---------------------------------------------------------------------
 
-#define lhs_(x,y,z,m) lhs_[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
-#define lhsm_(x,y,z,m) lhsm_[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
-#define lhsp_(x,y,z,m) lhsp_[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
-#define rhs(x,y,z,m) rhs[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
-#define rho_i(x,y,z) rho_i[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define vs(x,y,z) vs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define speed(x,y,z) speed[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 __global__ void y_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, int nx2, int ny2, int nz2)
 {
 	int m;
@@ -278,13 +271,7 @@ __global__ void y_solve_inversion(double* rhs, double bt, int nx2, int ny2, int 
     }
 }
 
-#undef lhs_
-#undef lhsp_
-#undef lhsm_
-#undef rhs
-#undef rho_i
-#undef us
-#undef speed
+
 
 
 void y_solve()

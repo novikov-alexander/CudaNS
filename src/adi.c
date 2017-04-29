@@ -4,14 +4,6 @@
 // block-diagonal matrix-vector multiplication                  
 //---------------------------------------------------------------------
 
-#define u(x,y,z,m) u[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
-#define rhs(x,y,z,m) rhs[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
-#define rho_i(x,y,z) rho_i[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define us(x,y,z) us[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define vs(x,y,z) vs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define ws(x,y,z) ws[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define qs(x,y,z) qs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define speed(x,y,z) speed[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 
 __global__ void xinvr_kernel(double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* speed, int nx2, int ny2, int nz2, double c2, double bt)
 {
@@ -62,20 +54,12 @@ __global__ void add_kernel(double* u, double* rhs, int nx2, int ny2, int nz2)
 		
 	}
 }
-#undef u
-#undef rhs
-#undef rho_i
-#undef us
-#undef vs
-#undef ws
-#undef qs
-#undef speed
+
 
 
 void xinvr()
 {
-	const int size5 = sizeof(double)*P_SIZE*P_SIZE*P_SIZE*5;
-	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE;
+
 	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
 	dim3 threads = dim3(32, 4, 1);
 

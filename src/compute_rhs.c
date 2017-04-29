@@ -1,17 +1,6 @@
 #include <math.h>
 #include "header.h"
 
-#define u(x,y,z,m) u[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
-#define rhs(x,y,z,m) rhs[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
-#define forcing(x,y,z,m) forcing[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
-#define rho_i(x,y,z) rho_i[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define us(x,y,z) us[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define vs(x,y,z) vs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define ws(x,y,z) ws[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define qs(x,y,z) qs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define square(x,y,z) square[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define speed(x,y,z) speed[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-
 __global__ void compute_rhs_xyz(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx, int ny, int nz, double c1c2)
 {
 	int m;
@@ -251,17 +240,6 @@ __global__ void compute_rhs_x2y2z2(double* u, double* rhs, double* rho_i, double
             rhs(k,j,i,m) = rhs(k,j,i,m) * dt;
 	}
 }
-#undef u
-#undef rhs
-#undef forcing
-#undef rho_i
-#undef us
-#undef vs
-#undef ws
-#undef qs
-#undef square
-#undef speed
-
 
 void compute_rhs()
 {
