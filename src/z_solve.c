@@ -293,8 +293,8 @@ void z_solve()
 	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
 	dim3 threads = dim3(32, 4, 1);
 
-    dim3 blocks2 = dim3(nx2 / 4+1, ny2);
-	dim3 threads2 = dim3(4, 1);
+    dim3 blocks2 = dim3(nx2 / 4 + 1, ny2 / 32 + 1);
+	dim3 threads2 = dim3(4, 32);
 
     if (timeron) timer_start(t_zsolve);
 

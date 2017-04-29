@@ -22,6 +22,8 @@ __global__ void compute_rhs_xyz(double* u, double* rhs, double* rho_i, double* u
 		aux = c1c2*rho_inv* (u(k,j,i,4) - square(k,j,i));
 		speed(k,j,i) = sqrt(aux);
 
+
+        #pragma unroll 5
 		for (m = 0; m < 5; m++)
 		    rhs(k,j,i,m) = forcing(k,j,i,m);
 	}
@@ -251,8 +253,8 @@ void compute_rhs()
 	compute_rhs_xyz<<<blocks, threads>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
 										 (double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, nx, ny, nz, c1c2);
 	
-	blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
-	threads = dim3(32, 4, 1);
+	blocks = dim3(nx2, ny2 / 4+1, nz2 / 32 + 1);
+	threads = dim3(1, 4, 32);
 
     cudaDeviceSynchronize();
     if (timeron) timer_start(t_rhsx);

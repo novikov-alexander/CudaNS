@@ -18,6 +18,7 @@ __global__ void x_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, i
 	//part 1
 	if (k <= nz2 && j <= ny2)
     {        
+        #pragma unroll 5
         for (m = 0; m < 5; m++)
         {
             lhs_(k,j,0,m) = lhs_(k,j,nx2 + 1,m) = 0.0;
@@ -276,8 +277,8 @@ void x_solve()
 	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
 	dim3 threads = dim3(32, 4, 1);
 
-    dim3 blocks2 = dim3(ny2 / 4+1, nz2);
-	dim3 threads2 = dim3(4, 1);
+    dim3 blocks2 = dim3(ny2 / 4 + 1, nz2 / 32 + 1);
+	dim3 threads2 = dim3(4, 32);
 
 
     if (timeron) timer_start(t_xsolve);
