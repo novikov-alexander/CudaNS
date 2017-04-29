@@ -35,7 +35,7 @@ double (*qs)      [P_SIZE][P_SIZE];
 double (*rho_i)   [P_SIZE][P_SIZE];
 double (*speed)   [P_SIZE][P_SIZE];
 double (*square)  [P_SIZE][P_SIZE];
-double (*rhs)     [P_SIZE][P_SIZE][5];
+double (*rhs)     [P_SIZE][P_SIZE][P_SIZE];
 double (*forcing) [P_SIZE][P_SIZE][5];
 
 double (*gpuU)    [P_SIZE][P_SIZE][5];
@@ -46,7 +46,7 @@ double (*gpuQs)      [P_SIZE][P_SIZE];
 double (*gpuRho_i)   [P_SIZE][P_SIZE];
 double (*gpuSpeed)   [P_SIZE][P_SIZE];
 double (*gpuSquare)  [P_SIZE][P_SIZE];
-double (*gpuRhs)  [P_SIZE][P_SIZE][5];
+double (*gpuRhs)  [P_SIZE][P_SIZE][P_SIZE];
 double (*gpuForcing) [P_SIZE][P_SIZE][5];
 
 double (*lhs_gpu) [P_SIZE][P_SIZE][P_SIZE];
@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
 	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE;
 
 	CudaSafeCall(cudaMemcpy(gpuU, u, size5, cudaMemcpyHostToDevice));
-	CudaSafeCall(cudaMemcpy(gpuRhs, rhs, size5, cudaMemcpyHostToDevice));
 	CudaSafeCall(cudaMemcpy(gpuRho_i, rho_i, size, cudaMemcpyHostToDevice));
 	CudaSafeCall(cudaMemcpy(gpuUs, us, size, cudaMemcpyHostToDevice));
 	CudaSafeCall(cudaMemcpy(gpuVs, vs, size, cudaMemcpyHostToDevice));
