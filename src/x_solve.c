@@ -217,6 +217,7 @@ __global__ void x_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
                 rhs(k,j,i2,3) = rhs(k,j,i2,3) / lhsp_(k,j,i2,2);
                 rhs(k,j,i2,4) = rhs(k,j,i2,4) / lhsm_(k,j,i2,2);
 
+                #pragma unroll 3
                 for (m = 0; m < 3; m++)
                     rhs(k,j,i1,m) = rhs(k,j,i1,m) - lhs_(k,j,i1,3) * rhs(k,j,i2,m);
 

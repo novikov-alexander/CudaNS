@@ -92,6 +92,8 @@ int main(int argc, char *argv[])
 	CudaSafeCall(cudaMemcpy(gpuSpeed, speed, size, cudaMemcpyHostToDevice));
 	CudaSafeCall(cudaMemcpy(gpuForcing, forcing, size5, cudaMemcpyHostToDevice));
 
+    cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
+    
     // main loop
     timer_start(t_total);
     for (step = 1; step <= niter; step++) 
