@@ -23,7 +23,7 @@ void error_norm(double rms[5])
                 
                 for (m = 0; m < 5; m++) 
                 {
-                    add = u[k][j][i][m] - u_exact[m];
+                    add = u[m][k][j][i] - u_exact[m];
                     rms[m] = rms[m] + add*add;
                 }
             }
