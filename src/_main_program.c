@@ -35,7 +35,7 @@ double (*qs)      [P_SIZE][P_SIZE];
 double (*rho_i)   [P_SIZE][P_SIZE];
 double (*speed)   [P_SIZE][P_SIZE];
 double (*square)  [P_SIZE][P_SIZE];
-double (*rhs)     [P_SIZE][P_SIZE][5];
+double (*rhs)     [P_SIZE][P_SIZE][P_SIZE];
 double (*forcing) [P_SIZE][P_SIZE][5];
 
 double (*gpuU)    [P_SIZE][P_SIZE][5];

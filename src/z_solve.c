@@ -308,7 +308,7 @@ __global__ void z_solve_transpose(double *dst, double *src, int nx2, int ny2, in
 }
 
 #undef src
-#define src(x,y,z,m) src[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define src(x,y,z,m) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 __global__ void z_solve_inv_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
 	int m;
 
