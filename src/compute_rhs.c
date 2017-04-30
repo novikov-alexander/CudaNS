@@ -36,16 +36,17 @@ __global__ void compute_rhs_xyz(double* u, double* rhs, double* rho_i, double* u
 	}
 }
 
-__global__ void compute_rhs_x2y2z2_2(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx2, int ny2, int nz2, double dx1tx1, double tx2, double dx2tx1, double con43, double c2, double dx3tx1, double xxcon2, double dx4tx1, double dx5tx1, double xxcon3, double xxcon4, double xxcon5, double dssp, double c1, double dy1ty1, double ty2, double dy2ty1, double yycon2, double dy3ty1, double dy4ty1, double dy5ty1, double yycon3, double yycon4, double yycon5, double dz1tz1, double tz2, double zzcon2, double zzcon3, double zzcon4, double zzcon5, double dz2tz1, double dz3tz1, double dz4tz1, double dz5tz1, double dt)
+__global__ void compute_rhs_x2y2z2_2_1(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx2, int ny2, int nz2, double dx1tx1, double tx2, double dx2tx1, double con43, double c2, double dx3tx1, double xxcon2, double dx4tx1, double dx5tx1, double xxcon3, double xxcon4, double xxcon5, double dssp, double c1, double dy1ty1, double ty2, double dy2ty1, double yycon2, double dy3ty1, double dy4ty1, double dy5ty1, double yycon3, double yycon4, double yycon5, double dz1tz1, double tz2, double zzcon2, double zzcon3, double zzcon4, double zzcon5, double dz2tz1, double dz3tz1, double dz4tz1, double dz5tz1, double dt)
 {
 	int m;
 	double rho_inv, aux, uijk, up1, um1, vijk, vp1, vm1, wijk, wm1, wp1;
 
-	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
-	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
+    int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int i = 1;
 
-	if(i <= nx2 && j <= ny2 && k <= nz2) 
+
+	if(j <= ny2 && k <= nz2) 
 	{
         //second part
         uijk = us(k,j,i);
@@ -83,36 +84,222 @@ __global__ void compute_rhs_x2y2z2_2(double* u, double* rhs, double* rho_i, doub
             tx2 * ((c1*u(k,j,i + 1,4) - c2*square(k,j,i + 1))*up1 -
             (c1*u(k,j,i - 1,4) - c2*square(k,j,i - 1))*um1);
 
-        if (i == 1)
-        {
             #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (5.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m) + u(k,j,i + 2,m));
-        }
-        else if (i == 2)
-        {
+	}
+}
+
+__global__ void compute_rhs_x2y2z2_2_2(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx2, int ny2, int nz2, double dx1tx1, double tx2, double dx2tx1, double con43, double c2, double dx3tx1, double xxcon2, double dx4tx1, double dx5tx1, double xxcon3, double xxcon4, double xxcon5, double dssp, double c1, double dy1ty1, double ty2, double dy2ty1, double yycon2, double dy3ty1, double dy4ty1, double dy5ty1, double yycon3, double yycon4, double yycon5, double dz1tz1, double tz2, double zzcon2, double zzcon3, double zzcon4, double zzcon5, double dz2tz1, double dz3tz1, double dz4tz1, double dz5tz1, double dt)
+{
+	int m;
+	double rho_inv, aux, uijk, up1, um1, vijk, vp1, vm1, wijk, wm1, wp1;
+	
+    int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int i = 2;
+
+
+	if(j <= ny2 && k <= nz2) 
+	{
+        //second part
+        uijk = us(k,j,i);
+        up1 = us(k,j,i + 1);
+        um1 = us(k,j,i - 1);
+
+        rhs(k,j,i,0) = rhs(k,j,i,0) + dx1tx1 *
+            (u(k,j,i + 1,0) - 2.0*u(k,j,i,0) + u(k,j,i - 1,0)) -
+            tx2 * (u(k,j,i + 1,1) - u(k,j,i - 1,1));
+
+        rhs(k,j,i,1) = rhs(k,j,i,1) + dx2tx1 *
+            (u(k,j,i + 1,1) - 2.0*u(k,j,i,1) + u(k,j,i - 1,1)) +
+            xxcon2*con43 * (up1 - 2.0*uijk + um1) -
+            tx2 * (u(k,j,i + 1,1) * up1 - u(k,j,i - 1,1) * um1 +
+            (u(k,j,i + 1,4) - square(k,j,i + 1) -
+            u(k,j,i - 1,4) + square(k,j,i - 1)) * c2);
+
+        rhs(k,j,i,2) = rhs(k,j,i,2) + dx3tx1 *
+            (u(k,j,i + 1,2) - 2.0*u(k,j,i,2) + u(k,j,i - 1,2)) +
+            xxcon2 * (vs(k,j,i + 1) - 2.0*vs(k,j,i) + vs(k,j,i - 1)) -
+            tx2 * (u(k,j,i + 1,2) * up1 - u(k,j,i - 1,2) * um1);
+
+        rhs(k,j,i,3) = rhs(k,j,i,3) + dx4tx1 *
+            (u(k,j,i + 1,3) - 2.0*u(k,j,i,3) + u(k,j,i - 1,3)) +
+            xxcon2 * (ws(k,j,i + 1) - 2.0*ws(k,j,i) + ws(k,j,i - 1)) -
+            tx2 * (u(k,j,i + 1,3) * up1 - u(k,j,i - 1,3) * um1);
+
+        rhs(k,j,i,4) = rhs(k,j,i,4) + dx5tx1 *
+            (u(k,j,i + 1,4) - 2.0*u(k,j,i,4) + u(k,j,i - 1,4)) +
+            xxcon3 * (qs(k,j,i + 1) - 2.0*qs(k,j,i) + qs(k,j,i - 1)) +
+            xxcon4 * (up1*up1 - 2.0*uijk*uijk + um1*um1) +
+            xxcon5 * (u(k,j,i + 1,4) * rho_i(k,j,i + 1) -
+            2.0*u(k,j,i,4) * rho_i(k,j,i) +
+            u(k,j,i - 1,4) * rho_i(k,j,i - 1)) -
+            tx2 * ((c1*u(k,j,i + 1,4) - c2*square(k,j,i + 1))*up1 -
+            (c1*u(k,j,i - 1,4) - c2*square(k,j,i - 1))*um1);
+
             #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (-4.0*u(k,j,i - 1,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m) + u(k,j,i + 2,m));
-        }
-        else if (i == nx2 - 1)
-        {
+	}
+}
+
+__global__ void compute_rhs_x2y2z2_2_nx2_1(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx2, int ny2, int nz2, double dx1tx1, double tx2, double dx2tx1, double con43, double c2, double dx3tx1, double xxcon2, double dx4tx1, double dx5tx1, double xxcon3, double xxcon4, double xxcon5, double dssp, double c1, double dy1ty1, double ty2, double dy2ty1, double yycon2, double dy3ty1, double dy4ty1, double dy5ty1, double yycon3, double yycon4, double yycon5, double dz1tz1, double tz2, double zzcon2, double zzcon3, double zzcon4, double zzcon5, double dz2tz1, double dz3tz1, double dz4tz1, double dz5tz1, double dt)
+{
+	int m;
+	double rho_inv, aux, uijk, up1, um1, vijk, vp1, vm1, wijk, wm1, wp1;
+	
+    int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int i = nx2-1;
+
+	if(j <= ny2 && k <= nz2) 
+	{
+        //second part
+        uijk = us(k,j,i);
+        up1 = us(k,j,i + 1);
+        um1 = us(k,j,i - 1);
+
+        rhs(k,j,i,0) = rhs(k,j,i,0) + dx1tx1 *
+            (u(k,j,i + 1,0) - 2.0*u(k,j,i,0) + u(k,j,i - 1,0)) -
+            tx2 * (u(k,j,i + 1,1) - u(k,j,i - 1,1));
+
+        rhs(k,j,i,1) = rhs(k,j,i,1) + dx2tx1 *
+            (u(k,j,i + 1,1) - 2.0*u(k,j,i,1) + u(k,j,i - 1,1)) +
+            xxcon2*con43 * (up1 - 2.0*uijk + um1) -
+            tx2 * (u(k,j,i + 1,1) * up1 - u(k,j,i - 1,1) * um1 +
+            (u(k,j,i + 1,4) - square(k,j,i + 1) -
+            u(k,j,i - 1,4) + square(k,j,i - 1)) * c2);
+
+        rhs(k,j,i,2) = rhs(k,j,i,2) + dx3tx1 *
+            (u(k,j,i + 1,2) - 2.0*u(k,j,i,2) + u(k,j,i - 1,2)) +
+            xxcon2 * (vs(k,j,i + 1) - 2.0*vs(k,j,i) + vs(k,j,i - 1)) -
+            tx2 * (u(k,j,i + 1,2) * up1 - u(k,j,i - 1,2) * um1);
+
+        rhs(k,j,i,3) = rhs(k,j,i,3) + dx4tx1 *
+            (u(k,j,i + 1,3) - 2.0*u(k,j,i,3) + u(k,j,i - 1,3)) +
+            xxcon2 * (ws(k,j,i + 1) - 2.0*ws(k,j,i) + ws(k,j,i - 1)) -
+            tx2 * (u(k,j,i + 1,3) * up1 - u(k,j,i - 1,3) * um1);
+
+        rhs(k,j,i,4) = rhs(k,j,i,4) + dx5tx1 *
+            (u(k,j,i + 1,4) - 2.0*u(k,j,i,4) + u(k,j,i - 1,4)) +
+            xxcon3 * (qs(k,j,i + 1) - 2.0*qs(k,j,i) + qs(k,j,i - 1)) +
+            xxcon4 * (up1*up1 - 2.0*uijk*uijk + um1*um1) +
+            xxcon5 * (u(k,j,i + 1,4) * rho_i(k,j,i + 1) -
+            2.0*u(k,j,i,4) * rho_i(k,j,i) +
+            u(k,j,i - 1,4) * rho_i(k,j,i - 1)) -
+            tx2 * ((c1*u(k,j,i + 1,4) - c2*square(k,j,i + 1))*up1 -
+            (c1*u(k,j,i - 1,4) - c2*square(k,j,i - 1))*um1);
+
             #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j,i - 2,m) - 4.0*u(k,j,i - 1,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m));
-        }
-        else if (i == nx2)
-        {
+    	}
+}
+
+__global__ void compute_rhs_x2y2z2_2_nx2(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx2, int ny2, int nz2, double dx1tx1, double tx2, double dx2tx1, double con43, double c2, double dx3tx1, double xxcon2, double dx4tx1, double dx5tx1, double xxcon3, double xxcon4, double xxcon5, double dssp, double c1, double dy1ty1, double ty2, double dy2ty1, double yycon2, double dy3ty1, double dy4ty1, double dy5ty1, double yycon3, double yycon4, double yycon5, double dz1tz1, double tz2, double zzcon2, double zzcon3, double zzcon4, double zzcon5, double dz2tz1, double dz3tz1, double dz4tz1, double dz5tz1, double dt)
+{
+	int m;
+	double rho_inv, aux, uijk, up1, um1, vijk, vp1, vm1, wijk, wm1, wp1;
+	
+    int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int i =  nx2;
+
+	if(j <= ny2 && k <= nz2) 
+	{
+        //second part
+        uijk = us(k,j,i);
+        up1 = us(k,j,i + 1);
+        um1 = us(k,j,i - 1);
+
+        rhs(k,j,i,0) = rhs(k,j,i,0) + dx1tx1 *
+            (u(k,j,i + 1,0) - 2.0*u(k,j,i,0) + u(k,j,i - 1,0)) -
+            tx2 * (u(k,j,i + 1,1) - u(k,j,i - 1,1));
+
+        rhs(k,j,i,1) = rhs(k,j,i,1) + dx2tx1 *
+            (u(k,j,i + 1,1) - 2.0*u(k,j,i,1) + u(k,j,i - 1,1)) +
+            xxcon2*con43 * (up1 - 2.0*uijk + um1) -
+            tx2 * (u(k,j,i + 1,1) * up1 - u(k,j,i - 1,1) * um1 +
+            (u(k,j,i + 1,4) - square(k,j,i + 1) -
+            u(k,j,i - 1,4) + square(k,j,i - 1)) * c2);
+
+        rhs(k,j,i,2) = rhs(k,j,i,2) + dx3tx1 *
+            (u(k,j,i + 1,2) - 2.0*u(k,j,i,2) + u(k,j,i - 1,2)) +
+            xxcon2 * (vs(k,j,i + 1) - 2.0*vs(k,j,i) + vs(k,j,i - 1)) -
+            tx2 * (u(k,j,i + 1,2) * up1 - u(k,j,i - 1,2) * um1);
+
+        rhs(k,j,i,3) = rhs(k,j,i,3) + dx4tx1 *
+            (u(k,j,i + 1,3) - 2.0*u(k,j,i,3) + u(k,j,i - 1,3)) +
+            xxcon2 * (ws(k,j,i + 1) - 2.0*ws(k,j,i) + ws(k,j,i - 1)) -
+            tx2 * (u(k,j,i + 1,3) * up1 - u(k,j,i - 1,3) * um1);
+
+        rhs(k,j,i,4) = rhs(k,j,i,4) + dx5tx1 *
+            (u(k,j,i + 1,4) - 2.0*u(k,j,i,4) + u(k,j,i - 1,4)) +
+            xxcon3 * (qs(k,j,i + 1) - 2.0*qs(k,j,i) + qs(k,j,i - 1)) +
+            xxcon4 * (up1*up1 - 2.0*uijk*uijk + um1*um1) +
+            xxcon5 * (u(k,j,i + 1,4) * rho_i(k,j,i + 1) -
+            2.0*u(k,j,i,4) * rho_i(k,j,i) +
+            u(k,j,i - 1,4) * rho_i(k,j,i - 1)) -
+            tx2 * ((c1*u(k,j,i + 1,4) - c2*square(k,j,i + 1))*up1 -
+            (c1*u(k,j,i - 1,4) - c2*square(k,j,i - 1))*um1);
+
             #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j,i - 2,m) - 4.0*u(k,j,i - 1,m) + 5.0*u(k,j,i,m));
-        }
-        else
-        {
-            #pragma unroll 5
-            for (m = 0; m < 5; m++)
-                rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j,i - 2,m) - 4.0*u(k,j,i - 1,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m) + u(k,j,i + 2,m));
-        }
+    }
+}
+
+__global__ void compute_rhs_x2y2z2_2(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx2, int ny2, int nz2, double dx1tx1, double tx2, double dx2tx1, double con43, double c2, double dx3tx1, double xxcon2, double dx4tx1, double dx5tx1, double xxcon3, double xxcon4, double xxcon5, double dssp, double c1, double dy1ty1, double ty2, double dy2ty1, double yycon2, double dy3ty1, double dy4ty1, double dy5ty1, double yycon3, double yycon4, double yycon5, double dz1tz1, double tz2, double zzcon2, double zzcon3, double zzcon4, double zzcon5, double dz2tz1, double dz3tz1, double dz4tz1, double dz5tz1, double dt)
+{
+	int m;
+	double rho_inv, aux, uijk, up1, um1, vijk, vp1, vm1, wijk, wm1, wp1;
+
+	int i = threadIdx.x + blockIdx.x * blockDim.x + 3;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
+
+	if((i <= nx2 - 2) && j <= ny2 && k <= nz2) 
+	{
+        //second part
+        uijk = us(k,j,i);
+        up1 = us(k,j,i + 1);
+        um1 = us(k,j,i - 1);
+
+        rhs(k,j,i,0) = rhs(k,j,i,0) + dx1tx1 *
+            (u(k,j,i + 1,0) - 2.0*u(k,j,i,0) + u(k,j,i - 1,0)) -
+            tx2 * (u(k,j,i + 1,1) - u(k,j,i - 1,1));
+
+        rhs(k,j,i,1) = rhs(k,j,i,1) + dx2tx1 *
+            (u(k,j,i + 1,1) - 2.0*u(k,j,i,1) + u(k,j,i - 1,1)) +
+            xxcon2*con43 * (up1 - 2.0*uijk + um1) -
+            tx2 * (u(k,j,i + 1,1) * up1 - u(k,j,i - 1,1) * um1 +
+            (u(k,j,i + 1,4) - square(k,j,i + 1) -
+            u(k,j,i - 1,4) + square(k,j,i - 1)) * c2);
+
+        rhs(k,j,i,2) = rhs(k,j,i,2) + dx3tx1 *
+            (u(k,j,i + 1,2) - 2.0*u(k,j,i,2) + u(k,j,i - 1,2)) +
+            xxcon2 * (vs(k,j,i + 1) - 2.0*vs(k,j,i) + vs(k,j,i - 1)) -
+            tx2 * (u(k,j,i + 1,2) * up1 - u(k,j,i - 1,2) * um1);
+
+        rhs(k,j,i,3) = rhs(k,j,i,3) + dx4tx1 *
+            (u(k,j,i + 1,3) - 2.0*u(k,j,i,3) + u(k,j,i - 1,3)) +
+            xxcon2 * (ws(k,j,i + 1) - 2.0*ws(k,j,i) + ws(k,j,i - 1)) -
+            tx2 * (u(k,j,i + 1,3) * up1 - u(k,j,i - 1,3) * um1);
+
+        rhs(k,j,i,4) = rhs(k,j,i,4) + dx5tx1 *
+            (u(k,j,i + 1,4) - 2.0*u(k,j,i,4) + u(k,j,i - 1,4)) +
+            xxcon3 * (qs(k,j,i + 1) - 2.0*qs(k,j,i) + qs(k,j,i - 1)) +
+            xxcon4 * (up1*up1 - 2.0*uijk*uijk + um1*um1) +
+            xxcon5 * (u(k,j,i + 1,4) * rho_i(k,j,i + 1) -
+            2.0*u(k,j,i,4) * rho_i(k,j,i) +
+            u(k,j,i - 1,4) * rho_i(k,j,i - 1)) -
+            tx2 * ((c1*u(k,j,i + 1,4) - c2*square(k,j,i + 1))*up1 -
+            (c1*u(k,j,i - 1,4) - c2*square(k,j,i - 1))*um1);
+
+        #pragma unroll 5
+        for (m = 0; m < 5; m++)
+            rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j,i - 2,m) - 4.0*u(k,j,i - 1,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m) + u(k,j,i + 2,m));
 	}
 }
 
@@ -332,6 +519,9 @@ void compute_rhs()
 	dim3 blocks = dim3(nx / 32 +1, ny / 8+1, nz);
 	dim3 threads = dim3(32, 8, 1);
 
+    dim3 blocks2 = dim3(ny / 32 +1, nz / 8+1);
+	dim3 threads2 = dim3(32, 8);
+
     if (timeron) timer_start(t_rhs);
 
 	compute_rhs_xyz<<<blocks, threads>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
@@ -341,6 +531,26 @@ void compute_rhs()
 
     if (timeron) timer_start(t_rhsx);
 	compute_rhs_x2y2z2_2<<<blocks, threads>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
+									 	(double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, 
+									 	 nx2, ny2, nz2, dx1tx1, tx2, dx2tx1, con43, c2, dx3tx1, xxcon2, dx4tx1, dx5tx1, xxcon3, xxcon4, xxcon5, dssp, c1, 
+										 dy1ty1, ty2, dy2ty1, yycon2, dy3ty1, dy4ty1, dy5ty1, yycon3, yycon4, yycon5, 
+										 dz1tz1, tz2, zzcon2, zzcon3, zzcon4, zzcon5, dz2tz1, dz3tz1, dz4tz1, dz5tz1, dt);
+	compute_rhs_x2y2z2_2_1<<<blocks2, threads2>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
+									 	(double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, 
+									 	 nx2, ny2, nz2, dx1tx1, tx2, dx2tx1, con43, c2, dx3tx1, xxcon2, dx4tx1, dx5tx1, xxcon3, xxcon4, xxcon5, dssp, c1, 
+										 dy1ty1, ty2, dy2ty1, yycon2, dy3ty1, dy4ty1, dy5ty1, yycon3, yycon4, yycon5, 
+										 dz1tz1, tz2, zzcon2, zzcon3, zzcon4, zzcon5, dz2tz1, dz3tz1, dz4tz1, dz5tz1, dt);
+	compute_rhs_x2y2z2_2_2<<<blocks2, threads2>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
+									 	(double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, 
+									 	 nx2, ny2, nz2, dx1tx1, tx2, dx2tx1, con43, c2, dx3tx1, xxcon2, dx4tx1, dx5tx1, xxcon3, xxcon4, xxcon5, dssp, c1, 
+										 dy1ty1, ty2, dy2ty1, yycon2, dy3ty1, dy4ty1, dy5ty1, yycon3, yycon4, yycon5, 
+										 dz1tz1, tz2, zzcon2, zzcon3, zzcon4, zzcon5, dz2tz1, dz3tz1, dz4tz1, dz5tz1, dt);
+	compute_rhs_x2y2z2_2_nx2_1<<<blocks2, threads2>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
+									 	(double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, 
+									 	 nx2, ny2, nz2, dx1tx1, tx2, dx2tx1, con43, c2, dx3tx1, xxcon2, dx4tx1, dx5tx1, xxcon3, xxcon4, xxcon5, dssp, c1, 
+										 dy1ty1, ty2, dy2ty1, yycon2, dy3ty1, dy4ty1, dy5ty1, yycon3, yycon4, yycon5, 
+										 dz1tz1, tz2, zzcon2, zzcon3, zzcon4, zzcon5, dz2tz1, dz3tz1, dz4tz1, dz5tz1, dt);
+	compute_rhs_x2y2z2_2_nx2<<<blocks2, threads2>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
 									 	(double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, 
 									 	 nx2, ny2, nz2, dx1tx1, tx2, dx2tx1, con43, c2, dx3tx1, xxcon2, dx4tx1, dx5tx1, xxcon3, xxcon4, xxcon5, dssp, c1, 
 										 dy1ty1, ty2, dy2ty1, yycon2, dy3ty1, dy4ty1, dy5ty1, yycon3, yycon4, yycon5, 
