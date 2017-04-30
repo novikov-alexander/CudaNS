@@ -479,8 +479,8 @@ void x_solve()
     int i, j, k, i1, i2, m;
     double ru1, rhon1, fac1, fac2;
 
-	dim3 blocks = dim3(nx2 / 8+1, ny2 / 8+1, nz2);
-	dim3 threads = dim3(8, 8, 1);
+	dim3 blocks = dim3(nx2 / 32+1, ny2, nz2);
+	dim3 threads = dim3(32, 1, 1);
 
     dim3 blocks2 = dim3(ny2 / 32 + 1, nz2 / 8 + 1);
 	dim3 threads2 = dim3(32, 8);

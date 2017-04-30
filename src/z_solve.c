@@ -530,8 +530,8 @@ void z_solve()
     const int size5 = sizeof(double)*P_SIZE*P_SIZE*P_SIZE*5;
 	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE;
 
-	dim3 blocks = dim3(nx2 / 8+1, ny2 / 8+1, nz2);
-	dim3 threads = dim3(8, 8, 1);
+	dim3 blocks = dim3(nx2 / 32 + 1, ny2, nz2);
+	dim3 threads = dim3(32, 1, 1);
 
     dim3 blocks2 = dim3(nx2 / 32 + 1, ny2 / 8 + 1);
 	dim3 threads2 = dim3(32, 8);

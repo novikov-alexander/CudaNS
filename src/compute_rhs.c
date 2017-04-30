@@ -199,8 +199,6 @@ __global__ void compute_rhs_x2y2z2_3(double* u, double* rhs, double* rho_i, doub
 	}
 }
 
-/*#undef u
-#define u(x,y,z,m) u[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]*/
 
 __global__ void compute_rhs_x2y2z2_4(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx2, int ny2, int nz2, double dx1tx1, double tx2, double dx2tx1, double con43, double c2, double dx3tx1, double xxcon2, double dx4tx1, double dx5tx1, double xxcon3, double xxcon4, double xxcon5, double dssp, double c1, double dy1ty1, double ty2, double dy2ty1, double yycon2, double dy3ty1, double dy4ty1, double dy5ty1, double yycon3, double yycon4, double yycon5, double dz1tz1, double tz2, double zzcon2, double zzcon3, double zzcon4, double zzcon5, double dz2tz1, double dz3tz1, double dz4tz1, double dz5tz1, double dt)
 {
