@@ -54,15 +54,15 @@ __global__ void x_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
     {        
         lhs_(k,j,i,0) = 0.0;
         ru1 = c3c4*rho_i(k,j,i - 1);
-        rhon1 = max(max(dx2 + con43 * ru1, dx5 + c1c5 * ru1), max(dxmax + ru1, dx1));
+        rhon1 = fmax(fmax(dx2 + con43 * ru1, dx5 + c1c5 * ru1), fmax(dxmax + ru1, dx1));
         lhs_(k,j,i,1) = -dttx2 * us(k,j,i - 1) - dttx1 * rhon1;
 
         ru1 = c3c4*rho_i(k,j,i);
-        rhon1 = max(max(dx2 + con43 * ru1, dx5 + c1c5 * ru1), max(dxmax + ru1, dx1));
+        rhon1 = fmax(fmax(dx2 + con43 * ru1, dx5 + c1c5 * ru1), fmax(dxmax + ru1, dx1));
         lhs_(k,j,i,2) = 1.0 + c2dttx1 * rhon1;
 
         ru1 = c3c4*rho_i(k,j,i + 1);
-        rhon1 = max(max(dx2 + con43 * ru1, dx5 + c1c5 * ru1), max(dxmax + ru1, dx1));
+        rhon1 = fmax(fmax(dx2 + con43 * ru1, dx5 + c1c5 * ru1), fmax(dxmax + ru1, dx1));
         lhs_(k,j,i,3) = dttx2 * us(k,j,i + 1) - dttx1 * rhon1;
         lhs_(k,j,i,4) = 0.0;
 

@@ -9,6 +9,8 @@
 
 #undef rhs
 #define rhs(x,y,z,m) rhs[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+#undef lhs
+#define lhs_(x,y,z,m) lhs_[x + (z) * P_SIZE + (y) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 __global__ void y_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, int nx2, int ny2, int nz2)
 {
 	int m;
@@ -46,15 +48,15 @@ __global__ void y_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
         lhs_(k,i,j,0) = 0.0;
 
         ru1 = c3c4*rho_i(k,j - 1,i);
-        rhoq1 = max(max(dy3 + con43*ru1, dy5 + c1c5*ru1), max(dymax + ru1, dy1));
+        rhoq1 = fmax(fmax(dy3 + con43*ru1, dy5 + c1c5*ru1), fmax(dymax + ru1, dy1));
         lhs_(k,i,j,1) = -dtty2 * vs(k,j - 1,i) - dtty1 * rhoq1;
 
         ru1 = c3c4*rho_i(k,j,i);
-        rhoq1 = max(max(dy3 + con43*ru1, dy5 + c1c5*ru1), max(dymax + ru1, dy1));
+        rhoq1 = fmax(fmax(dy3 + con43*ru1, dy5 + c1c5*ru1), fmax(dymax + ru1, dy1));
         lhs_(k,i,j,2) = 1.0 + c2dtty1 * rhoq1;
 
         ru1 = c3c4*rho_i(k,j + 1,i);
-        rhoq1 = max(max(dy3 + con43*ru1, dy5 + c1c5*ru1), max(dymax + ru1, dy1));
+        rhoq1 = fmax(fmax(dy3 + con43*ru1, dy5 + c1c5*ru1), fmax(dymax + ru1, dy1));
         lhs_(k,i,j,3) = dtty2 * vs(k,j + 1,i) - dtty1 * rhoq1;
         lhs_(k,i,j,4) = 0.0;
 

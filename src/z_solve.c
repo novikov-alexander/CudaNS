@@ -51,15 +51,15 @@ __global__ void z_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
         lhs_(j,i,k,0) = 0.0;
 
         ru1 = c3c4*rho_i(k - 1,j,i);
-        rhos1 = max(max(dz4 + con43*ru1, dz5 + c1c5*ru1), max(dzmax + ru1, dz1));
+        rhos1 = fmax(fmax(dz4 + con43*ru1, dz5 + c1c5*ru1), fmax(dzmax + ru1, dz1));
         lhs_(j,i,k,1) = -dttz2 * ws(k - 1,j,i) - dttz1 * rhos1;
 
         ru1 = c3c4*rho_i(k,j,i);
-        rhos1 = max(max(dz4 + con43*ru1, dz5 + c1c5*ru1), max(dzmax + ru1, dz1));
+        rhos1 = fmax(fmax(dz4 + con43*ru1, dz5 + c1c5*ru1), fmax(dzmax + ru1, dz1));
         lhs_(j,i,k,2) = 1.0 + c2dttz1 * rhos1;
 
         ru1 = c3c4*rho_i(k + 1,j,i);
-        rhos1 = max(max(dz4 + con43*ru1, dz5 + c1c5*ru1), max(dzmax + ru1, dz1));
+        rhos1 = fmax(fmax(dz4 + con43*ru1, dz5 + c1c5*ru1), fmax(dzmax + ru1, dz1));
         lhs_(j,i,k,3) = dttz2 * ws(k + 1,j,i) - dttz1 * rhos1;
         lhs_(j,i,k,4) = 0.0;
 
