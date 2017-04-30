@@ -129,11 +129,13 @@ __global__ void y_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
             fac1 = 1.0 / lhs_(k,i,j - 1,2);
             lhs_(k,i,j - 1,3) = fac1*lhs_(k,i,j - 1,3);
             lhs_(k,i,j - 1,4) = fac1*lhs_(k,i,j - 1,4);
+            #pragma unroll 3
             for (m = 0; m < 3; m++)
                 rhs(k,j - 1,i,m) = fac1*rhs(k,j - 1,i,m);
 
             lhs_(k,i,j1,2) = lhs_(k,i,j1,2) - lhs_(k,i,j1,1) * lhs_(k,i,j - 1,3);
             lhs_(k,i,j1,3) = lhs_(k,i,j1,3) - lhs_(k,i,j1,1) * lhs_(k,i,j - 1,4);
+            #pragma unroll 3
             for (m = 0; m < 3; m++)
                 rhs(k,j1,i,m) = rhs(k,j1,i,m) - lhs_(k,i,j1,1) * rhs(k,j - 1,i,m);
 
@@ -148,6 +150,7 @@ __global__ void y_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
                 fac1 = 1.0 / lhs_(k,i,j1,2);
                 lhs_(k,i,j1,3) = fac1 * lhs_(k,i,j1,3);
                 lhs_(k,i,j1,4) = fac1 * lhs_(k,i,j1,4);
+                #pragma unroll 3
                 for (m = 0; m < 3; m++)
                     rhs(k,j1,i,m) = fac1 * rhs(k,j1,i,m);
 
@@ -157,6 +160,7 @@ __global__ void y_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
                  rhs(k,j2,i,m) = rhs(k,j2,i,m) - lhs_(k,i,j2,1) * rhs(k,j1,i,m);
 
                  fac2 = 1.0 / lhs_(k,i,j2,2);
+                 #pragma unroll 3
                  for (m = 0; m < 3; m++)
                      rhs(k,j2,i,m) = fac2 * rhs(k,j2,i,m);
              }
@@ -214,6 +218,7 @@ __global__ void y_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
                  rhs(k,j2,i,3) = rhs(k,j2,i,3) / lhsp_(k,i,j2,2);
                  rhs(k,j2,i,4) = rhs(k,j2,i,4) / lhsm_(k,i,j2,2);
 
+                 #pragma unroll 3
                  for (m = 0; m < 3; m++)
                      rhs(k,j1,i,m) = rhs(k,j1,i,m) - lhs_(k,i,j1,3) * rhs(k,j2,i,m);
                  rhs(k,j1,i,3) = rhs(k,j1,i,3) - lhsp_(k,i,j1,3) * rhs(k,j2,i,3);

@@ -277,16 +277,20 @@ __global__ void z_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
             fac1 = 1.0 / lhs_(i,j,k - 1,2);
             lhs_(i,j,k - 1,3) = fac1 * lhs_(i,j,k - 1,3);
             lhs_(i,j,k - 1,4) = fac1 * lhs_(i,j,k - 1,4);
+            
+            #pragma unroll 3
             for (m = 0; m < 3; m++)
                 rhs(k - 1,j,i,m) = fac1 * rhs(k - 1,j,i,m);
 
             lhs_(i,j,k1,2) = lhs_(i,j,k1,2) - lhs_(i,j,k1,1) * lhs_(i,j,k - 1,3);
             lhs_(i,j,k1,3) = lhs_(i,j,k1,3) - lhs_(i,j,k1,1) * lhs_(i,j,k - 1,4);
+            #pragma unroll 3
             for (m = 0; m < 3; m++)
                 rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhs_(i,j,k1,1) * rhs(k - 1,j,i,m);
 
             lhs_(i,j,k2,1) = lhs_(i,j,k2,1) - lhs_(i,j,k2,0) * lhs_(i,j,k - 1,3);
             lhs_(i,j,k2,2) = lhs_(i,j,k2,2) - lhs_(i,j,k2,0) * lhs_(i,j,k - 1,4);
+            #pragma unroll 3
             for (m = 0; m < 3; m++)
                 rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhs_(i,j,k2,0) * rhs(k - 1,j,i,m);
 
@@ -295,15 +299,18 @@ __global__ void z_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
                 fac1 = 1.0 / lhs_(i,j,k1,2);
                 lhs_(i,j,k1,3) = fac1 * lhs_(i,j,k1,3);
                 lhs_(i,j,k1,4) = fac1 * lhs_(i,j,k1,4);
+                #pragma unroll 3
                 for (m = 0; m < 3; m++)
                     rhs(k1,j,i,m) = fac1 * rhs(k1,j,i,m);
 
                 lhs_(i,j,k2,2) = lhs_(i,j,k2,2) - lhs_(i,j,k2,1) * lhs_(i,j,k1,3);
                 lhs_(i,j,k2,3) = lhs_(i,j,k2,3) - lhs_(i,j,k2,1) * lhs_(i,j,k1,4);
+                #pragma unroll 3
                 for (m = 0; m < 3; m++)
                     rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhs_(i,j,k2,1) * rhs(k1,j,i,m);
 
                 fac2 = 1.0 / lhs_(i,j,k2,2);
+                #pragma unroll 3
                 for (m = 0; m < 3; m++)
                     rhs(k2,j,i,m) = fac2 * rhs(k2,j,i,m);
             }
@@ -361,6 +368,7 @@ __global__ void z_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
                 rhs(k2,j,i,3) = rhs(k2,j,i,3) / lhsp_(i,j,k2,2);
                 rhs(k2,j,i,4) = rhs(k2,j,i,4) / lhsm_(i,j,k2,2);
 
+                #pragma unroll 3
                 for (m = 0; m < 3; m++)
                     rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhs_(i,j,k1,3) * rhs(k2,j,i,m);
 
