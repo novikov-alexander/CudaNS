@@ -485,8 +485,8 @@ void x_solve()
     dim3 blocks2 = dim3(ny2 / 32 + 1, nz2 / 8 + 1);
 	dim3 threads2 = dim3(32, 8);
 
-	dim3 blockst = dim3(nx / 8+1, ny / 8+1, nz);
-	dim3 threadst = dim3(8, 8, 1);
+	dim3 blockst = dim3(nx / 8+1, ny / 8+1, nz / 8 + 1);
+	dim3 threadst = dim3(8, 8, 8);
 
     if (timeron) timer_start(t_xsolve);
 	
