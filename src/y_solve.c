@@ -38,8 +38,8 @@ __global__ void y_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
 	int  m;
 	double ru1, rhoq1;
 
-	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
 	int j = threadIdx.z + blockIdx.z * blockDim.z + 1;
 
 	//part 2
