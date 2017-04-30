@@ -14,7 +14,7 @@ void z_solve_swap(double **grid1, double **grid2){
 }
 
 #undef rhs
-#define rhs(x,y,z,m) rhs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+#define rhs(x,y,z,m) rhs[y + (z) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 __global__ void z_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, int nx2, int ny2, int nz2)
 {
 	int m;
@@ -116,8 +116,8 @@ __global__ void z_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
 	int  k1, k2, m;
 	double ru1, rhos1, fac1, fac2;
 
-	int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
 	int k;
 
 	if (i <= nx2 && j <= ny2)
@@ -289,7 +289,7 @@ __global__ void z_solve_inversion(double* rhs, double* us, double* vs, double* w
 
 
 #define src(x,y,z,m) src[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
-#define dst(x,y,z,m) dst[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+#define dst(x,y,z,m) dst[y + (z) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 __global__ void z_solve_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
 	int m;
 
