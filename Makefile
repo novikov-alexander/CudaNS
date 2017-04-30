@@ -7,8 +7,8 @@ INC = include
 CC     = nvcc
 CLINK  = $(CC)
 C_LIB  = -lm
-CFLAGS = -D_FORCE_INLINES -Xcompiler -Wall -O3 -I${INC} -x cu -arch=sm_30 -g -G
-CLINKFLAGS= -O3 -arch=sm_30
+CFLAGS = -D_FORCE_INLINES -Xcompiler -Wall -O3 -I${INC} -x cu -arch=sm_30 -g -G -Xptxas -dlcm=cg
+CLINKFLAGS= -O3 -arch=sm_30 
 
 OBJS = ${OBJ}/_main_program.o \
 	${OBJ}/initialize.o \
