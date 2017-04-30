@@ -331,8 +331,8 @@ __global__ void compute_rhs_inv_transpose(double *dst, double *src, int nx2, int
 
 void compute_rhs()
 {
-	dim3 blocks = dim3(nx / 8+1, ny / 8+1, nz);
-	dim3 threads = dim3(8, 8, 1);
+	dim3 blocks = dim3(nx / 32 +1, ny / 8+1, nz);
+	dim3 threads = dim3(32, 8, 1);
 
     if (timeron) timer_start(t_rhs);
 
