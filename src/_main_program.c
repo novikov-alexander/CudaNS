@@ -57,7 +57,7 @@ double (*lhsm_gpu)[P_SIZE][P_SIZE][P_SIZE];
 int main(int argc, char *argv[])
 {
     printf("\n Program started \n");
-    
+
     int i, niter, step, result;
     double tmax;
     logical verified;

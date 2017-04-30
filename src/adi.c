@@ -86,8 +86,6 @@ void add()
 
 void adi()
 {
-
-	
     compute_rhs(); //+
     xinvr(); //+
     x_solve();

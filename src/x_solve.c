@@ -45,9 +45,9 @@ __global__ void x_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
 	int  i1, i2, m;
 	double ru1, rhon1;
 
-	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
 	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
-	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
+	int i = threadIdx.z + blockIdx.z * blockDim.z + 1;
 
 	//part 2
 	if (k <= nz2 && j <= ny2 && i <= nx2)
