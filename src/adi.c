@@ -61,8 +61,8 @@ __global__ void add_kernel(double* u, double* rhs, int nx2, int ny2, int nz2)
 void xinvr()
 {
 
-	dim3 blocks = dim3(nx2, ny2 / 4+1, nz2 / 32 + 1);
-	dim3 threads = dim3(1, 4, 32);
+	dim3 blocks = dim3(nx2 / 8 + 1, ny2 / 8+1, nz2);
+	dim3 threads = dim3(8, 8, 1);
 
     if (timeron) timer_start(t_txinvr);
 

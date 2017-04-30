@@ -86,6 +86,10 @@ extern double (*lhs_gpu)[P_SIZE][P_SIZE][P_SIZE];
 extern double (*lhsp_gpu)[P_SIZE][P_SIZE][P_SIZE];
 extern double (*lhsm_gpu)[P_SIZE][P_SIZE][P_SIZE];
 
+extern double (*gpuTmpL)	 	[P_SIZE][P_SIZE][P_SIZE];
+extern double (*gpuTmpLm)	 	[P_SIZE][P_SIZE][P_SIZE];
+extern double (*gpuTmpLp)	 	[P_SIZE][P_SIZE][P_SIZE];
+
 //-----------------------------------------------------------------------
 //initialize functions
 void set_constants();

@@ -3,7 +3,7 @@
 //Trace flag
 #define TRACE false
 //Data class 
-#define CL 2
+#define CL 1
 
 //DATA classes
 #if CL == 0

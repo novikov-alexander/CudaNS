@@ -208,8 +208,8 @@ __global__ void compute_rhs_x2y2z2_4(double* u, double* rhs, double* rho_i, doub
 	double rho_inv, aux, uijk, up1, um1, vijk, vp1, vm1, wijk, wm1, wp1;
 
 	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
-	int j = threadIdx.z + blockIdx.z * blockDim.z + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
 
 	if(i <= nx2 && j <= ny2 && k <= nz2) 
 	{
