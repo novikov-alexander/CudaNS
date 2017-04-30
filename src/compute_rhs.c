@@ -85,52 +85,31 @@ __global__ void compute_rhs_x2y2z2_2(double* u, double* rhs, double* rho_i, doub
 
         if (i == 1)
         {
-<<<<<<< HEAD
-			#pragma unroll 5
-=======
             #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (5.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m) + u(k,j,i + 2,m));
         }
         else if (i == 2)
         {
-<<<<<<< HEAD
-			#pragma unroll 5
-=======
             #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (-4.0*u(k,j,i - 1,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m) + u(k,j,i + 2,m));
         }
         else if (i == nx2 - 1)
-<<<<<<< HEAD
-        {	
-			#pragma unroll 5
-=======
         {
             #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j,i - 2,m) - 4.0*u(k,j,i - 1,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m));
         }
         else if (i == nx2)
         {
-<<<<<<< HEAD
-			#pragma unroll 5
-=======
             #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j,i - 2,m) - 4.0*u(k,j,i - 1,m) + 5.0*u(k,j,i,m));
         }
         else
         {
-<<<<<<< HEAD
-			#pragma unroll 5
-=======
             #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j,i - 2,m) - 4.0*u(k,j,i - 1,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m) + u(k,j,i + 2,m));
         }
@@ -269,60 +248,36 @@ __global__ void compute_rhs_x2y2z2_4(double* u, double* rhs, double* rho_i, doub
 
         if (k == 1)
         {
-<<<<<<< HEAD
-			#pragma unroll 5
-=======
             #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (5.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m) + u(k + 2,j,i,m));
         }
         else if (k == 2)
         {
-<<<<<<< HEAD
 			#pragma unroll 5
-=======
-            #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (-4.0*u(k - 1,j,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m) + u(k + 2,j,i,m));
         }
         else if (k == nz2 - 1)
         {
-<<<<<<< HEAD
-			#pragma unroll 5
-=======
             #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k - 2,j,i,m) - 4.0*u(k - 1,j,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m));
         }
         else if (k == nz2)
         {
-<<<<<<< HEAD
-			#pragma unroll 5
-=======
             #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k - 2,j,i,m) - 4.0*u(k - 1,j,i,m) + 5.0*u(k,j,i,m));
         }
         else
         {
-<<<<<<< HEAD
-			#pragma unroll 5
-=======
             #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k - 2,j,i,m) - 4.0*u(k - 1,j,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m) + u(k + 2,j,i,m));
         }
 
-<<<<<<< HEAD
-		#pragma unroll 5
-=======
         #pragma unroll 5
->>>>>>> de28384230111b974967e6c262bbbe4ba94eea45
         for (m = 0; m < 5; m++)
             rhs(k,j,i,m) = rhs(k,j,i,m) * dt;
 	}
