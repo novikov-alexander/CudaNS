@@ -80,6 +80,7 @@ extern double (*gpuSpeed)   [P_SIZE][P_SIZE];
 extern double (*gpuSquare)  [P_SIZE][P_SIZE];
 extern double (*gpuRhs)  	[P_SIZE][P_SIZE][P_SIZE];
 extern double (*gpuForcing) [P_SIZE][P_SIZE][5];
+extern double (*gpuTmp)	 	[P_SIZE][P_SIZE][P_SIZE];
 
 extern double (*lhs_gpu)[P_SIZE][P_SIZE][P_SIZE];
 extern double (*lhsp_gpu)[P_SIZE][P_SIZE][P_SIZE];
@@ -131,3 +132,5 @@ void wtime( double *);
 #define u(x,y,z,m) u[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
 #define forcing(x,y,z,m) forcing[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
 #define square(x,y,z) square[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+
+

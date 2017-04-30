@@ -48,6 +48,7 @@ double (*gpuSpeed)   [P_SIZE][P_SIZE];
 double (*gpuSquare)  [P_SIZE][P_SIZE];
 double (*gpuRhs)  [P_SIZE][P_SIZE][P_SIZE];
 double (*gpuForcing) [P_SIZE][P_SIZE][5];
+double (*gpuTmp) [P_SIZE][P_SIZE][P_SIZE];
 
 double (*lhs_gpu) [P_SIZE][P_SIZE][P_SIZE];
 double (*lhsp_gpu)[P_SIZE][P_SIZE][P_SIZE];

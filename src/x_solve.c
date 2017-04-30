@@ -7,6 +7,14 @@
 // systems for the x-lines. Boundary conditions are non-periodic
 //---------------------------------------------------------------------
 
+#undef rhs
+#define rhs(x,y,z,m) rhs[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+
+void swap(double **grid1, double **grid2){
+    double *sw = *grid1;
+    *grid1 = *grid2;
+    *grid2 = sw;
+}
 
 __global__ void x_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, int nx2, int ny2, int nz2)
 {
@@ -269,19 +277,65 @@ __global__ void x_solve_inversion(double* rhs, double bt, int nx2, int ny2, int 
     }
 }
 
+#define src(x,y,z,m) src[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define dst(x,y,z,m) dst[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+__global__ void x_solve_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
+	int m;
+
+    int i = threadIdx.x + blockIdx.x * blockDim.x;
+	int j = threadIdx.y + blockIdx.y * blockDim.y;
+	int k = threadIdx.z + blockIdx.z * blockDim.z;
+
+	if ((k <= nz2 + 1) && (j <= ny2 + 1) && (i <= nx2 + 1))
+    {
+        #pragma unroll 5
+        for (m = 0; m < 5; m++)
+        {
+            dst(i,j,k,m) = src(i,j,k,m); 
+        }
+    }
+}
+
+
+__global__ void x_solve_inv_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
+	int m;
+
+    int i = threadIdx.x + blockIdx.x * blockDim.x;
+	int j = threadIdx.y + blockIdx.y * blockDim.y;
+	int k = threadIdx.z + blockIdx.z * blockDim.z;
+
+	if ((k <= nz2 + 1) && (j <= ny2 + 1) && (i <= nx2 + 1))
+    {
+        #pragma unroll 5
+        for (m = 0; m < 5; m++)
+        {
+            src(i,j,k,m) = dst(i,j,k,m);
+        }
+    }
+}
+
+
 void x_solve()
 {
     int i, j, k, i1, i2, m;
     double ru1, rhon1, fac1, fac2;
 
-	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
-	dim3 threads = dim3(32, 4, 1);
+	dim3 blocks = dim3(nx2 / 8+1, ny2 / 8+1, nz2);
+	dim3 threads = dim3(8, 8, 1);
 
-    dim3 blocks2 = dim3(ny2 / 4 + 1, nz2 / 32 + 1);
-	dim3 threads2 = dim3(4, 32);
+    dim3 blocks2 = dim3(ny2 / 8 + 1, nz2 / 8 + 1);
+	dim3 threads2 = dim3(8, 8);
 
+	dim3 blockst = dim3(nx / 8+1, ny / 8+1, nz);
+	dim3 threadst = dim3(8, 8, 1);
 
     if (timeron) timer_start(t_xsolve);
+	
+    x_solve_transpose<<<blockst, threadst>>>((double*)gpuTmp, (double*)gpuRhs, nx2, ny2, nz2);
+    
+    cudaDeviceSynchronize();
+    
+    swap((double**)&gpuTmp, (double**)&gpuRhs);
 
     cudaDeviceSynchronize();
 	x_solve_kernel_one<<<blocks2, threads2>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, nx2, ny2, nz2);
@@ -297,8 +351,6 @@ void x_solve()
     cudaDeviceSynchronize();
 
 
-
-
     //---------------------------------------------------------------------
     // Do the block-diagonal inversion          
     //---------------------------------------------------------------------
@@ -306,8 +358,17 @@ void x_solve()
 
 	x_solve_inversion<<<blocks, threads>>>((double*)gpuRhs, bt, nx2, ny2, nz2);
 
-
     if (timeron) timer_stop(t_ninvr);
+
+    cudaDeviceSynchronize();
+
+    swap((double**)&gpuTmp, (double**)&gpuRhs);
+
+    x_solve_inv_transpose<<<blockst, threadst>>>((double*)gpuTmp, (double*)gpuRhs, nx2, ny2, nz2);
+    cudaDeviceSynchronize();
+
 
     if (timeron) timer_stop(t_xsolve);
 }
+
+#undef rhs
