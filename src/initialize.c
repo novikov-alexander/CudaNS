@@ -207,7 +207,7 @@ int allocateArrays()
 
     u = (double (*)[P_SIZE][P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz * 5);
     rhs = (double (*)[P_SIZE][P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz * 5);
-    forcing = (double (*)[P_SIZE][P_SIZE][5] ) malloc(sizeof(double) * nx * ny * nz * 5);
+    forcing = (double (*)[P_SIZE][P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz * 5);
     
 	CudaSafeCall(cudaMalloc((void**) &gpuUs, sizeof(double) * nx * ny * nz));
 	CudaSafeCall(cudaMalloc((void**) &gpuVs, sizeof(double) * nx * ny * nz));

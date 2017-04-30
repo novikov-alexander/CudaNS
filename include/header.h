@@ -68,9 +68,9 @@ extern double (*rho_i)   [P_SIZE][P_SIZE];
 extern double (*speed)   [P_SIZE][P_SIZE];
 extern double (*square)  [P_SIZE][P_SIZE];
 extern double (*rhs)     [P_SIZE][P_SIZE][P_SIZE];
-extern double (*forcing) [P_SIZE][P_SIZE][5];
+extern double (*forcing) [P_SIZE][P_SIZE][P_SIZE];
 
-extern double (*gpuU)	 	[P_SIZE][P_SIZE][5];
+extern double (*gpuU)	 	[P_SIZE][P_SIZE][P_SIZE];
 extern double (*gpuUs)      [P_SIZE][P_SIZE];
 extern double (*gpuVs)      [P_SIZE][P_SIZE];
 extern double (*gpuWs)      [P_SIZE][P_SIZE];
@@ -79,7 +79,7 @@ extern double (*gpuRho_i)   [P_SIZE][P_SIZE];
 extern double (*gpuSpeed)   [P_SIZE][P_SIZE];
 extern double (*gpuSquare)  [P_SIZE][P_SIZE];
 extern double (*gpuRhs)  	[P_SIZE][P_SIZE][P_SIZE];
-extern double (*gpuForcing) [P_SIZE][P_SIZE][5];
+extern double (*gpuForcing) [P_SIZE][P_SIZE][P_SIZE];
 extern double (*gpuTmp)	 	[P_SIZE][P_SIZE][P_SIZE];
 
 extern double (*lhs_gpu)[P_SIZE][P_SIZE][P_SIZE];
@@ -130,7 +130,7 @@ void wtime( double *);
 #define qs(x,y,z) qs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 #define speed(x,y,z) speed[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 #define u(x,y,z,m) u[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
-#define forcing(x,y,z,m) forcing[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define forcing(x,y,z,m) forcing[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 #define square(x,y,z) square[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 
 

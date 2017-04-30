@@ -36,9 +36,9 @@ double (*rho_i)   [P_SIZE][P_SIZE];
 double (*speed)   [P_SIZE][P_SIZE];
 double (*square)  [P_SIZE][P_SIZE];
 double (*rhs)     [P_SIZE][P_SIZE][P_SIZE];
-double (*forcing) [P_SIZE][P_SIZE][5];
+double (*forcing) [P_SIZE][P_SIZE][P_SIZE];
 
-double (*gpuU)    [P_SIZE][P_SIZE][5];
+double (*gpuU)    [P_SIZE][P_SIZE][P_SIZE];
 double (*gpuUs)      [P_SIZE][P_SIZE];
 double (*gpuVs)      [P_SIZE][P_SIZE];
 double (*gpuWs)      [P_SIZE][P_SIZE];
@@ -47,7 +47,7 @@ double (*gpuRho_i)   [P_SIZE][P_SIZE];
 double (*gpuSpeed)   [P_SIZE][P_SIZE];
 double (*gpuSquare)  [P_SIZE][P_SIZE];
 double (*gpuRhs)  [P_SIZE][P_SIZE][P_SIZE];
-double (*gpuForcing) [P_SIZE][P_SIZE][5];
+double (*gpuForcing) [P_SIZE][P_SIZE][P_SIZE];
 double (*gpuTmp) [P_SIZE][P_SIZE][P_SIZE];
 
 double (*lhs_gpu) [P_SIZE][P_SIZE][P_SIZE];
