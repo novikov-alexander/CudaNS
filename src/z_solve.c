@@ -116,8 +116,8 @@ __global__ void z_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
 	int  k1, k2, m;
 	double ru1, rhos1, fac1, fac2;
 
-	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
 	int k;
 
 	if (i <= nx2 && j <= ny2)
@@ -293,9 +293,9 @@ __global__ void z_solve_inversion(double* rhs, double* us, double* vs, double* w
 __global__ void z_solve_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
 	int m;
 
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
+    int k = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
-	int k = threadIdx.z + blockIdx.z * blockDim.z;
+	int i = threadIdx.z + blockIdx.z * blockDim.z;
 
 	if ((k <= nz2 + 1) && (j <= ny2 + 1) && (i <= nx2 + 1))
     {
@@ -312,9 +312,9 @@ __global__ void z_solve_transpose(double *dst, double *src, int nx2, int ny2, in
 __global__ void z_solve_inv_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
 	int m;
 
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
+    int k = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
-	int k = threadIdx.z + blockIdx.z * blockDim.z;
+	int i = threadIdx.z + blockIdx.z * blockDim.z;
 
 	if ((k <= nz2 + 1) && (j <= ny2 + 1) && (i <= nx2 + 1))
     {
@@ -347,9 +347,7 @@ void z_solve()
     if (timeron) timer_start(t_zsolve);
 
     z_solve_transpose<<<blockst, threadst>>>((double*)gpuTmp, (double*)gpuRhs, nx2, ny2, nz2);
-    
     cudaDeviceSynchronize();
-    
     z_solve_swap((double**)&gpuTmp, (double**)&gpuRhs);
     
     cudaDeviceSynchronize();
@@ -376,7 +374,6 @@ void z_solve()
 
     
     z_solve_swap((double**)&gpuTmp, (double**)&gpuRhs);
-
     z_solve_inv_transpose<<<blockst, threadst>>>((double*)gpuTmp, (double*)gpuRhs, nx2, ny2, nz2);
     cudaDeviceSynchronize();
     if (timeron) timer_stop(t_zsolve);

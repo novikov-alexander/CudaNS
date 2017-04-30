@@ -129,7 +129,7 @@ __global__ void x_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
 	if (k <= nz2 && j <= ny2)
     {        
         for (i = 1; i <= nx2; i++)
-            {
+        {
             i1 = i;
             i2 = i + 1;
             fac1 = 1.0 / lhs_(k,j,i - 1,2);
@@ -217,7 +217,6 @@ __global__ void x_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
                 rhs(k,j,i2,3) = rhs(k,j,i2,3) / lhsp_(k,j,i2,2);
                 rhs(k,j,i2,4) = rhs(k,j,i2,4) / lhsm_(k,j,i2,2);
 
-                #pragma unroll 3
                 for (m = 0; m < 3; m++)
                     rhs(k,j,i1,m) = rhs(k,j,i1,m) - lhs_(k,j,i1,3) * rhs(k,j,i2,m);
 
@@ -298,7 +297,7 @@ __global__ void x_solve_transpose(double *dst, double *src, int nx2, int ny2, in
 }
 
 
-__global__ void x_solve_inv_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
+/*__global__ void x_solve_inv_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
 	int m;
 
     int i = threadIdx.x + blockIdx.x * blockDim.x;
@@ -314,7 +313,7 @@ __global__ void x_solve_inv_transpose(double *dst, double *src, int nx2, int ny2
         }
     }
 }
-
+*/
 
 void x_solve()
 {
@@ -333,13 +332,12 @@ void x_solve()
     if (timeron) timer_start(t_xsolve);
 	
     x_solve_transpose<<<blockst, threadst>>>((double*)gpuTmp, (double*)gpuRhs, nx2, ny2, nz2);
-    
     cudaDeviceSynchronize();
-    
     x_solve_swap((double**)&gpuTmp, (double**)&gpuRhs);
 
     cudaDeviceSynchronize();
 	x_solve_kernel_one<<<blocks2, threads2>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, nx2, ny2, nz2);
+
 	cudaDeviceSynchronize();
     x_solve_kernel_two<<<blocks, threads>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuSpeed, c3c4, dx2,  con43,  dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
     
