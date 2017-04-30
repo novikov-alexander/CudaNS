@@ -27,13 +27,13 @@ __global__ void z_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, i
     {        
         for (m = 0; m < 5; m++)
         {
-            lhs_(j,i,0,m) = lhs_(j,i,nz2 + 1,m) = 0.0;
-            lhsp_(j,i,0,m) = lhsp_(j,i,nz2 + 1,m) = 0.0;
-            lhsm_(j,i,0,m) = lhsm_(j,i,nz2 + 1,m) = 0.0;
+            lhs_(i,j,0,m) = lhs_(i,j,nz2 + 1,m) = 0.0;
+            lhsp_(i,j,0,m) = lhsp_(i,j,nz2 + 1,m) = 0.0;
+            lhsm_(i,j,0,m) = lhsm_(i,j,nz2 + 1,m) = 0.0;
         }
-        lhs_(j,i,0,2) = lhs_(j,i,nz2 + 1,2) = 1.0;
-        lhsp_(j,i,0,2) = lhsp_(j,i,nz2 + 1,2) = 1.0;
-        lhsm_(j,i,0,2) = lhsm_(j,i,nz2 + 1,2) = 1.0;    
+        lhs_(i,j,0,2) = lhs_(i,j,nz2 + 1,2) = 1.0;
+        lhsp_(i,j,0,2) = lhsp_(i,j,nz2 + 1,2) = 1.0;
+        lhsm_(i,j,0,2) = lhsm_(i,j,nz2 + 1,2) = 1.0;    
 	}
 }
 
@@ -48,66 +48,66 @@ __global__ void z_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
 
 	if ( i <= nx2 && j <= ny2 && k <= nz2)
 	{
-        lhs_(j,i,k,0) = 0.0;
+        lhs_(i,j,k,0) = 0.0;
 
         ru1 = c3c4*rho_i(k - 1,j,i);
         rhos1 = fmax(fmax(dz4 + con43*ru1, dz5 + c1c5*ru1), fmax(dzmax + ru1, dz1));
-        lhs_(j,i,k,1) = -dttz2 * ws(k - 1,j,i) - dttz1 * rhos1;
+        lhs_(i,j,k,1) = -dttz2 * ws(k - 1,j,i) - dttz1 * rhos1;
 
         ru1 = c3c4*rho_i(k,j,i);
         rhos1 = fmax(fmax(dz4 + con43*ru1, dz5 + c1c5*ru1), fmax(dzmax + ru1, dz1));
-        lhs_(j,i,k,2) = 1.0 + c2dttz1 * rhos1;
+        lhs_(i,j,k,2) = 1.0 + c2dttz1 * rhos1;
 
         ru1 = c3c4*rho_i(k + 1,j,i);
         rhos1 = fmax(fmax(dz4 + con43*ru1, dz5 + c1c5*ru1), fmax(dzmax + ru1, dz1));
-        lhs_(j,i,k,3) = dttz2 * ws(k + 1,j,i) - dttz1 * rhos1;
-        lhs_(j,i,k,4) = 0.0;
+        lhs_(i,j,k,3) = dttz2 * ws(k + 1,j,i) - dttz1 * rhos1;
+        lhs_(i,j,k,4) = 0.0;
 
         if (k == 1)
         {
-            lhs_(j,i,k,2) = lhs_(j,i,k,2) + comz5;
-            lhs_(j,i,k,3) = lhs_(j,i,k,3) - comz4;
-            lhs_(j,i,k,4) = lhs_(j,i,k,4) + comz1;
+            lhs_(i,j,k,2) = lhs_(i,j,k,2) + comz5;
+            lhs_(i,j,k,3) = lhs_(i,j,k,3) - comz4;
+            lhs_(i,j,k,4) = lhs_(i,j,k,4) + comz1;
         }
         else if (k == 2)
         {
-            lhs_(j,i,k,1) = lhs_(j,i,k,1) - comz4;
-            lhs_(j,i,k,2) = lhs_(j,i,k,2) + comz6;
-            lhs_(j,i,k,3) = lhs_(j,i,k,3) - comz4;
-            lhs_(j,i,k,4) = lhs_(j,i,k,4) + comz1;
+            lhs_(i,j,k,1) = lhs_(i,j,k,1) - comz4;
+            lhs_(i,j,k,2) = lhs_(i,j,k,2) + comz6;
+            lhs_(i,j,k,3) = lhs_(i,j,k,3) - comz4;
+            lhs_(i,j,k,4) = lhs_(i,j,k,4) + comz1;
         }
         else if (k == nz2 - 1)
         {
-            lhs_(j,i,k,0) = lhs_(j,i,k,0) + comz1;
-            lhs_(j,i,k,1) = lhs_(j,i,k,1) - comz4;
-            lhs_(j,i,k,2) = lhs_(j,i,k,2) + comz6;
-            lhs_(j,i,k,3) = lhs_(j,i,k,3) - comz4;
+            lhs_(i,j,k,0) = lhs_(i,j,k,0) + comz1;
+            lhs_(i,j,k,1) = lhs_(i,j,k,1) - comz4;
+            lhs_(i,j,k,2) = lhs_(i,j,k,2) + comz6;
+            lhs_(i,j,k,3) = lhs_(i,j,k,3) - comz4;
         }
         else if (k == nz2)
         {
-            lhs_(j,i,k,0) = lhs_(j,i,k,0) + comz1;
-            lhs_(j,i,k,1) = lhs_(j,i,k,1) - comz4;
-            lhs_(j,i,k,2) = lhs_(j,i,k,2) + comz5;
+            lhs_(i,j,k,0) = lhs_(i,j,k,0) + comz1;
+            lhs_(i,j,k,1) = lhs_(i,j,k,1) - comz4;
+            lhs_(i,j,k,2) = lhs_(i,j,k,2) + comz5;
         }
         else
         {
-            lhs_(j,i,k,0) = lhs_(j,i,k,0) + comz1;
-            lhs_(j,i,k,1) = lhs_(j,i,k,1) - comz4;
-            lhs_(j,i,k,2) = lhs_(j,i,k,2) + comz6;
-            lhs_(j,i,k,3) = lhs_(j,i,k,3) - comz4;
-            lhs_(j,i,k,4) = lhs_(j,i,k,4) + comz1;
+            lhs_(i,j,k,0) = lhs_(i,j,k,0) + comz1;
+            lhs_(i,j,k,1) = lhs_(i,j,k,1) - comz4;
+            lhs_(i,j,k,2) = lhs_(i,j,k,2) + comz6;
+            lhs_(i,j,k,3) = lhs_(i,j,k,3) - comz4;
+            lhs_(i,j,k,4) = lhs_(i,j,k,4) + comz1;
         }
 
-        lhsp_(j,i,k,0) = lhs_(j,i,k,0);
-        lhsp_(j,i,k,1) = lhs_(j,i,k,1) - dttz2 * speed(k - 1,j,i);
-        lhsp_(j,i,k,2) = lhs_(j,i,k,2);
-        lhsp_(j,i,k,3) = lhs_(j,i,k,3) + dttz2 * speed(k + 1,j,i);
-        lhsp_(j,i,k,4) = lhs_(j,i,k,4);
-        lhsm_(j,i,k,0) = lhs_(j,i,k,0);
-        lhsm_(j,i,k,1) = lhs_(j,i,k,1) + dttz2 * speed(k - 1,j,i);
-        lhsm_(j,i,k,2) = lhs_(j,i,k,2);
-        lhsm_(j,i,k,3) = lhs_(j,i,k,3) - dttz2 * speed(k + 1,j,i);
-        lhsm_(j,i,k,4) = lhs_(j,i,k,4);
+        lhsp_(i,j,k,0) = lhs_(i,j,k,0);
+        lhsp_(i,j,k,1) = lhs_(i,j,k,1) - dttz2 * speed(k - 1,j,i);
+        lhsp_(i,j,k,2) = lhs_(i,j,k,2);
+        lhsp_(i,j,k,3) = lhs_(i,j,k,3) + dttz2 * speed(k + 1,j,i);
+        lhsp_(i,j,k,4) = lhs_(i,j,k,4);
+        lhsm_(i,j,k,0) = lhs_(i,j,k,0);
+        lhsm_(i,j,k,1) = lhs_(i,j,k,1) + dttz2 * speed(k - 1,j,i);
+        lhsm_(i,j,k,2) = lhs_(i,j,k,2);
+        lhsm_(i,j,k,3) = lhs_(i,j,k,3) - dttz2 * speed(k + 1,j,i);
+        lhsm_(i,j,k,4) = lhs_(i,j,k,4);
 	}
 }
 
@@ -127,98 +127,98 @@ __global__ void z_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
             k1 = k;
             k2 = k + 1;
 
-            fac1 = 1.0 / lhs_(j,i,k - 1,2);
-            lhs_(j,i,k - 1,3) = fac1 * lhs_(j,i,k - 1,3);
-            lhs_(j,i,k - 1,4) = fac1 * lhs_(j,i,k - 1,4);
+            fac1 = 1.0 / lhs_(i,j,k - 1,2);
+            lhs_(i,j,k - 1,3) = fac1 * lhs_(i,j,k - 1,3);
+            lhs_(i,j,k - 1,4) = fac1 * lhs_(i,j,k - 1,4);
             for (m = 0; m < 3; m++)
                 rhs(k - 1,j,i,m) = fac1 * rhs(k - 1,j,i,m);
 
-            lhs_(j,i,k1,2) = lhs_(j,i,k1,2) - lhs_(j,i,k1,1) * lhs_(j,i,k - 1,3);
-            lhs_(j,i,k1,3) = lhs_(j,i,k1,3) - lhs_(j,i,k1,1) * lhs_(j,i,k - 1,4);
+            lhs_(i,j,k1,2) = lhs_(i,j,k1,2) - lhs_(i,j,k1,1) * lhs_(i,j,k - 1,3);
+            lhs_(i,j,k1,3) = lhs_(i,j,k1,3) - lhs_(i,j,k1,1) * lhs_(i,j,k - 1,4);
             for (m = 0; m < 3; m++)
-                rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhs_(j,i,k1,1) * rhs(k - 1,j,i,m);
+                rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhs_(i,j,k1,1) * rhs(k - 1,j,i,m);
 
-            lhs_(j,i,k2,1) = lhs_(j,i,k2,1) - lhs_(j,i,k2,0) * lhs_(j,i,k - 1,3);
-            lhs_(j,i,k2,2) = lhs_(j,i,k2,2) - lhs_(j,i,k2,0) * lhs_(j,i,k - 1,4);
+            lhs_(i,j,k2,1) = lhs_(i,j,k2,1) - lhs_(i,j,k2,0) * lhs_(i,j,k - 1,3);
+            lhs_(i,j,k2,2) = lhs_(i,j,k2,2) - lhs_(i,j,k2,0) * lhs_(i,j,k - 1,4);
             for (m = 0; m < 3; m++)
-                rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhs_(j,i,k2,0) * rhs(k - 1,j,i,m);
+                rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhs_(i,j,k2,0) * rhs(k - 1,j,i,m);
 
             if (k == nz2)
             {
-                fac1 = 1.0 / lhs_(j,i,k1,2);
-                lhs_(j,i,k1,3) = fac1 * lhs_(j,i,k1,3);
-                lhs_(j,i,k1,4) = fac1 * lhs_(j,i,k1,4);
+                fac1 = 1.0 / lhs_(i,j,k1,2);
+                lhs_(i,j,k1,3) = fac1 * lhs_(i,j,k1,3);
+                lhs_(i,j,k1,4) = fac1 * lhs_(i,j,k1,4);
                 for (m = 0; m < 3; m++)
                     rhs(k1,j,i,m) = fac1 * rhs(k1,j,i,m);
 
-                lhs_(j,i,k2,2) = lhs_(j,i,k2,2) - lhs_(j,i,k2,1) * lhs_(j,i,k1,3);
-                lhs_(j,i,k2,3) = lhs_(j,i,k2,3) - lhs_(j,i,k2,1) * lhs_(j,i,k1,4);
+                lhs_(i,j,k2,2) = lhs_(i,j,k2,2) - lhs_(i,j,k2,1) * lhs_(i,j,k1,3);
+                lhs_(i,j,k2,3) = lhs_(i,j,k2,3) - lhs_(i,j,k2,1) * lhs_(i,j,k1,4);
                 for (m = 0; m < 3; m++)
-                    rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhs_(j,i,k2,1) * rhs(k1,j,i,m);
+                    rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhs_(i,j,k2,1) * rhs(k1,j,i,m);
 
-                fac2 = 1.0 / lhs_(j,i,k2,2);
+                fac2 = 1.0 / lhs_(i,j,k2,2);
                 for (m = 0; m < 3; m++)
                     rhs(k2,j,i,m) = fac2 * rhs(k2,j,i,m);
             }
 
             m = 3;
-            fac1 = 1.0 / lhsp_(j,i,k - 1,2);
-            lhsp_(j,i,k - 1,3) = fac1 * lhsp_(j,i,k - 1,3);
-            lhsp_(j,i,k - 1,4) = fac1 * lhsp_(j,i,k - 1,4);
+            fac1 = 1.0 / lhsp_(i,j,k - 1,2);
+            lhsp_(i,j,k - 1,3) = fac1 * lhsp_(i,j,k - 1,3);
+            lhsp_(i,j,k - 1,4) = fac1 * lhsp_(i,j,k - 1,4);
             rhs(k - 1,j,i,m) = fac1 * rhs(k - 1,j,i,m);
 
-            lhsp_(j,i,k1,2) = lhsp_(j,i,k1,2) - lhsp_(j,i,k1,1) * lhsp_(j,i,k - 1,3);
-            lhsp_(j,i,k1,3) = lhsp_(j,i,k1,3) - lhsp_(j,i,k1,1) * lhsp_(j,i,k - 1,4);
-            rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhsp_(j,i,k1,1) * rhs(k - 1,j,i,m);
+            lhsp_(i,j,k1,2) = lhsp_(i,j,k1,2) - lhsp_(i,j,k1,1) * lhsp_(i,j,k - 1,3);
+            lhsp_(i,j,k1,3) = lhsp_(i,j,k1,3) - lhsp_(i,j,k1,1) * lhsp_(i,j,k - 1,4);
+            rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhsp_(i,j,k1,1) * rhs(k - 1,j,i,m);
 
-            lhsp_(j,i,k2,1) = lhsp_(j,i,k2,1) - lhsp_(j,i,k2,0) * lhsp_(j,i,k - 1,3);
-            lhsp_(j,i,k2,2) = lhsp_(j,i,k2,2) - lhsp_(j,i,k2,0) * lhsp_(j,i,k - 1,4);
-            rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsp_(j,i,k2,0) * rhs(k - 1,j,i,m);
+            lhsp_(i,j,k2,1) = lhsp_(i,j,k2,1) - lhsp_(i,j,k2,0) * lhsp_(i,j,k - 1,3);
+            lhsp_(i,j,k2,2) = lhsp_(i,j,k2,2) - lhsp_(i,j,k2,0) * lhsp_(i,j,k - 1,4);
+            rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsp_(i,j,k2,0) * rhs(k - 1,j,i,m);
 
             m = 4;
-            fac1 = 1.0 / lhsm_(j,i,k - 1,2);
-            lhsm_(j,i,k - 1,3) = fac1 * lhsm_(j,i,k - 1,3);
-            lhsm_(j,i,k - 1,4) = fac1 * lhsm_(j,i,k - 1,4);
+            fac1 = 1.0 / lhsm_(i,j,k - 1,2);
+            lhsm_(i,j,k - 1,3) = fac1 * lhsm_(i,j,k - 1,3);
+            lhsm_(i,j,k - 1,4) = fac1 * lhsm_(i,j,k - 1,4);
             rhs(k - 1,j,i,m) = fac1 * rhs(k - 1,j,i,m);
 
-            lhsm_(j,i,k1,2) = lhsm_(j,i,k1,2) - lhsm_(j,i,k1,1) * lhsm_(j,i,k - 1,3);
-            lhsm_(j,i,k1,3) = lhsm_(j,i,k1,3) - lhsm_(j,i,k1,1) * lhsm_(j,i,k - 1,4);
-            rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhsm_(j,i,k1,1) * rhs(k - 1,j,i,m);
+            lhsm_(i,j,k1,2) = lhsm_(i,j,k1,2) - lhsm_(i,j,k1,1) * lhsm_(i,j,k - 1,3);
+            lhsm_(i,j,k1,3) = lhsm_(i,j,k1,3) - lhsm_(i,j,k1,1) * lhsm_(i,j,k - 1,4);
+            rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhsm_(i,j,k1,1) * rhs(k - 1,j,i,m);
 
-            lhsm_(j,i,k2,1) = lhsm_(j,i,k2,1) - lhsm_(j,i,k2,0) * lhsm_(j,i,k - 1,3);
-            lhsm_(j,i,k2,2) = lhsm_(j,i,k2,2) - lhsm_(j,i,k2,0) * lhsm_(j,i,k - 1,4);
-            rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsm_(j,i,k2,0) * rhs(k - 1,j,i,m);
+            lhsm_(i,j,k2,1) = lhsm_(i,j,k2,1) - lhsm_(i,j,k2,0) * lhsm_(i,j,k - 1,3);
+            lhsm_(i,j,k2,2) = lhsm_(i,j,k2,2) - lhsm_(i,j,k2,0) * lhsm_(i,j,k - 1,4);
+            rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsm_(i,j,k2,0) * rhs(k - 1,j,i,m);
 
             if (k == nz2)
             {
                 m = 3;
-                fac1 = 1.0 / lhsp_(j,i,k1,2);
-                lhsp_(j,i,k1,3) = fac1 * lhsp_(j,i,k1,3);
-                lhsp_(j,i,k1,4) = fac1 * lhsp_(j,i,k1,4);
+                fac1 = 1.0 / lhsp_(i,j,k1,2);
+                lhsp_(i,j,k1,3) = fac1 * lhsp_(i,j,k1,3);
+                lhsp_(i,j,k1,4) = fac1 * lhsp_(i,j,k1,4);
                 rhs(k1,j,i,m) = fac1 * rhs(k1,j,i,m);
 
-                lhsp_(j,i,k2,2) = lhsp_(j,i,k2,2) - lhsp_(j,i,k2,1) * lhsp_(j,i,k1,3);
-                lhsp_(j,i,k2,3) = lhsp_(j,i,k2,3) - lhsp_(j,i,k2,1) * lhsp_(j,i,k1,4);
-                rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsp_(j,i,k2,1) * rhs(k1,j,i,m);
+                lhsp_(i,j,k2,2) = lhsp_(i,j,k2,2) - lhsp_(i,j,k2,1) * lhsp_(i,j,k1,3);
+                lhsp_(i,j,k2,3) = lhsp_(i,j,k2,3) - lhsp_(i,j,k2,1) * lhsp_(i,j,k1,4);
+                rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsp_(i,j,k2,1) * rhs(k1,j,i,m);
 
                 m = 4;
-                fac1 = 1.0 / lhsm_(j,i,k1,2);
-                lhsm_(j,i,k1,3) = fac1 * lhsm_(j,i,k1,3);
-                lhsm_(j,i,k1,4) = fac1 * lhsm_(j,i,k1,4);
+                fac1 = 1.0 / lhsm_(i,j,k1,2);
+                lhsm_(i,j,k1,3) = fac1 * lhsm_(i,j,k1,3);
+                lhsm_(i,j,k1,4) = fac1 * lhsm_(i,j,k1,4);
                 rhs(k1,j,i,m) = fac1 * rhs(k1,j,i,m);
 
-                lhsm_(j,i,k2,2) = lhsm_(j,i,k2,2) - lhsm_(j,i,k2,1) * lhsm_(j,i,k1,3);
-                lhsm_(j,i,k2,3) = lhsm_(j,i,k2,3) - lhsm_(j,i,k2,1) * lhsm_(j,i,k1,4);
-                rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsm_(j,i,k2,1) * rhs(k1,j,i,m);
+                lhsm_(i,j,k2,2) = lhsm_(i,j,k2,2) - lhsm_(i,j,k2,1) * lhsm_(i,j,k1,3);
+                lhsm_(i,j,k2,3) = lhsm_(i,j,k2,3) - lhsm_(i,j,k2,1) * lhsm_(i,j,k1,4);
+                rhs(k2,j,i,m) = rhs(k2,j,i,m) - lhsm_(i,j,k2,1) * rhs(k1,j,i,m);
 
-                rhs(k2,j,i,3) = rhs(k2,j,i,3) / lhsp_(j,i,k2,2);
-                rhs(k2,j,i,4) = rhs(k2,j,i,4) / lhsm_(j,i,k2,2);
+                rhs(k2,j,i,3) = rhs(k2,j,i,3) / lhsp_(i,j,k2,2);
+                rhs(k2,j,i,4) = rhs(k2,j,i,4) / lhsm_(i,j,k2,2);
 
                 for (m = 0; m < 3; m++)
-                    rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhs_(j,i,k1,3) * rhs(k2,j,i,m);
+                    rhs(k1,j,i,m) = rhs(k1,j,i,m) - lhs_(i,j,k1,3) * rhs(k2,j,i,m);
 
-                rhs(k1,j,i,3) = rhs(k1,j,i,3) - lhsp_(j,i,k1,3) * rhs(k2,j,i,3);
-                rhs(k1,j,i,4) = rhs(k1,j,i,4) - lhsm_(j,i,k1,3) * rhs(k2,j,i,4);
+                rhs(k1,j,i,3) = rhs(k1,j,i,3) - lhsp_(i,j,k1,3) * rhs(k2,j,i,3);
+                rhs(k1,j,i,4) = rhs(k1,j,i,4) - lhsm_(i,j,k1,3) * rhs(k2,j,i,4);
             }
         }
 	}
@@ -240,10 +240,10 @@ __global__ void z_solve_kernel_four(double* lhs_, double* lhsp_, double* lhsm_, 
             k2 = k + 1;
 
             for (m = 0; m < 3; m++)
-                rhs(k - 1,j,i,m) = rhs(k - 1,j,i,m) - lhs_(j,i,k - 1,3) * rhs(k1,j,i,m) - lhs_(j,i,k - 1,4) * rhs(k2,j,i,m);
+                rhs(k - 1,j,i,m) = rhs(k - 1,j,i,m) - lhs_(i,j,k - 1,3) * rhs(k1,j,i,m) - lhs_(i,j,k - 1,4) * rhs(k2,j,i,m);
 
-            rhs(k - 1,j,i,3) = rhs(k - 1,j,i,3) - lhsp_(j,i,k - 1,3) * rhs(k1,j,i,3) - lhsp_(j,i,k - 1,4) * rhs(k2,j,i,3);
-            rhs(k - 1,j,i,4) = rhs(k - 1,j,i,4) - lhsm_(j,i,k - 1,3) * rhs(k1,j,i,4) - lhsm_(j,i,k - 1,4) * rhs(k2,j,i,4);
+            rhs(k - 1,j,i,3) = rhs(k - 1,j,i,3) - lhsp_(i,j,k - 1,3) * rhs(k1,j,i,3) - lhsp_(i,j,k - 1,4) * rhs(k2,j,i,3);
+            rhs(k - 1,j,i,4) = rhs(k - 1,j,i,4) - lhsm_(i,j,k - 1,3) * rhs(k1,j,i,4) - lhsm_(i,j,k - 1,4) * rhs(k2,j,i,4);
         }
     }
 }
