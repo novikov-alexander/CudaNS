@@ -390,8 +390,8 @@ __global__ void x_solve_kernel_four(double* lhs_, double* lhsp_, double* lhsm_, 
 {
 	int  i1, i2, m, i;
 
-	int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
 
 	//part 4
 	if ((k <= nz2) && (j <= ny2))
@@ -482,8 +482,8 @@ void x_solve()
 	dim3 blocks = dim3(nx2 / 8+1, ny2 / 8+1, nz2);
 	dim3 threads = dim3(8, 8, 1);
 
-    dim3 blocks2 = dim3(ny2 / 8 + 1, nz2 / 8 + 1);
-	dim3 threads2 = dim3(8, 8);
+    dim3 blocks2 = dim3(ny2 / 32 + 1, nz2 / 8 + 1);
+	dim3 threads2 = dim3(32, 8);
 
 	dim3 blockst = dim3(nx / 8+1, ny / 8+1, nz);
 	dim3 threadst = dim3(8, 8, 1);
