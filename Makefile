@@ -8,8 +8,8 @@ CC     = nvcc
 CLINK  = $(CC)
 C_LIB  = -lm
 
-CFLAGS = -Xptxas -dlcm=cg -D_FORCE_INLINES -Xcompiler -Wall -O3 -I${INC} -x cu -arch=sm_30 -g -G 
-CLINKFLAGS= -O3 -arch=sm_30
+CFLAGS = -Xptxas -dlcm=cg -D_FORCE_INLINES -Xcompiler -Wall -O2 -I${INC} -x cu -arch=sm_30 -g -G 
+CLINKFLAGS= -O2 -arch=sm_30
 
 OBJS = ${OBJ}/_main_program.o \
 	${OBJ}/initialize.o \

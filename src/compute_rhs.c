@@ -129,7 +129,7 @@ __global__ void compute_rhs_x2y2z2_3(double* u, double* rhs, double* rho_i, doub
 
 	if(i <= nx2 && j <= ny2 && k <= nz2) 
 	{
-	//third part
+		//third part
         vijk = vs(k,j,i);
         vp1 = vs(k,j + 1,i);
         vm1 = vs(k,j - 1,i);
@@ -198,6 +198,9 @@ __global__ void compute_rhs_x2y2z2_3(double* u, double* rhs, double* rho_i, doub
         }
 	}
 }
+
+/*#undef u
+#define u(x,y,z,m) u[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]*/
 
 __global__ void compute_rhs_x2y2z2_4(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx2, int ny2, int nz2, double dx1tx1, double tx2, double dx2tx1, double con43, double c2, double dx3tx1, double xxcon2, double dx4tx1, double dx5tx1, double xxcon3, double xxcon4, double xxcon5, double dssp, double c1, double dy1ty1, double ty2, double dy2ty1, double yycon2, double dy3ty1, double dy4ty1, double dy5ty1, double yycon3, double yycon4, double yycon5, double dz1tz1, double tz2, double zzcon2, double zzcon3, double zzcon4, double zzcon5, double dz2tz1, double dz3tz1, double dz4tz1, double dz5tz1, double dt)
 {
@@ -283,7 +286,7 @@ __global__ void compute_rhs_x2y2z2_4(double* u, double* rhs, double* rho_i, doub
 	}
 }
 
-/*#define src(x,y,z,m) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+#define src(x,y,z,m) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 #define dst(x,y,z,m) dst[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 __global__ void compute_rhs_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
 	int m;
@@ -323,7 +326,7 @@ __global__ void compute_rhs_inv_transpose(double *dst, double *src, int nx2, int
     }
 }
 #undef src
-#undef dst*/
+#undef dst
 
 
 void compute_rhs()
@@ -336,9 +339,7 @@ void compute_rhs()
 	compute_rhs_xyz<<<blocks, threads>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
 										 (double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, nx, ny, nz, c1c2);
 
-	/*compute_rhs_transpose<<<blocks, threads>>>((double*)gpuTmp, (double*)gpuU, nx2, ny2, nz2);
-    cudaDeviceSynchronize();
-    compute_rhs_swap((double**)&gpuTmp, (double**)&gpuU);*/
+
 
     if (timeron) timer_start(t_rhsx);
 	compute_rhs_x2y2z2_2<<<blocks, threads>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
@@ -354,15 +355,19 @@ void compute_rhs()
 									 	 nx2, ny2, nz2, dx1tx1, tx2, dx2tx1, con43, c2, dx3tx1, xxcon2, dx4tx1, dx5tx1, xxcon3, xxcon4, xxcon5, dssp, c1, 
 										 dy1ty1, ty2, dy2ty1, yycon2, dy3ty1, dy4ty1, dy5ty1, yycon3, yycon4, yycon5, 
 										 dz1tz1, tz2, zzcon2, zzcon3, zzcon4, zzcon5, dz2tz1, dz3tz1, dz4tz1, dz5tz1, dt);
-
-	/*compute_rhs_swap((double**)&gpuTmp, (double**)&gpuU);
-    compute_rhs_inv_transpose<<<blocks, threads>>>((double*)gpuTmp, (double*)gpuU, nx2, ny2, nz2);*/
+	/*compute_rhs_transpose<<<blocks, threads>>>((double*)gpuTmp, (double*)gpuU, nx2, ny2, nz2);
+    cudaDeviceSynchronize();
+    compute_rhs_swap((double**)&gpuTmp, (double**)&gpuU);*/
 
 	compute_rhs_x2y2z2_4<<<blocks, threads>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
 									 	(double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, 
 									 	 nx2, ny2, nz2, dx1tx1, tx2, dx2tx1, con43, c2, dx3tx1, xxcon2, dx4tx1, dx5tx1, xxcon3, xxcon4, xxcon5, dssp, c1, 
 										 dy1ty1, ty2, dy2ty1, yycon2, dy3ty1, dy4ty1, dy5ty1, yycon3, yycon4, yycon5, 
 										 dz1tz1, tz2, zzcon2, zzcon3, zzcon4, zzcon5, dz2tz1, dz3tz1, dz4tz1, dz5tz1, dt);
+
+	/*compute_rhs_swap((double**)&gpuTmp, (double**)&gpuU);
+    compute_rhs_inv_transpose<<<blocks, threads>>>((double*)gpuTmp, (double*)gpuU, nx2, ny2, nz2);*/
+
 	if (timeron) timer_stop(t_rhsx);
 	if (timeron) timer_stop(t_rhs);
 }

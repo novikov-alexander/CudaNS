@@ -112,9 +112,9 @@ __global__ void y_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
 	int  j1, j2, m;
 	double ru1, rhoq1, fac1, fac2;
 
-    int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+    int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
 	int j;
-	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
 
 	//part 3
 	if (k <= nz2 && i <= nx2)
