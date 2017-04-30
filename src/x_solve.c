@@ -10,7 +10,7 @@
 #undef rhs
 #define rhs(x,y,z,m) rhs[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 
-void swap(double **grid1, double **grid2){
+void x_solve_swap(double **grid1, double **grid2){
     double *sw = *grid1;
     *grid1 = *grid2;
     *grid2 = sw;
@@ -335,7 +335,7 @@ void x_solve()
     
     cudaDeviceSynchronize();
     
-    swap((double**)&gpuTmp, (double**)&gpuRhs);
+    x_solve_swap((double**)&gpuTmp, (double**)&gpuRhs);
 
     cudaDeviceSynchronize();
 	x_solve_kernel_one<<<blocks2, threads2>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, nx2, ny2, nz2);
@@ -362,10 +362,10 @@ void x_solve()
 
     cudaDeviceSynchronize();
 
-    swap((double**)&gpuTmp, (double**)&gpuRhs);
+    //x_solve_swap((double**)&gpuTmp, (double**)&gpuRhs);
 
-    x_solve_inv_transpose<<<blockst, threadst>>>((double*)gpuTmp, (double*)gpuRhs, nx2, ny2, nz2);
-    cudaDeviceSynchronize();
+    //x_solve_inv_transpose<<<blockst, threadst>>>((double*)gpuTmp, (double*)gpuRhs, nx2, ny2, nz2);
+    //cudaDeviceSynchronize();
 
 
     if (timeron) timer_stop(t_xsolve);

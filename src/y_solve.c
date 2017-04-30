@@ -7,6 +7,8 @@
 // systems for the y-lines. Boundary conditions are non-periodic
 //---------------------------------------------------------------------
 
+#undef rhs
+#define rhs(x,y,z,m) rhs[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 __global__ void y_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, int nx2, int ny2, int nz2)
 {
 	int m;
@@ -283,11 +285,11 @@ void y_solve()
 	const int size5 = sizeof(double)*P_SIZE*P_SIZE*P_SIZE*5;
 	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE;
 
-	dim3 blocks = dim3(nx2 / 32+1, ny2 / 4+1, nz2);
-	dim3 threads = dim3(32, 4, 1);
+	dim3 blocks = dim3(nx2 / 8+1, ny2 / 8+1, nz2);
+	dim3 threads = dim3(8, 8, 1);
 
-    dim3 blocks2 = dim3(nx2 / 4 + 1, nz2 / 32 + 1);
-	dim3 threads2 = dim3(4, 32);
+    dim3 blocks2 = dim3(nx2 / 8 + 1, nz2 / 8 + 1);
+	dim3 threads2 = dim3(8, 8);
 
     if (timeron) timer_start(t_ysolve);
 
