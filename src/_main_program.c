@@ -54,9 +54,7 @@ double (*lhs_gpu) [P_SIZE][P_SIZE][P_SIZE];
 double (*lhsp_gpu)[P_SIZE][P_SIZE][P_SIZE];
 double (*lhsm_gpu)[P_SIZE][P_SIZE][P_SIZE];
 
-double (*gpuTmpL) [P_SIZE][P_SIZE][P_SIZE];
-double (*gpuTmpLm) [P_SIZE][P_SIZE][P_SIZE];
-double (*gpuTmpLp) [P_SIZE][P_SIZE][P_SIZE];
+double (*gpuTmp3D) [P_SIZE][P_SIZE];
 
 
 int main(int argc, char *argv[])

@@ -200,9 +200,7 @@ int allocateArrays()
 	CudaSafeCall(cudaMalloc((void**) &lhsp_gpu, sizeof(double) * nx * ny * nz * 5));
 	CudaSafeCall(cudaMalloc((void**) &lhsm_gpu, sizeof(double) * nx * ny * nz * 5));
 
-    CudaSafeCall(cudaMalloc((void**) &gpuTmpL, sizeof(double) * nx * ny * nz * 5));
-    CudaSafeCall(cudaMalloc((void**) &gpuTmpLm, sizeof(double) * nx * ny * nz * 5));
-    CudaSafeCall(cudaMalloc((void**) &gpuTmpLp, sizeof(double) * nx * ny * nz * 5));
+    CudaSafeCall(cudaMalloc((void**) &gpuTmp3D, sizeof(double) * nx * ny * nz));
 
 	CudaSafeCall(cudaMalloc((void**) &gpuU, sizeof(double) * nx * ny * nz * 5));
 	CudaSafeCall(cudaMalloc((void**) &gpuRhs, sizeof(double) * nx * ny * nz * 5));

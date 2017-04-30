@@ -9,8 +9,7 @@
 
 #undef rhs
 #define rhs(x,y,z,m) rhs[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
-#undef lhs
-#define lhs_(x,y,z,m) lhs_[x + (z) * P_SIZE + (y) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+
 __global__ void y_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, int nx2, int ny2, int nz2)
 {
 	int m;
@@ -323,3 +322,5 @@ void y_solve()
     if (timeron) timer_stop(t_pinvr);
     if (timeron) timer_stop(t_ysolve);
 }
+
+#undef lhs
