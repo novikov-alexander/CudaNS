@@ -208,8 +208,8 @@ __global__ void compute_rhs_x2y2z2_4(double* u, double* rhs, double* rho_i, doub
 	double rho_inv, aux, uijk, up1, um1, vijk, vp1, vm1, wijk, wm1, wp1;
 
 	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
-	int j = threadIdx.z + blockIdx.z * blockDim.z + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
 
 	if(i <= nx2 && j <= ny2 && k <= nz2) 
 	{
@@ -251,30 +251,36 @@ __global__ void compute_rhs_x2y2z2_4(double* u, double* rhs, double* rho_i, doub
 
         if (k == 1)
         {
+            #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (5.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m) + u(k + 2,j,i,m));
         }
         else if (k == 2)
         {
+			#pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (-4.0*u(k - 1,j,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m) + u(k + 2,j,i,m));
         }
         else if (k == nz2 - 1)
         {
+            #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k - 2,j,i,m) - 4.0*u(k - 1,j,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m));
         }
         else if (k == nz2)
         {
+            #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k - 2,j,i,m) - 4.0*u(k - 1,j,i,m) + 5.0*u(k,j,i,m));
         }
         else
         {
+            #pragma unroll 5
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k - 2,j,i,m) - 4.0*u(k - 1,j,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m) + u(k + 2,j,i,m));
         }
 
+        #pragma unroll 5
         for (m = 0; m < 5; m++)
             rhs(k,j,i,m) = rhs(k,j,i,m) * dt;
 	}
