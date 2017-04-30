@@ -232,9 +232,9 @@ __global__ void y_solve_kernel_four(double* lhs_, double* lhsp_, double* lhsm_, 
 {
 	int  j1, j2, m;
 
-	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
     int j;
-	int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
 
 	//part 4
 	if ((k <= nz2) && (i <= nx2))
@@ -294,8 +294,8 @@ void y_solve()
 	dim3 blocks = dim3(nx2 / 8+1, ny2 / 8+1, nz2);
 	dim3 threads = dim3(8, 8, 1);
 
-    dim3 blocks2 = dim3(nx2 / 8 + 1, nz2 / 8 + 1);
-	dim3 threads2 = dim3(8, 8);
+    dim3 blocks2 = dim3(nx2 / 32 + 1, nz2 / 8 + 1);
+	dim3 threads2 = dim3(32, 8);
 
     if (timeron) timer_start(t_ysolve);
 
