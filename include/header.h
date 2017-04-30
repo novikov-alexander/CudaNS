@@ -59,7 +59,7 @@ extern double tx1, tx2, tx3, ty1, ty2, ty3, tz1, tz2, tz3,
               c2dtty1, c2dttz1, comz1, comz4, comz5, comz6, 
               c3c4tx3, c3c4ty3, c3c4tz3, c2iv, con43, con16;
 
-extern double (*u)       [P_SIZE][P_SIZE][5];
+extern double (*u)       [P_SIZE][P_SIZE][P_SIZE];
 extern double (*us)      [P_SIZE][P_SIZE];
 extern double (*vs)      [P_SIZE][P_SIZE];
 extern double (*ws)      [P_SIZE][P_SIZE];
@@ -129,7 +129,7 @@ void wtime( double *);
 #define vs(x,y,z) vs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 #define qs(x,y,z) qs[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 #define speed(x,y,z) speed[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define u(x,y,z,m) u[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
+#define u(x,y,z,m) u[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 #define forcing(x,y,z,m) forcing[m + (z) * 5 + (y) * 5 * P_SIZE + (x) * 5 * P_SIZE * P_SIZE]
 #define square(x,y,z) square[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
 

@@ -27,7 +27,7 @@ double tx1, tx2, tx3, ty1, ty2, ty3, tz1, tz2, tz3,
        c3c4tx3, c3c4ty3, c3c4tz3, c2iv, con43, con16;
 
 /* main arrays */
-double (*u)       [P_SIZE][P_SIZE][5];
+double (*u)       [P_SIZE][P_SIZE][P_SIZE];
 double (*us)      [P_SIZE][P_SIZE];
 double (*vs)      [P_SIZE][P_SIZE];
 double (*ws)      [P_SIZE][P_SIZE];
@@ -120,5 +120,5 @@ int main(int argc, char *argv[])
     result = deallocateArrays();
     if (result == 0)
         return -2;
-    return 0;
+     return 0;
 }

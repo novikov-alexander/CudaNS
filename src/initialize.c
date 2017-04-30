@@ -17,11 +17,11 @@ void initialize()
         {
             for (i = 0; i <= nx - 1; i++) 
             {
-                u[k][j][i][0] = 1.0;
-                u[k][j][i][1] = 0.0;
-                u[k][j][i][2] = 0.0;
-                u[k][j][i][3] = 0.0;
-                u[k][j][i][4] = 1.0;
+                u[0][k][j][i] = 1.0;
+                u[1][k][j][i] = 0.0;
+                u[2][k][j][i] = 0.0;
+                u[3][k][j][i] = 0.0;
+                u[4][k][j][i] = 1.0;
 
                 xi = i * dnxm1;
                 eta = j * dnym1;
@@ -51,7 +51,7 @@ void initialize()
                     Peta = eta * Pface[1][1][m] + (1.0 - eta) * Pface[0][1][m];
                     Pzeta = zeta * Pface[1][2][m] + (1.0 - zeta) * Pface[0][2][m];
 
-                    u[k][j][i][m] = Pxi + Peta + Pzeta - Pxi*Peta - Pxi*Pzeta - Peta*Pzeta + Pxi*Peta*Pzeta;
+                    u[m][k][j][i] = Pxi + Peta + Pzeta - Pxi*Peta - Pxi*Pzeta - Peta*Pzeta + Pxi*Peta*Pzeta;
                 }
 
                 if (i == 0)
@@ -63,7 +63,7 @@ void initialize()
                     exact_solution(xi, eta, zeta, temp);
 
                     for (m = 0; m < 5; m++)
-                        u[k][j][i][m] = temp[m];
+                        u[m][k][j][i] = temp[m];
                 }
                 else if (i == nx - 1)
                 {
@@ -74,7 +74,7 @@ void initialize()
                     exact_solution(xi, eta, zeta, temp);
                  
                     for (m = 0; m < 5; m++)
-                        u[k][j][i][m] = temp[m];
+                        u[m][k][j][i] = temp[m];
                 }
                 else if (j == 0)
                 {
@@ -85,7 +85,7 @@ void initialize()
                     exact_solution(xi, eta, zeta, temp);
                    
                     for (m = 0; m < 5; m++)
-                        u[k][j][i][m] = temp[m];
+                        u[m][k][j][i] = temp[m];
                 }
                 else if (j == ny - 1)
                 {
@@ -96,7 +96,7 @@ void initialize()
                     exact_solution(xi, eta, zeta, temp);
                   
                     for (m = 0; m < 5; m++)
-                        u[k][j][i][m] = temp[m];
+                        u[m][k][j][i] = temp[m];
                 }
                 else if (k == 0)
                 {
@@ -107,7 +107,7 @@ void initialize()
                     exact_solution(xi, eta, zeta, temp);
 
                     for (m = 0; m < 5; m++)
-                        u[k][j][i][m] = temp[m];
+                        u[m][k][j][i] = temp[m];
                 }
                 else if (k == nz - 1)
                 {
@@ -118,7 +118,7 @@ void initialize()
                     exact_solution(xi, eta, zeta, temp);
 
                     for (m = 0; m < 5; m++)
-                        u[k][j][i][m] = temp[m];
+                        u[m][k][j][i] = temp[m];
                 }
             }
         }
@@ -205,7 +205,7 @@ int allocateArrays()
 	CudaSafeCall(cudaMalloc((void**) &gpuForcing, sizeof(double) * nx * ny * nz * 5));
     CudaSafeCall(cudaMalloc((void**) &gpuTmp, sizeof(double) * nx * ny * nz * 5));
 
-    u = (double (*)[P_SIZE][P_SIZE][5] ) malloc(sizeof(double) * nx * ny * nz * 5);
+    u = (double (*)[P_SIZE][P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz * 5);
     rhs = (double (*)[P_SIZE][P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz * 5);
     forcing = (double (*)[P_SIZE][P_SIZE][5] ) malloc(sizeof(double) * nx * ny * nz * 5);
     
