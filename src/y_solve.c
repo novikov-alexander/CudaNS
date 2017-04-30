@@ -251,9 +251,9 @@ __global__ void y_solve_inversion(double* rhs, double bt, int nx2, int ny2, int 
 {
     double r1, r2, r3, r4, r5, t1, t2;
 
-	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
 	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
-	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
+	int i = threadIdx.z + blockIdx.z * blockDim.z + 1;
 
 	if ((k <= nz2) && (j <= ny2) && (i <= nx2))
     {
