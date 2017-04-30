@@ -39,9 +39,9 @@ __global__ void compute_rhs_x2y2z2(double* u, double* rhs, double* rho_i, double
 	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
 	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
 
-	//second part
 	if(i <= nx2 && j <= ny2 && k <= nz2) 
 	{
+        //second part
         uijk = us(k,j,i);
         up1 = us(k,j,i + 1);
         um1 = us(k,j,i - 1);
@@ -102,12 +102,9 @@ __global__ void compute_rhs_x2y2z2(double* u, double* rhs, double* rho_i, double
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j,i - 2,m) - 4.0*u(k,j,i - 1,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j,i + 1,m) + u(k,j,i + 2,m));
         }
-	}
 
 
 	//third part
-	if(i <= nx2 && j <= ny2 && k <= nz2) 
-	{
         vijk = vs(k,j,i);
         vp1 = vs(k,j + 1,i);
         vm1 = vs(k,j - 1,i);
@@ -173,11 +170,9 @@ __global__ void compute_rhs_x2y2z2(double* u, double* rhs, double* rho_i, double
             for (m = 0; m < 5; m++)
                 rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k,j - 2,i,m) - 4.0*u(k,j - 1,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k,j + 1,i,m) + u(k,j + 2,i,m));
         }
-  	}
+
 
 	//forth part
-	if(i <= nx2 && j <= ny2 && k <= nz2) 
-	{
         wijk = ws(k,j,i);
         wp1 = ws(k + 1,j,i);
         wm1 = ws(k - 1,j,i);
@@ -249,16 +244,13 @@ __global__ void compute_rhs_x2y2z2(double* u, double* rhs, double* rho_i, double
 
 void compute_rhs()
 {
-	dim3 blocks = dim3(nx / 32+1, ny / 4+1, nz);
-	dim3 threads = dim3(32, 4, 1);
+	dim3 blocks = dim3(nx / 8+1, ny / 8+1, nz);
+	dim3 threads = dim3(8, 8, 1);
 
     if (timeron) timer_start(t_rhs);
 
 	compute_rhs_xyz<<<blocks, threads>>>((double*)gpuU, (double*)gpuRhs, (double*)gpuRho_i, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs,
 										 (double*)gpuSquare, (double*)gpuSpeed, (double*)gpuForcing, nx, ny, nz, c1c2);
-	
-	blocks = dim3(nx2, ny2 / 4+1, nz2 / 32 + 1);
-	threads = dim3(1, 4, 32);
 
     cudaDeviceSynchronize();
     if (timeron) timer_start(t_rhsx);
