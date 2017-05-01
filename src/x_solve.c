@@ -280,11 +280,11 @@ __global__ void x_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
 	double ru1, rhon1, fac1, fac2;
 
     int i;
-	int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int k = threadIdx.x + blockIdx.x * blockDim.x;
+	int j = threadIdx.y + blockIdx.y * blockDim.y;
 
 	//part 3
-	if (k <= nz2 && j <= ny2)
+	if (k > 0 && k <= nz2 && j > 0 && j <= ny2)
     {        
         for (i = 1; i <= nx2; i++)
         {

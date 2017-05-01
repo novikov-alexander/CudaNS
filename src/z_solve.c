@@ -268,11 +268,11 @@ __global__ void z_solve_kernel_three(double* lhs_, double* lhsp_, double* lhsm_,
 	register int  k1, k2, m;
 	register double ru1, rhos1, fac1, fac2;
 
-	register const int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	register const int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	register const int j = threadIdx.x + blockIdx.x * blockDim.x;
+	register const int i = threadIdx.y + blockIdx.y * blockDim.y;
 	register  int k;
 
-	if (i <= nx2 && j <= ny2)
+	if (i > 0 && i <= nx2 && j > 0 && j <= ny2)
 	{
 		for (k = 1; k <= nz2; k++)
         {

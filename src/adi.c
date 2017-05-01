@@ -9,11 +9,11 @@ __global__ void xinvr_kernel(double* rhs, double* rho_i, double* us, double* vs,
 {
     double t1, t2, t3, ac, ru1, uu, vv, ww, r1, r2, r3, r4, r5, ac2inv;
 
-	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
-	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
+	int i = threadIdx.x + blockIdx.x * blockDim.x;
+	int j = threadIdx.y + blockIdx.y * blockDim.y;
+	int k = threadIdx.z + blockIdx.z * blockDim.z;
 
-	if(i <= nx2 && j <= ny2 && k <= nz2) 
+	if(i > 0 && j > 0 && k > 0 && i <= nx2 && j <= ny2 && k <= nz2) 
 	{
         ru1 = rho_i(k,j,i);
         uu = us(k,j,i);
@@ -61,7 +61,7 @@ __global__ void add_kernel(double* u, double* rhs, int nx2, int ny2, int nz2)
 void xinvr()
 {
 
-	dim3 blocks = dim3(nx2 / 8 + 1, ny2 / 8+1, nz2);
+	dim3 blocks = dim3(nx / 8 + 1, ny / 8+1, nz);
 	dim3 threads = dim3(8, 8, 1);
 
     if (timeron) timer_start(t_txinvr);
