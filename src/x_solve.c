@@ -40,6 +40,13 @@ __global__ void x_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, i
 	}
 }
 
+
+#undef rho_i
+#undef vs
+#undef speed
+#define rho_i(x,y,z) rho_i[x + (z) * P_SIZE + (y) * P_SIZE * P_SIZE]
+#define us(x,y,z) us[x + (z) * P_SIZE + (y) * P_SIZE * P_SIZE]
+#define speed(x,y,z) speed[x + (z) * P_SIZE + (y) * P_SIZE * P_SIZE]
 __global__ void x_solve_kernel_two1(double* lhs_, double* lhsp_, double* lhsm_, double* rhs, double* rho_i, double* us, double* speed, double c3c4, double dx2, double  con43, double  dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nx)
 {
 	int  i1, i2, m;
@@ -455,7 +462,38 @@ __global__ void x_solve_transpose(double *dst, double *src, int nx2, int ny2, in
     }
 }
 
+#undef src
+#undef dst
+#define src(x,y,z) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define dst(x,y,z) dst[x + (z) * P_SIZE + (y) * P_SIZE * P_SIZE]
+__global__ void x_solve_transpose_3D(double *dst, double *src, int nx2, int ny2, int nz2){
+	int m;
 
+    int k = threadIdx.x + blockIdx.x * blockDim.x;
+	int j = threadIdx.y + blockIdx.y * blockDim.y;
+	int i = threadIdx.z + blockIdx.z * blockDim.z;
+
+	if ((k <= nz2 + 1) && (j <= ny2 + 1) && (i <= nx2 + 1))
+    {
+        dst(i,j,k) = src(i,j,k); 
+    }
+}
+
+__global__ void x_solve_inv_transpose_3D(double *dst, double *src, int nx2, int ny2, int nz2){
+	int m;
+
+    int k = threadIdx.x + blockIdx.x * blockDim.x;
+	int j = threadIdx.y + blockIdx.y * blockDim.y;
+	int i = threadIdx.z + blockIdx.z * blockDim.z;
+
+	if ((k <= nz2 + 1) && (j <= ny2 + 1) && (i <= nx2 + 1))
+    {
+        src(i,j,k) = dst(i,j,k); 
+    }
+}
+
+#undef src
+#undef dst
 /*__global__ void x_solve_inv_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
 	int m;
 
@@ -491,9 +529,13 @@ void x_solve()
     if (timeron) timer_start(t_xsolve);
 	
     x_solve_transpose<<<blockst, threadst>>>((double*)gpuTmp, (double*)gpuRhs, nx2, ny2, nz2);
-
-    cudaDeviceSynchronize();
     x_solve_swap((double**)&gpuTmp, (double**)&gpuRhs);
+	x_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuUs, nx2, ny2, nz2);
+	x_solve_swap((double**)&gpuTmp3D, (double**)&gpuUs);
+	x_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuSpeed, nx2, ny2, nz2);
+    x_solve_swap((double**)&gpuTmp3D, (double**)&gpuSpeed);
+	x_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuRho_i, nx2, ny2, nz2);
+    x_solve_swap((double**)&gpuTmp3D, (double**)&gpuRho_i);
 
     cudaDeviceSynchronize();
 	x_solve_kernel_one<<<blocks2, threads2>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, nx2, ny2, nz2);
@@ -525,6 +567,13 @@ void x_solve()
     if (timeron) timer_stop(t_ninvr);
 
     cudaDeviceSynchronize();
+
+	x_solve_swap((double**)&gpuTmp3D, (double**)&gpuRho_i);
+    x_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuRho_i, nx2, ny2, nz2);
+	x_solve_swap((double**)&gpuTmp3D, (double**)&gpuUs);
+    x_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuUs, nx2, ny2, nz2);
+	x_solve_swap((double**)&gpuTmp3D, (double**)&gpuSpeed);
+    x_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuSpeed, nx2, ny2, nz2);
 
     //x_solve_swap((double**)&gpuTmp, (double**)&gpuRhs);
 
