@@ -537,7 +537,6 @@ void x_solve()
 	x_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuRho_i, nx2, ny2, nz2);
     x_solve_swap((double**)&gpuTmp3D, (double**)&gpuRho_i);
 
-    cudaDeviceSynchronize();
 	x_solve_kernel_one<<<blocks2, threads2>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, nx2, ny2, nz2);
 
 	cudaDeviceSynchronize();
@@ -565,8 +564,6 @@ void x_solve()
 	x_solve_inversion<<<blocks, threads>>>((double*)gpuRhs, bt, nx2, ny2, nz2);
 
     if (timeron) timer_stop(t_ninvr);
-
-    cudaDeviceSynchronize();
 
 	x_solve_swap((double**)&gpuTmp3D, (double**)&gpuUs);
     x_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuUs, nx2, ny2, nz2);
