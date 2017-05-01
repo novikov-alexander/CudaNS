@@ -227,11 +227,11 @@ __global__ void x_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
 	double ru1, rhon1;
 
 	int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int i = threadIdx.y + blockIdx.y * blockDim.y + 3;
 	int j = threadIdx.z + blockIdx.z * blockDim.z + 1;
 
 	//part 2
-	if (k <= nz2 && j <= ny2 && i <= nx2)
+	if (k <= nz2 && j <= ny2 && (i <= nx2 - 2))
     {        
         lhs_(k,j,i,0) = 0.0;
         ru1 = c3c4*rho_i(k,j,i - 1);
