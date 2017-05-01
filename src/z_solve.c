@@ -539,6 +539,9 @@ void z_solve()
     dim3 blockst = dim3(nx / 8 + 1, ny / 8 + 1, nz / 8 + 1);
 	dim3 threadst = dim3(8, 8, 8);
 
+    dim3 blocks3 = dim3(nx2 / 32 + 1, ny2 / 8 + 1, nz2);
+	dim3 threads3 = dim3(32, 8, 1);
+
     if (timeron) timer_start(t_zsolve);
     
     z_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuWs, nx2, ny2, nz2);
@@ -572,7 +575,7 @@ void z_solve()
 
     if (timeron) timer_start(t_tzetar);
 
-	z_solve_inversion<<<blocks2, threads2>>>((double*)gpuRhs, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs, (double*)gpuSpeed, (double*)gpuU, nx2, ny2, nz2, bt, c2iv);
+	z_solve_inversion<<<blockst, threadst>>>((double*)gpuRhs, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs, (double*)gpuSpeed, (double*)gpuU, nx2, ny2, nz2, bt, c2iv);
 
     if (timeron) timer_stop(t_tzetar);
 
