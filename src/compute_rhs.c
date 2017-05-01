@@ -857,11 +857,10 @@ __global__ void compute_rhs_x2y2z2_4(double* u, double* rhs, double* rho_i, doub
 
         #pragma unroll 5
         for (m = 0; m < 5; m++)
-            rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k - 2,j,i,m) - 4.0*u(k - 1,j,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m) + u(k + 2,j,i,m));
-
-        #pragma unroll 5
-        for (m = 0; m < 5; m++)
+        {
+		    rhs(k,j,i,m) = rhs(k,j,i,m) - dssp * (u(k - 2,j,i,m) - 4.0*u(k - 1,j,i,m) + 6.0*u(k,j,i,m) - 4.0*u(k + 1,j,i,m) + u(k + 2,j,i,m));
             rhs(k,j,i,m) = rhs(k,j,i,m) * dt;
+		}
 	}
 }
 
