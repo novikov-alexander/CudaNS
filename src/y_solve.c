@@ -38,10 +38,12 @@ __global__ void y_solve_kernel_one(double* lhs_, double* lhsp_, double* lhsm_, i
 	}
 }
 
-/*#undef vs
+#undef vs
 #undef speed
-#define vs(x,y,z) vs[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE]
-#define speed(x,y,z) speed[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE]*/
+#undef rho_i
+#define vs(x,y,z) vs[z + (x) * P_SIZE + (y) * P_SIZE * P_SIZE]
+#define speed(x,y,z) speed[z + (x) * P_SIZE + (y) * P_SIZE * P_SIZE]
+#define rho_i(x,y,z) rho_i[z + (x) * P_SIZE + (y) * P_SIZE * P_SIZE]
 
 __global__ void y_solve_kernel_two1(double* lhs_, double* lhsp_, double* lhsm_, double* rhs, double* rho_i, double* vs, double* speed, double c3c4, double dy3, double  con43, double  dy5, double c1c5, double dy1, double dtty2, double dtty1, double dymax, double c2dtty1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int ny)
 {
@@ -445,7 +447,7 @@ __global__ void y_solve_inversion(double* rhs, double bt, int nx2, int ny2, int 
 }
 
 #define src(x,y,z) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
-#define dst(x,y,z) dst[y + (z) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define dst(x,y,z) dst[z + (x) * P_SIZE + (y) * P_SIZE * P_SIZE]
 __global__ void y_solve_transpose_3D(double *dst, double *src, int nx2, int ny2, int nz2){
 	int m;
 
@@ -495,11 +497,12 @@ void y_solve()
 
     if (timeron) timer_start(t_ysolve);
 
-	/*y_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuVs, nx2, ny2, nz2);
+	y_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuVs, nx2, ny2, nz2);
 	y_solve_swap((double**)&gpuTmp3D, (double**)&gpuVs);
 	y_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuSpeed, nx2, ny2, nz2);
-    y_solve_swap((double**)&gpuTmp3D, (double**)&gpuSpeed);*/
-
+    y_solve_swap((double**)&gpuTmp3D, (double**)&gpuSpeed);
+	y_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuRho_i, nx2, ny2, nz2);
+    y_solve_swap((double**)&gpuTmp3D, (double**)&gpuRho_i);
     cudaDeviceSynchronize();
 	y_solve_kernel_one<<<blocks2, threads2>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, nx2, ny2, nz2);
     
@@ -527,10 +530,12 @@ void y_solve()
 
     if (timeron) timer_stop(t_pinvr);
 
-	/*y_solve_swap((double**)&gpuTmp3D, (double**)&gpuVs);
+	y_solve_swap((double**)&gpuTmp3D, (double**)&gpuRho_i);
+    y_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuRho_i, nx2, ny2, nz2);
+	y_solve_swap((double**)&gpuTmp3D, (double**)&gpuVs);
     y_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuVs, nx2, ny2, nz2);
 	y_solve_swap((double**)&gpuTmp3D, (double**)&gpuSpeed);
-    y_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuSpeed, nx2, ny2, nz2);*/
+    y_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuSpeed, nx2, ny2, nz2);
 
     if (timeron) timer_stop(t_ysolve);
 }
