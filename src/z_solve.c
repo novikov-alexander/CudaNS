@@ -413,8 +413,8 @@ __global__ void z_solve_inversion(double* rhs, double* us, double* vs, double* w
 	double t1, t2, t3, ac, xvel, yvel, zvel;
     double btuz, ac2u, uzik1, r1, r2, r3, r4, r5;
 
-	int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
+	int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
 	int k = threadIdx.z + blockIdx.z * blockDim.z + 1;
 
 	if (i <= nx2 && j <= ny2 && k <= nz2)
@@ -575,7 +575,7 @@ void z_solve()
 
     if (timeron) timer_start(t_tzetar);
 
-	z_solve_inversion<<<blockst, threadst>>>((double*)gpuRhs, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs, (double*)gpuSpeed, (double*)gpuU, nx2, ny2, nz2, bt, c2iv);
+	z_solve_inversion<<<blocks, threads>>>((double*)gpuRhs, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs, (double*)gpuSpeed, (double*)gpuU, nx2, ny2, nz2, bt, c2iv);
 
     if (timeron) timer_stop(t_tzetar);
 
