@@ -10,8 +10,8 @@ void compute_rhs_swap(double **grid1, double **grid2){
 
 __global__ void compute_rhs_xyz(double* u, double* rhs, double* rho_i, double* us, double* vs, double* ws, double* qs, double* square, double* speed, double* forcing, int nx, int ny, int nz, double c1c2)
 {
-	int m;
-	double rho_inv, aux, uijk, up1, um1;
+	register int m;
+	register double rho_inv, aux;
 
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
