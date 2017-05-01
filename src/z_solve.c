@@ -572,7 +572,7 @@ void z_solve()
 
     if (timeron) timer_start(t_tzetar);
 
-	z_solve_inversion<<<blocks, threads>>>((double*)gpuRhs, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs, (double*)gpuSpeed, (double*)gpuU, nx2, ny2, nz2, bt, c2iv);
+	z_solve_inversion<<<blocks2, threads2>>>((double*)gpuRhs, (double*)gpuUs, (double*)gpuVs, (double*)gpuWs, (double*)gpuQs, (double*)gpuSpeed, (double*)gpuU, nx2, ny2, nz2, bt, c2iv);
 
     if (timeron) timer_stop(t_tzetar);
 
