@@ -234,8 +234,8 @@ __global__ void x_solve_kernel_two(double* lhs_, double* lhsp_, double* lhsm_, d
 	double ru1, rhon1;
 
 	int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
-	int i = threadIdx.y + blockIdx.y * blockDim.y + 3;
-	int j = threadIdx.z + blockIdx.z * blockDim.z + 1;
+	int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+	int i = threadIdx.z + blockIdx.z * blockDim.z + 3;
 
 	//part 2
 	if (k <= nz2 && j <= ny2 && (i <= nx2 - 2))
@@ -568,12 +568,8 @@ void x_solve()
 
     cudaDeviceSynchronize();
 
-	x_solve_swap((double**)&gpuTmp3D, (double**)&gpuRho_i);
-    x_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuRho_i, nx2, ny2, nz2);
 	x_solve_swap((double**)&gpuTmp3D, (double**)&gpuUs);
     x_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuUs, nx2, ny2, nz2);
-	x_solve_swap((double**)&gpuTmp3D, (double**)&gpuSpeed);
-    x_solve_inv_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuSpeed, nx2, ny2, nz2);
 
     //x_solve_swap((double**)&gpuTmp, (double**)&gpuRhs);
 

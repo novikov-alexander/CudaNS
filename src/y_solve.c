@@ -499,10 +499,6 @@ void y_solve()
 
 	y_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuVs, nx2, ny2, nz2);
 	y_solve_swap((double**)&gpuTmp3D, (double**)&gpuVs);
-	y_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuSpeed, nx2, ny2, nz2);
-    y_solve_swap((double**)&gpuTmp3D, (double**)&gpuSpeed);
-	y_solve_transpose_3D<<<blockst, threadst>>>((double*)gpuTmp3D, (double*)gpuRho_i, nx2, ny2, nz2);
-    y_solve_swap((double**)&gpuTmp3D, (double**)&gpuRho_i);
     cudaDeviceSynchronize();
 	y_solve_kernel_one<<<blocks2, threads2>>>((double*)lhs_gpu, (double*)lhsp_gpu, (double*)lhsm_gpu, nx2, ny2, nz2);
     
