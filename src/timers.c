@@ -11,9 +11,8 @@ void wtime(double *t)
     gettimeofday(&tv, NULL);
     if (sec < 0)
         sec = tv.tv_sec;
-    *t = (tv.tv_sec - sec) + 1.0e-6*tv.tv_usec;
+    *t = (tv.tv_sec - sec) + 1.0e-6 * tv.tv_usec;
 }
-
 
 static double start[16], elapsed[16];
 double elapsed_time()

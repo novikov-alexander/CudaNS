@@ -3,7 +3,7 @@
 #include "header.h"
 
 //---------------------------------------------------------------------
-// verification routine                         
+// verification routine
 //---------------------------------------------------------------------
 void verify(int no_time_steps, logical *verified)
 {
@@ -13,23 +13,23 @@ void verify(int no_time_steps, logical *verified)
     char Class[0];
     epsilon = 1.0e-08;
 
-	const int size5 = sizeof(double)*P_SIZE*P_SIZE*P_SIZE*5;
-	const int size = sizeof(double)*P_SIZE*P_SIZE*P_SIZE;
+    const int size5 = sizeof(double) * P_SIZE * P_SIZE * P_SIZE * 5;
+    const int size = sizeof(double) * P_SIZE * P_SIZE * P_SIZE;
     //---------------------------------------------------------------------
     // compute the error norm and the residual norm, and exit if not printing
     //---------------------------------------------------------------------
     error_norm(xce);
     compute_rhs();
     CudaSafeCall(cudaMemcpy(u, gpuU, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(ws, gpuWs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(qs, gpuQs, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(square, gpuSquare, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(forcing, gpuForcing, size5, cudaMemcpyDeviceToHost));
-	CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(ws, gpuWs, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(qs, gpuQs, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(square, gpuSquare, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(forcing, gpuForcing, size5, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
     rhs_norm(xcr);
 
     for (m = 0; m < 5; m++)
@@ -38,17 +38,17 @@ void verify(int no_time_steps, logical *verified)
     *Class = 'U';
     *verified = true;
 
-    for (m = 0; m < 5; m++) 
+    for (m = 0; m < 5; m++)
     {
         xcrref[m] = 1.0;
         xceref[m] = 1.0;
     }
 
     //---------------------------------------------------------------------
-    // reference data for 12X12X12 grids after 100 time steps, 
+    // reference data for 12X12X12 grids after 100 time steps,
     // with DT = 1.50e-02
     //---------------------------------------------------------------------
-    if ((nx == 12) && (ny == 12) && (nz == 12) && (no_time_steps == 100)) 
+    if ((nx == 12) && (ny == 12) && (nz == 12) && (no_time_steps == 100))
     {
         *Class = 'S';
         dtref = 1.5e-2;
@@ -69,13 +69,13 @@ void verify(int no_time_steps, logical *verified)
         xceref[1] = 1.0364446640837285e-05;
         xceref[2] = 1.6154798287166471e-05;
         xceref[3] = 1.5750704994480102e-05;
-        xceref[4] = 3.4177666183390531e-05;        
+        xceref[4] = 3.4177666183390531e-05;
     }
     //---------------------------------------------------------------------
-    // reference data for 36X36X36 grids after 400 time steps, 
+    // reference data for 36X36X36 grids after 400 time steps,
     // with DT = 1.5e-03
     //---------------------------------------------------------------------
-    else if ((nx == 36) && (ny == 36) && (nz == 36) && (no_time_steps == 400)) 
+    else if ((nx == 36) && (ny == 36) && (nz == 36) && (no_time_steps == 400))
     {
         *Class = 'W';
         dtref = 1.5e-3;
@@ -99,10 +99,10 @@ void verify(int no_time_steps, logical *verified)
         xceref[4] = 0.1212845639773e-03;
     }
     //---------------------------------------------------------------------
-    // reference data for 64X64X64 grids after 400 time steps, 
+    // reference data for 64X64X64 grids after 400 time steps,
     // with DT = 1.5e-03
     //---------------------------------------------------------------------
-    else if ((nx == 64) && (ny == 64) && (nz == 64) && (no_time_steps == 400)) 
+    else if ((nx == 64) && (ny == 64) && (nz == 64) && (no_time_steps == 400))
     {
         *Class = 'A';
         dtref = 1.5e-3;
@@ -129,8 +129,8 @@ void verify(int no_time_steps, logical *verified)
     // reference data for 102X102X102 grids after 400 time steps,
     // with DT = 1.0e-03
     //---------------------------------------------------------------------
-    else if ((nx == 102) && (ny == 102) && (nz == 102) && (no_time_steps == 400)) 
-    { 
+    else if ((nx == 102) && (ny == 102) && (nz == 102) && (no_time_steps == 400))
+    {
         *Class = 'B';
         dtref = 1.0e-3;
 
@@ -156,8 +156,8 @@ void verify(int no_time_steps, logical *verified)
     // reference data for 162X162X162 grids after 400 time steps,
     // with DT = 0.67e-03
     //---------------------------------------------------------------------
-    else if ((nx == 162) && (ny == 162) && (nz == 162) && (no_time_steps == 400)) 
-    { 
+    else if ((nx == 162) && (ny == 162) && (nz == 162) && (no_time_steps == 400))
+    {
         *Class = 'C';
         dtref = 0.67e-3;
 
@@ -183,7 +183,7 @@ void verify(int no_time_steps, logical *verified)
     // reference data for 408X408X408 grids after 500 time steps,
     // with DT = 0.3e-03
     //---------------------------------------------------------------------
-    else if ((nx == 408) && (ny == 408) && (nz == 408) && (no_time_steps == 500)) 
+    else if ((nx == 408) && (ny == 408) && (nz == 408) && (no_time_steps == 500))
     {
         *Class = 'D';
         dtref = 0.30e-3;
@@ -210,7 +210,7 @@ void verify(int no_time_steps, logical *verified)
     // reference data for 1020X1020X1020 grids after 500 time steps,
     // with DT = 0.1e-03
     //---------------------------------------------------------------------
-    else if ((nx == 1020) && (ny == 1020) && (nz == 1020) && (no_time_steps == 500)) 
+    else if ((nx == 1020) && (ny == 1020) && (nz == 1020) && (no_time_steps == 500))
     {
         *Class = 'E';
         dtref = 0.10e-3;
@@ -233,10 +233,10 @@ void verify(int no_time_steps, logical *verified)
         xceref[3] = 0.1536963126457e+02;
         xceref[4] = 0.1575330146156e+03;
     }
-    else 
+    else
         *verified = false;
 
-    for (m = 0; m < 5; m++) 
+    for (m = 0; m < 5; m++)
     {
         xcrdif[m] = fabs((xcr[m] - xcrref[m]) / xcrref[m]);
         xcedif[m] = fabs((xce[m] - xceref[m]) / xceref[m]);
@@ -245,71 +245,89 @@ void verify(int no_time_steps, logical *verified)
     //---------------------------------------------------------------------
     // Output the comparison of computed results to known cases.
     //---------------------------------------------------------------------
-    if (*Class != 'U') {
+    if (*Class != 'U')
+    {
         printf(" Verification being performed for class %c\n", *Class);
         printf(" accuracy setting for epsilon = %20.13E\n", epsilon);
         *verified = (fabs(dt - dtref) <= epsilon);
-        if (!(*verified)) {
+        if (!(*verified))
+        {
             *Class = 'U';
             printf(" DT does not match the reference value of %15.8E\n", dtref);
         }
     }
-    else {
+    else
+    {
         printf(" Unknown class\n");
     }
 
-    if (*Class != 'U') {
+    if (*Class != 'U')
+    {
         printf(" Comparison of RMS-norms of residual\n");
     }
-    else {
+    else
+    {
         printf(" RMS-norms of residual\n");
     }
 
-    for (m = 0; m < 5; m++) {
-        if (*Class == 'U') {
+    for (m = 0; m < 5; m++)
+    {
+        if (*Class == 'U')
+        {
             printf("          %2d%20.13E\n", m + 1, xcr[m]);
         }
-        else if (xcrdif[m] <= epsilon) {
+        else if (xcrdif[m] <= epsilon)
+        {
             printf("          %2d%20.13E%20.13E%20.13E\n",
-                m + 1, xcr[m], xcrref[m], xcrdif[m]);
+                   m + 1, xcr[m], xcrref[m], xcrdif[m]);
         }
-        else  {
+        else
+        {
             *verified = false;
             printf(" FAILURE: %2d%20.13E%20.13E%20.13E\n",
-                m + 1, xcr[m], xcrref[m], xcrdif[m]);
+                   m + 1, xcr[m], xcrref[m], xcrdif[m]);
         }
     }
 
-    if (*Class != 'U') {
+    if (*Class != 'U')
+    {
         printf(" Comparison of RMS-norms of solution error\n");
     }
-    else {
+    else
+    {
         printf(" RMS-norms of solution error\n");
     }
 
-    for (m = 0; m < 5; m++) {
-        if (*Class == 'U') {
+    for (m = 0; m < 5; m++)
+    {
+        if (*Class == 'U')
+        {
             printf("          %2d%20.13E\n", m + 1, xce[m]);
         }
-        else if (xcedif[m] <= epsilon) {
+        else if (xcedif[m] <= epsilon)
+        {
             printf("          %2d%20.13E%20.13E%20.13E\n",
-                m + 1, xce[m], xceref[m], xcedif[m]);
+                   m + 1, xce[m], xceref[m], xcedif[m]);
         }
-        else {
+        else
+        {
             *verified = false;
             printf(" FAILURE: %2d%20.13E%20.13E%20.13E\n",
-                m + 1, xce[m], xceref[m], xcedif[m]);
+                   m + 1, xce[m], xceref[m], xcedif[m]);
         }
     }
 
-    if (*Class == 'U') {
+    if (*Class == 'U')
+    {
         printf(" No reference values provided\n");
         printf(" No verification performed\n");
     }
-    else if (*verified) {
+    else if (*verified)
+    {
         printf(" Verification Successful\n");
     }
-    else {
+    else
+    {
         printf(" Verification failed\n");
     }
 }

@@ -2,7 +2,7 @@
 #include "header.h"
 
 void print_results(int niter, double tmax, logical verified, const char **t_names)
-{ 
+{
     double mflops;
     double trecs[t_last + 1];
     int i;
@@ -31,7 +31,7 @@ void print_results(int niter, double tmax, logical verified, const char **t_name
         for (i = 1; i <= t_last; i++)
             trecs[i] = timer_read(i);
 
-        if (tmax == 0.0) 
+        if (tmax == 0.0)
             tmax = 1.0;
 
         printf("\n  SECTION       Time (seconds)\n");
@@ -47,13 +47,12 @@ void print_results(int niter, double tmax, logical verified, const char **t_name
         printf("  %-8s:%9.3f  (%6.2f%%)\n", t_names[t_txinvr], trecs[t_txinvr], trecs[t_txinvr] * 100. / tmax);
 
         printf("  %-8s:%9.3f  (%6.2f%%)\n", t_names[t_xsolve], trecs[t_xsolve], trecs[t_xsolve] * 100. / tmax);
-        //printf("    --> %-8s %9.3f  (%6.2f%%)\n", t_names[t_ninvr], trecs[t_ninvr], trecs[t_ninvr] * 100. / tmax);
+        // printf("    --> %-8s %9.3f  (%6.2f%%)\n", t_names[t_ninvr], trecs[t_ninvr], trecs[t_ninvr] * 100. / tmax);
         printf("  %-8s:%9.3f  (%6.2f%%)\n", t_names[t_ysolve], trecs[t_ysolve], trecs[t_ysolve] * 100. / tmax);
-        //printf("    --> %-8s %9.3f  (%6.2f%%)\n", t_names[t_pinvr], trecs[t_pinvr], trecs[t_pinvr] * 100. / tmax);
+        // printf("    --> %-8s %9.3f  (%6.2f%%)\n", t_names[t_pinvr], trecs[t_pinvr], trecs[t_pinvr] * 100. / tmax);
         printf("  %-8s:%9.3f  (%6.2f%%)\n", t_names[t_zsolve], trecs[t_zsolve], trecs[t_zsolve] * 100. / tmax);
-        //printf("    --> %-8s %9.3f  (%6.2f%%)\n", t_names[t_tzetar], trecs[t_tzetar], trecs[t_tzetar] * 100. / tmax);
+        // printf("    --> %-8s %9.3f  (%6.2f%%)\n", t_names[t_tzetar], trecs[t_tzetar], trecs[t_tzetar] * 100. / tmax);
 
         printf("  %-8s:%9.3f  (%6.2f%%)\n", t_names[t_add], trecs[t_add], trecs[t_add] * 100. / tmax);
-        
     }
 }

@@ -131,65 +131,65 @@ void set_constants()
     c4dssp = 4.0 * dssp;
     c5dssp = 5.0 * dssp;
 
-    dttx1 = dt*tx1;
-    dttx2 = dt*tx2;
-    dtty1 = dt*ty1;
-    dtty2 = dt*ty2;
-    dttz1 = dt*tz1;
-    dttz2 = dt*tz2;
+    dttx1 = dt * tx1;
+    dttx2 = dt * tx2;
+    dtty1 = dt * ty1;
+    dtty2 = dt * ty2;
+    dttz1 = dt * tz1;
+    dttz2 = dt * tz2;
 
-    c2dttx1 = 2.0*dttx1;
-    c2dtty1 = 2.0*dtty1;
-    c2dttz1 = 2.0*dttz1;
+    c2dttx1 = 2.0 * dttx1;
+    c2dtty1 = 2.0 * dtty1;
+    c2dttz1 = 2.0 * dttz1;
 
-    dtdssp = dt*dssp;
+    dtdssp = dt * dssp;
 
     comz1 = dtdssp;
-    comz4 = 4.0*dtdssp;
-    comz5 = 5.0*dtdssp;
-    comz6 = 6.0*dtdssp;
+    comz4 = 4.0 * dtdssp;
+    comz5 = 5.0 * dtdssp;
+    comz6 = 6.0 * dtdssp;
 
-    c3c4tx3 = c3c4*tx3;
-    c3c4ty3 = c3c4*ty3;
-    c3c4tz3 = c3c4*tz3;
+    c3c4tx3 = c3c4 * tx3;
+    c3c4ty3 = c3c4 * ty3;
+    c3c4tz3 = c3c4 * tz3;
 
-    dx1tx1 = dx1*tx1;
-    dx2tx1 = dx2*tx1;
-    dx3tx1 = dx3*tx1;
-    dx4tx1 = dx4*tx1;
-    dx5tx1 = dx5*tx1;
+    dx1tx1 = dx1 * tx1;
+    dx2tx1 = dx2 * tx1;
+    dx3tx1 = dx3 * tx1;
+    dx4tx1 = dx4 * tx1;
+    dx5tx1 = dx5 * tx1;
 
-    dy1ty1 = dy1*ty1;
-    dy2ty1 = dy2*ty1;
-    dy3ty1 = dy3*ty1;
-    dy4ty1 = dy4*ty1;
-    dy5ty1 = dy5*ty1;
+    dy1ty1 = dy1 * ty1;
+    dy2ty1 = dy2 * ty1;
+    dy3ty1 = dy3 * ty1;
+    dy4ty1 = dy4 * ty1;
+    dy5ty1 = dy5 * ty1;
 
-    dz1tz1 = dz1*tz1;
-    dz2tz1 = dz2*tz1;
-    dz3tz1 = dz3*tz1;
-    dz4tz1 = dz4*tz1;
-    dz5tz1 = dz5*tz1;
+    dz1tz1 = dz1 * tz1;
+    dz2tz1 = dz2 * tz1;
+    dz3tz1 = dz3 * tz1;
+    dz4tz1 = dz4 * tz1;
+    dz5tz1 = dz5 * tz1;
 
     c2iv = 2.5;
     con43 = 4.0 / 3.0;
     con16 = 1.0 / 6.0;
 
-    xxcon1 = c3c4tx3*con43*tx3;
-    xxcon2 = c3c4tx3*tx3;
-    xxcon3 = c3c4tx3*conz1*tx3;
-    xxcon4 = c3c4tx3*con16*tx3;
-    xxcon5 = c3c4tx3*c1c5*tx3;
+    xxcon1 = c3c4tx3 * con43 * tx3;
+    xxcon2 = c3c4tx3 * tx3;
+    xxcon3 = c3c4tx3 * conz1 * tx3;
+    xxcon4 = c3c4tx3 * con16 * tx3;
+    xxcon5 = c3c4tx3 * c1c5 * tx3;
 
-    yycon1 = c3c4ty3*con43*ty3;
-    yycon2 = c3c4ty3*ty3;
-    yycon3 = c3c4ty3*conz1*ty3;
-    yycon4 = c3c4ty3*con16*ty3;
-    yycon5 = c3c4ty3*c1c5*ty3;
+    yycon1 = c3c4ty3 * con43 * ty3;
+    yycon2 = c3c4ty3 * ty3;
+    yycon3 = c3c4ty3 * conz1 * ty3;
+    yycon4 = c3c4ty3 * con16 * ty3;
+    yycon5 = c3c4ty3 * c1c5 * ty3;
 
-    zzcon1 = c3c4tz3*con43*tz3;
-    zzcon2 = c3c4tz3*tz3;
-    zzcon3 = c3c4tz3*conz1*tz3;
-    zzcon4 = c3c4tz3*con16*tz3;
-    zzcon5 = c3c4tz3*c1c5*tz3;
+    zzcon1 = c3c4tz3 * con43 * tz3;
+    zzcon2 = c3c4tz3 * tz3;
+    zzcon3 = c3c4tz3 * conz1 * tz3;
+    zzcon4 = c3c4tz3 * con16 * tz3;
+    zzcon5 = c3c4tz3 * c1c5 * tz3;
 }

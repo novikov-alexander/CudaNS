@@ -3,19 +3,19 @@
 #include <stdlib.h>
 
 //---------------------------------------------------------------------
-// This subroutine initializes the field variable u using 
-// tri-linear transfinite interpolation of the boundary values     
+// This subroutine initializes the field variable u using
+// tri-linear transfinite interpolation of the boundary values
 //---------------------------------------------------------------------
 void initialize()
 {
     int i, j, k, m, ix, iy, iz;
     double xi, eta, zeta, Pface[2][3][5], Pxi, Peta, Pzeta, temp[5];
-    
-    for (k = 0; k <= nz - 1; k++) 
+
+    for (k = 0; k <= nz - 1; k++)
     {
-        for (j = 0; j <= ny - 1; j++) 
+        for (j = 0; j <= ny - 1; j++)
         {
-            for (i = 0; i <= nx - 1; i++) 
+            for (i = 0; i <= nx - 1; i++)
             {
                 u[0][k][j][i] = 1.0;
                 u[1][k][j][i] = 0.0;
@@ -27,19 +27,19 @@ void initialize()
                 eta = j * dnym1;
                 zeta = k * dnzm1;
 
-                for (ix = 0; ix < 2; ix++) 
+                for (ix = 0; ix < 2; ix++)
                 {
                     Pxi = ix;
                     exact_solution(Pxi, eta, zeta, &Pface[ix][0][0]);
                 }
 
-                for (iy = 0; iy < 2; iy++) 
+                for (iy = 0; iy < 2; iy++)
                 {
                     Peta = iy;
                     exact_solution(xi, Peta, zeta, &Pface[iy][1][0]);
                 }
 
-                for (iz = 0; iz < 2; iz++) 
+                for (iz = 0; iz < 2; iz++)
                 {
                     Pzeta = iz;
                     exact_solution(xi, eta, Pzeta, &Pface[iz][2][0]);
@@ -51,7 +51,7 @@ void initialize()
                     Peta = eta * Pface[1][1][m] + (1.0 - eta) * Pface[0][1][m];
                     Pzeta = zeta * Pface[1][2][m] + (1.0 - zeta) * Pface[0][2][m];
 
-                    u[m][k][j][i] = Pxi + Peta + Pzeta - Pxi*Peta - Pxi*Pzeta - Peta*Pzeta + Pxi*Peta*Pzeta;
+                    u[m][k][j][i] = Pxi + Peta + Pzeta - Pxi * Peta - Pxi * Pzeta - Peta * Pzeta + Pxi * Peta * Pzeta;
                 }
 
                 if (i == 0)
@@ -59,7 +59,7 @@ void initialize()
                     xi = 0.0;
                     eta = j * dnym1;
                     zeta = k * dnzm1;
-                    
+
                     exact_solution(xi, eta, zeta, temp);
 
                     for (m = 0; m < 5; m++)
@@ -72,7 +72,7 @@ void initialize()
                     zeta = k * dnzm1;
 
                     exact_solution(xi, eta, zeta, temp);
-                 
+
                     for (m = 0; m < 5; m++)
                         u[m][k][j][i] = temp[m];
                 }
@@ -83,7 +83,7 @@ void initialize()
                     zeta = k * dnzm1;
 
                     exact_solution(xi, eta, zeta, temp);
-                   
+
                     for (m = 0; m < 5; m++)
                         u[m][k][j][i] = temp[m];
                 }
@@ -94,7 +94,7 @@ void initialize()
                     zeta = k * dnzm1;
 
                     exact_solution(xi, eta, zeta, temp);
-                  
+
                     for (m = 0; m < 5; m++)
                         u[m][k][j][i] = temp[m];
                 }
@@ -125,7 +125,7 @@ void initialize()
     }
 }
 
-logical inittrace(const char** t_names)
+logical inittrace(const char **t_names)
 {
     logical timeron = false;
     if (TRACE)
@@ -158,15 +158,17 @@ int initparameters(int argc, char **argv, int *niter)
         int result = 0;
         printf(" Reading from input file input.data\n");
         result = fscanf(fp, "%d", niter);
-        while (fgetc(fp) != '\n');
+        while (fgetc(fp) != '\n')
+            ;
         result = fscanf(fp, "%lf", &dt);
-        while (fgetc(fp) != '\n');
+        while (fgetc(fp) != '\n')
+            ;
         result = fscanf(fp, "%d%d%d", &nx, &ny, &nz);
         fclose(fp);
     }
     else
     {
-        //printf(" No input file input.data. Using compiled defaults\n");
+        // printf(" No input file input.data. Using compiled defaults\n");
         *niter = NITER_DEFAULT;
         dt = DT_DEFAULT;
         nx = P_SIZE;
@@ -196,60 +198,60 @@ int initparameters(int argc, char **argv, int *niter)
 
 int allocateArrays()
 {
-	CudaSafeCall(cudaMalloc((void**) &lhs_gpu, sizeof(double) * nx * ny * nz * 5));
-	CudaSafeCall(cudaMalloc((void**) &lhsp_gpu, sizeof(double) * nx * ny * nz * 5));
-	CudaSafeCall(cudaMalloc((void**) &lhsm_gpu, sizeof(double) * nx * ny * nz * 5));
+    CudaSafeCall(cudaMalloc((void **)&lhs_gpu, sizeof(double) * nx * ny * nz * 5));
+    CudaSafeCall(cudaMalloc((void **)&lhsp_gpu, sizeof(double) * nx * ny * nz * 5));
+    CudaSafeCall(cudaMalloc((void **)&lhsm_gpu, sizeof(double) * nx * ny * nz * 5));
 
-    CudaSafeCall(cudaMalloc((void**) &gpuTmp3D, sizeof(double) * nx * ny * nz));
+    CudaSafeCall(cudaMalloc((void **)&gpuTmp3D, sizeof(double) * nx * ny * nz));
 
-	CudaSafeCall(cudaMalloc((void**) &gpuU, sizeof(double) * nx * ny * nz * 5));
-	CudaSafeCall(cudaMalloc((void**) &gpuRhs, sizeof(double) * nx * ny * nz * 5));
-	CudaSafeCall(cudaMalloc((void**) &gpuForcing, sizeof(double) * nx * ny * nz * 5));
-    CudaSafeCall(cudaMalloc((void**) &gpuTmp, sizeof(double) * nx * ny * nz * 5));
+    CudaSafeCall(cudaMalloc((void **)&gpuU, sizeof(double) * nx * ny * nz * 5));
+    CudaSafeCall(cudaMalloc((void **)&gpuRhs, sizeof(double) * nx * ny * nz * 5));
+    CudaSafeCall(cudaMalloc((void **)&gpuForcing, sizeof(double) * nx * ny * nz * 5));
+    CudaSafeCall(cudaMalloc((void **)&gpuTmp, sizeof(double) * nx * ny * nz * 5));
 
-    u = (double (*)[P_SIZE][P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz * 5);
-    rhs = (double (*)[P_SIZE][P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz * 5);
-    forcing = (double (*)[P_SIZE][P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz * 5);
-    
-	CudaSafeCall(cudaMalloc((void**) &gpuUs, sizeof(double) * nx * ny * nz));
-	CudaSafeCall(cudaMalloc((void**) &gpuVs, sizeof(double) * nx * ny * nz));
-	CudaSafeCall(cudaMalloc((void**) &gpuWs, sizeof(double) * nx * ny * nz));
-	CudaSafeCall(cudaMalloc((void**) &gpuQs, sizeof(double) * nx * ny * nz));
-	CudaSafeCall(cudaMalloc((void**) &gpuRho_i, sizeof(double) * nx * ny * nz));
-	CudaSafeCall(cudaMalloc((void**) &gpuSpeed, sizeof(double) * nx * ny * nz));
-	CudaSafeCall(cudaMalloc((void**) &gpuSquare, sizeof(double) * nx * ny * nz));
-    
-    us = (double (*)[P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz);
-    vs = (double (*)[P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz);
-    ws = (double (*)[P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz);
-    qs = (double (*)[P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz);    
-    rho_i = (double (*)[P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz);    
-    speed = (double (*)[P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz);    
-    square = (double (*)[P_SIZE][P_SIZE] ) malloc(sizeof(double) * nx * ny * nz);    
-    
+    u = (double(*)[P_SIZE][P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz * 5);
+    rhs = (double(*)[P_SIZE][P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz * 5);
+    forcing = (double(*)[P_SIZE][P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz * 5);
+
+    CudaSafeCall(cudaMalloc((void **)&gpuUs, sizeof(double) * nx * ny * nz));
+    CudaSafeCall(cudaMalloc((void **)&gpuVs, sizeof(double) * nx * ny * nz));
+    CudaSafeCall(cudaMalloc((void **)&gpuWs, sizeof(double) * nx * ny * nz));
+    CudaSafeCall(cudaMalloc((void **)&gpuQs, sizeof(double) * nx * ny * nz));
+    CudaSafeCall(cudaMalloc((void **)&gpuRho_i, sizeof(double) * nx * ny * nz));
+    CudaSafeCall(cudaMalloc((void **)&gpuSpeed, sizeof(double) * nx * ny * nz));
+    CudaSafeCall(cudaMalloc((void **)&gpuSquare, sizeof(double) * nx * ny * nz));
+
+    us = (double(*)[P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz);
+    vs = (double(*)[P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz);
+    ws = (double(*)[P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz);
+    qs = (double(*)[P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz);
+    rho_i = (double(*)[P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz);
+    speed = (double(*)[P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz);
+    square = (double(*)[P_SIZE][P_SIZE])malloc(sizeof(double) * nx * ny * nz);
+
     return 1;
 }
 
 int deallocateArrays()
 {
-	cudaFree(gpuU);
-	cudaFree(gpuRhs);
-	cudaFree(gpuRho_i);
-	cudaFree(gpuUs);
-	cudaFree(gpuVs);
-	cudaFree(gpuWs);
-	cudaFree(gpuQs);
-	cudaFree(gpuSquare);
-	cudaFree(gpuSpeed);
-	cudaFree(gpuForcing);
-	cudaFree(lhs_gpu);
-	cudaFree(lhsp_gpu);
-	cudaFree(lhsm_gpu);
+    cudaFree(gpuU);
+    cudaFree(gpuRhs);
+    cudaFree(gpuRho_i);
+    cudaFree(gpuUs);
+    cudaFree(gpuVs);
+    cudaFree(gpuWs);
+    cudaFree(gpuQs);
+    cudaFree(gpuSquare);
+    cudaFree(gpuSpeed);
+    cudaFree(gpuForcing);
+    cudaFree(lhs_gpu);
+    cudaFree(lhsp_gpu);
+    cudaFree(lhsm_gpu);
 
     free(u);
     free(rhs);
     free(forcing);
-    
+
     free(us);
     free(vs);
     free(ws);
@@ -257,6 +259,6 @@ int deallocateArrays()
     free(rho_i);
     free(speed);
     free(square);
-    
+
     return 1;
 }
