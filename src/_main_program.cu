@@ -27,34 +27,18 @@ double tx1, tx2, tx3, ty1, ty2, ty3, tz1, tz2, tz3,
     c3c4tx3, c3c4ty3, c3c4tz3, c2iv, con43, con16;
 
 /* main arrays */
-double (*u)[P_SIZE][P_SIZE][P_SIZE];
-double (*us)[P_SIZE][P_SIZE];
-double (*vs)[P_SIZE][P_SIZE];
-double (*ws)[P_SIZE][P_SIZE];
-double (*qs)[P_SIZE][P_SIZE];
-double (*rho_i)[P_SIZE][P_SIZE];
-double (*speed)[P_SIZE][P_SIZE];
-double (*square)[P_SIZE][P_SIZE];
-double (*rhs)[P_SIZE][P_SIZE][P_SIZE];
-double (*forcing)[P_SIZE][P_SIZE][P_SIZE];
+using Grid3DPtr = double (*)[P_SIZE][P_SIZE][P_SIZE];
+using Grid2DPtr = double (*)[P_SIZE][P_SIZE];
 
-double (*gpuU)[P_SIZE][P_SIZE][P_SIZE];
-double (*gpuUs)[P_SIZE][P_SIZE];
-double (*gpuVs)[P_SIZE][P_SIZE];
-double (*gpuWs)[P_SIZE][P_SIZE];
-double (*gpuQs)[P_SIZE][P_SIZE];
-double (*gpuRho_i)[P_SIZE][P_SIZE];
-double (*gpuSpeed)[P_SIZE][P_SIZE];
-double (*gpuSquare)[P_SIZE][P_SIZE];
-double (*gpuRhs)[P_SIZE][P_SIZE][P_SIZE];
-double (*gpuForcing)[P_SIZE][P_SIZE][P_SIZE];
-double (*gpuTmp)[P_SIZE][P_SIZE][P_SIZE];
+Grid3DPtr u, rhs, forcing;
+Grid2DPtr us, vs, ws, qs, rho_i, speed, square;
 
-double (*lhs_gpu)[P_SIZE][P_SIZE][P_SIZE];
-double (*lhsp_gpu)[P_SIZE][P_SIZE][P_SIZE];
-double (*lhsm_gpu)[P_SIZE][P_SIZE][P_SIZE];
+Grid3DPtr gpuU, gpuRhs, gpuForcing, gpuTmp;
+Grid2DPtr gpuUs, gpuVs, gpuWs, gpuQs, gpuRho_i, gpuSpeed, gpuSquare;
 
-double (*gpuTmp3D)[P_SIZE][P_SIZE];
+Grid3DPtr lhs_gpu, lhsp_gpu, lhsm_gpu;
+
+Grid2DPtr gpuTmp3D;
 
 int main(int argc, char *argv[])
 {
