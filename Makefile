@@ -42,6 +42,8 @@ ${OBJ}/adi.o: ${SRC}/adi.cu ${INC}/header.hpp ${INC}/data_params.hpp
 	$(CC) $(CFLAGS) -c ${SRC}/adi.cu -o ${OBJ}/adi.o
 ${OBJ}/compute_rhs.o: ${SRC}/compute_rhs.cu ${INC}/header.hpp ${INC}/data_params.hpp
 	$(CC) $(CFLAGS) -c ${SRC}/compute_rhs.cu -o ${OBJ}/compute_rhs.o
+${OBJ}/solve.o: ${SRC}/solve.cu ${INC}/header.hpp ${INC}/data_params.hpp
+	$(CC) $(CFLAGS) -c ${SRC}/solve.cu -o ${OBJ}/solve.o
 ${OBJ}/x_solve.o: ${SRC}/x_solve.cu ${INC}/header.hpp ${INC}/data_params.hpp
 	$(CC) $(CFLAGS) -c ${SRC}/x_solve.cu -o ${OBJ}/x_solve.o
 ${OBJ}/y_solve.o: ${SRC}/y_solve.cu ${INC}/header.hpp ${INC}/data_params.hpp

@@ -8,29 +8,17 @@
 // systems for the z-lines. Boundary conditions are non-periodic
 //---------------------------------------------------------------------
 
+void z_solve_one(
+    dim3 blocks, dim3 threads,
+    double *lhs_, double *lhsp_, double *lhsm_,
+    int nx2, int ny2, int nz2)
+{
+    // reassign dimensions
+    solve_kernel_one<<<blocks, threads>>>(lhs_gpu, lhsp_gpu, lhsm_gpu, ny2, nx2, nz2);
+}
+
 #undef rhs
 #define rhs(x, y, z, m) rhs[y + (z)*P_SIZE + (x)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-__global__ void z_solve_kernel_one(double *lhs_, double *lhsp_, double *lhsm_, int nx2, int ny2, int nz2)
-{
-    int m;
-
-    int i = threadIdx.x + blockIdx.x * blockDim.x + 1;
-    int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
-
-    // part 1
-    if (j <= ny2 && i <= nx2)
-    {
-        for (m = 0; m < 5; m++)
-        {
-            lhs_(j, i, 0, m) = lhs_(j, i, nz2 + 1, m) = 0.0;
-            lhsp_(j, i, 0, m) = lhsp_(j, i, nz2 + 1, m) = 0.0;
-            lhsm_(j, i, 0, m) = lhsm_(j, i, nz2 + 1, m) = 0.0;
-        }
-        lhs_(j, i, 0, 2) = lhs_(j, i, nz2 + 1, 2) = 1.0;
-        lhsp_(j, i, 0, 2) = lhsp_(j, i, nz2 + 1, 2) = 1.0;
-        lhsm_(j, i, 0, 2) = lhsm_(j, i, nz2 + 1, 2) = 1.0;
-    }
-}
 
 #undef ws
 #undef speed

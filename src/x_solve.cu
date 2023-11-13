@@ -11,28 +11,13 @@
 #undef rhs
 #define rhs(x, y, z, m) rhs[x + (y)*P_SIZE + (z)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
 
-__global__ void x_solve_kernel_one(double *lhs_, double *lhsp_, double *lhsm_, int nx2, int ny2, int nz2)
+void x_solve_one(
+    dim3 blocks, dim3 threads,
+    double *lhs_, double *lhsp_, double *lhsm_,
+    int nx2, int ny2, int nz2)
 {
-    int m;
-
-    int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
-    int k = threadIdx.y + blockIdx.y * blockDim.y + 1;
-
-    // part 1
-    if (k <= nz2 && j <= ny2)
-    {
-#pragma unroll 5
-        for (m = 0; m < 5; m++)
-        {
-            lhs_(k, j, 0, m) = lhs_(k, j, nx2 + 1, m) = 0.0;
-            lhsp_(k, j, 0, m) = lhsp_(k, j, nx2 + 1, m) = 0.0;
-            lhsm_(k, j, 0, m) = lhsm_(k, j, nx2 + 1, m) = 0.0;
-        }
-
-        lhs_(k, j, 0, 2) = lhs_(k, j, nx2 + 1, 2) = 1.0;
-        lhsp_(k, j, 0, 2) = lhsp_(k, j, nx2 + 1, 2) = 1.0;
-        lhsm_(k, j, 0, 2) = lhsm_(k, j, nx2 + 1, 2) = 1.0;
-    }
+    // reassign x- and z- dimensions
+    solve_kernel_one<<<blocks, threads>>>(lhs_gpu, lhsp_gpu, lhsm_gpu, nz2, ny2, nx2);
 }
 
 #undef rho_i
@@ -532,7 +517,7 @@ void x_solve()
     x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuRho_i, nx2, ny2, nz2);
     std::swap((double **)&gpuTmp3D, (double **)&gpuRho_i);
 
-    x_solve_kernel_one<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, nx2, ny2, nz2);
+    x_solve_one(blocks2, threads2, (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, nz2, ny2, nx2);
 
     cudaDeviceSynchronize();
     x_solve_kernel_two<<<blocks, threads>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);

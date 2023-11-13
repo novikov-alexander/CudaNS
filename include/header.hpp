@@ -110,6 +110,10 @@ void z_solve();
 void error_norm(double rms[5]);
 void rhs_norm(double rms[5]);
 
+void solve_kernel_one(
+    double *lhs_, double *lhsp_, double *lhsm_,
+    int nx2, int ny2, int nz2);
+
 // verification
 void print_results(int niter, double time, logical verified, const char **timers);
 void verify(int no_time_steps, logical *verified);
