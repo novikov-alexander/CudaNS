@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include <algorithm>
 
 //---------------------------------------------------------------------
 // this function performs the solution of the approximate factorization
@@ -6,13 +7,6 @@
 // simultaneously. The Thomas algorithm is employed to solve the
 // systems for the z-lines. Boundary conditions are non-periodic
 //---------------------------------------------------------------------
-
-void z_solve_swap(double **grid1, double **grid2)
-{
-    double *sw = *grid1;
-    *grid1 = *grid2;
-    *grid2 = sw;
-}
 
 #undef rhs
 #define rhs(x, y, z, m) rhs[y + (z)*P_SIZE + (x)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
@@ -549,12 +543,12 @@ void z_solve()
     z_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuWs, nx2, ny2, nz2);
     z_solve_transpose<<<blockst, threadst>>>((double *)gpuTmp, (double *)gpuRhs, nx2, ny2, nz2);
     cudaDeviceSynchronize();
-    z_solve_swap((double **)&gpuTmp, (double **)&gpuRhs);
-    z_solve_swap((double **)&gpuTmp3D, (double **)&gpuWs);
+    std::swap((double **)&gpuTmp, (double **)&gpuRhs);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuWs);
     cudaDeviceSynchronize();
 
     z_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuSpeed, nx2, ny2, nz2);
-    z_solve_swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
 
     z_solve_kernel_one<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, nx2, ny2, nz2);
 
@@ -583,14 +577,14 @@ void z_solve()
     if (timeron)
         timer_stop(t_tzetar);
 
-    z_solve_swap((double **)&gpuTmp, (double **)&gpuRhs);
+    std::swap((double **)&gpuTmp, (double **)&gpuRhs);
     z_solve_inv_transpose<<<blockst, threadst>>>((double *)gpuTmp, (double *)gpuRhs, nx2, ny2, nz2);
-    z_solve_swap((double **)&gpuTmp3D, (double **)&gpuWs);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuWs);
     z_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuWs, nx2, ny2, nz2);
 
     cudaDeviceSynchronize();
 
-    z_solve_swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
     z_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuSpeed, nx2, ny2, nz2);
 
     if (timeron)

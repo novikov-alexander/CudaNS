@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include <algorithm>
 
 //---------------------------------------------------------------------
 // this function performs the solution of the approximate factorization
@@ -9,13 +10,6 @@
 
 #undef rhs
 #define rhs(x, y, z, m) rhs[x + (y)*P_SIZE + (z)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-
-void y_solve_swap(double **grid1, double **grid2)
-{
-    double *sw = *grid1;
-    *grid1 = *grid2;
-    *grid2 = sw;
-}
 
 __global__ void y_solve_kernel_one(double *lhs_, double *lhsp_, double *lhsm_, int nx2, int ny2, int nz2)
 {
@@ -500,7 +494,7 @@ void y_solve()
         timer_start(t_ysolve);
 
     y_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuVs, nx2, ny2, nz2);
-    y_solve_swap((double **)&gpuTmp3D, (double **)&gpuVs);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuVs);
     cudaDeviceSynchronize();
     y_solve_kernel_one<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, nx2, ny2, nz2);
 
@@ -529,11 +523,11 @@ void y_solve()
     if (timeron)
         timer_stop(t_pinvr);
 
-    y_solve_swap((double **)&gpuTmp3D, (double **)&gpuRho_i);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuRho_i);
     y_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuRho_i, nx2, ny2, nz2);
-    y_solve_swap((double **)&gpuTmp3D, (double **)&gpuVs);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuVs);
     y_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuVs, nx2, ny2, nz2);
-    y_solve_swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
     y_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuSpeed, nx2, ny2, nz2);
 
     if (timeron)

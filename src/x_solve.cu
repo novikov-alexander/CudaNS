@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include <algorithm>
 
 //---------------------------------------------------------------------
 // this function performs the solution of the approximate factorization
@@ -9,13 +10,6 @@
 
 #undef rhs
 #define rhs(x, y, z, m) rhs[x + (y)*P_SIZE + (z)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-
-void x_solve_swap(double **grid1, double **grid2)
-{
-    double *sw = *grid1;
-    *grid1 = *grid2;
-    *grid2 = sw;
-}
 
 __global__ void x_solve_kernel_one(double *lhs_, double *lhsp_, double *lhsm_, int nx2, int ny2, int nz2)
 {
@@ -530,13 +524,13 @@ void x_solve()
         timer_start(t_xsolve);
 
     x_solve_transpose<<<blockst, threadst>>>((double *)gpuTmp, (double *)gpuRhs, nx2, ny2, nz2);
-    x_solve_swap((double **)&gpuTmp, (double **)&gpuRhs);
+    std::swap((double **)&gpuTmp, (double **)&gpuRhs);
     x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuUs, nx2, ny2, nz2);
-    x_solve_swap((double **)&gpuTmp3D, (double **)&gpuUs);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuUs);
     x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuSpeed, nx2, ny2, nz2);
-    x_solve_swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
     x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuRho_i, nx2, ny2, nz2);
-    x_solve_swap((double **)&gpuTmp3D, (double **)&gpuRho_i);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuRho_i);
 
     x_solve_kernel_one<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, nx2, ny2, nz2);
 
@@ -566,10 +560,10 @@ void x_solve()
     if (timeron)
         timer_stop(t_ninvr);
 
-    x_solve_swap((double **)&gpuTmp3D, (double **)&gpuUs);
+    std::swap((double **)&gpuTmp3D, (double **)&gpuUs);
     x_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuUs, nx2, ny2, nz2);
 
-    // x_solve_swap((double**)&gpuTmp, (double**)&gpuRhs);
+    // std::swap((double**)&gpuTmp, (double**)&gpuRhs);
 
     // x_solve_inv_transpose<<<blockst, threadst>>>((double*)gpuTmp, (double*)gpuRhs, nx2, ny2, nz2);
     // cudaDeviceSynchronize();
