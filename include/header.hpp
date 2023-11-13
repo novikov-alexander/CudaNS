@@ -121,16 +121,19 @@ void timer_stop(int n);
 double timer_read(int n);
 void wtime(double *);
 
-#define lhs_(x, y, z, m) lhs_[x + (y)*P_SIZE + (z)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-#define lhsm_(x, y, z, m) lhsm_[x + (y)*P_SIZE + (z)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-#define lhsp_(x, y, z, m) lhsp_[x + (y)*P_SIZE + (z)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-#define rhs(x, y, z, m) rhs[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-#define rho_i(x, y, z) rho_i[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
-#define us(x, y, z) us[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
-#define ws(x, y, z) ws[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
-#define vs(x, y, z) vs[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
-#define qs(x, y, z) qs[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
-#define speed(x, y, z) speed[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
-#define u(x, y, z, m) u[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-#define forcing(x, y, z, m) forcing[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-#define square(x, y, z) square[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
+#define INDEX(x, y, z, m) (x + P_SIZE * (y + P_SIZE * (z + P_SIZE * m)))
+#define INDEX_3D(x, y, z) (x + P_SIZE * (y + P_SIZE * z))
+
+#define lhs_(x, y, z, m) lhs_[INDEX(x, y, z, m)]
+#define lhsm_(x, y, z, m) lhsm_[INDEX(x, y, z, m)]
+#define lhsp_(x, y, z, m) lhsp_[INDEX(x, y, z, m)]
+#define rhs(x, y, z, m) rhs[INDEX(x, y, z, m)]
+#define rho_i(x, y, z) rho_i[INDEX_3D(x, y, z)]
+#define us(x, y, z) us[INDEX_3D(x, y, z)]
+#define ws(x, y, z) ws[INDEX_3D(x, y, z)]
+#define vs(x, y, z) vs[INDEX_3D(x, y, z)]
+#define qs(x, y, z) qs[INDEX_3D(x, y, z)]
+#define speed(x, y, z) speed[INDEX_3D(x, y, z)]
+#define u(x, y, z, m) u[INDEX(x, y, z, m)]
+#define forcing(x, y, z, m) forcing[INDEX(x, y, z, m)]
+#define square(x, y, z) square[INDEX_3D(x, y, z)]
