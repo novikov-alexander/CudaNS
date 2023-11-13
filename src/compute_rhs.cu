@@ -1,12 +1,6 @@
 #include <math.h>
 #include "header.hpp"
-
-void compute_rhs_swap(double **grid1, double **grid2)
-{
-    double *sw = *grid1;
-    *grid1 = *grid2;
-    *grid2 = sw;
-}
+#include <algorithm>
 
 __global__ void compute_rhs_xyz(double *u, double *rhs, double *rho_i, double *us, double *vs, double *ws, double *qs, double *square, double *speed, double *forcing, int nx, int ny, int nz, double c1c2)
 {
@@ -916,7 +910,7 @@ void compute_rhs()
                                                       dz1tz1, tz2, zzcon2, zzcon3, zzcon4, zzcon5, dz2tz1, dz3tz1, dz4tz1, dz5tz1, dt);
     /*compute_rhs_transpose<<<blocks, threads>>>((double*)gpuTmp, (double*)gpuU, nx2, ny2, nz2);
     cudaDeviceSynchronize();
-    compute_rhs_swap((double**)&gpuTmp, (double**)&gpuU);*/
+    std::swap((double**)&gpuTmp, (double**)&gpuU);*/
 
     compute_rhs_x2y2z2_4<<<blocks, threads>>>((double *)gpuU, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuVs, (double *)gpuWs, (double *)gpuQs,
                                               (double *)gpuSquare, (double *)gpuSpeed, (double *)gpuForcing,
@@ -944,7 +938,7 @@ void compute_rhs()
                                                       dy1ty1, ty2, dy2ty1, yycon2, dy3ty1, dy4ty1, dy5ty1, yycon3, yycon4, yycon5,
                                                       dz1tz1, tz2, zzcon2, zzcon3, zzcon4, zzcon5, dz2tz1, dz3tz1, dz4tz1, dz5tz1, dt);
 
-    /*compute_rhs_swap((double**)&gpuTmp, (double**)&gpuU);
+    /*std::swap((double**)&gpuTmp, (double**)&gpuU);
     compute_rhs_inv_transpose<<<blocks, threads>>>((double*)gpuTmp, (double*)gpuU, nx2, ny2, nz2);*/
 
     if (timeron)
