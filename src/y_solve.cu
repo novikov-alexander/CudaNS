@@ -8,9 +8,6 @@
 // systems for the y-lines. Boundary conditions are non-periodic
 //---------------------------------------------------------------------
 
-#undef rhs
-#define rhs(x, y, z, m) rhs[x + (y)*P_SIZE + (z)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-
 void y_solve_one(
     dim3 blocks, dim3 threads,
     double *lhs_, double *lhsp_, double *lhsm_,
@@ -20,6 +17,8 @@ void y_solve_one(
     solve_kernel_one<<<blocks, threads>>>(lhs_gpu, lhsp_gpu, lhsm_gpu, nz2, nx2, ny2);
 }
 
+#undef rhs
+#define rhs(x, y, z, m) rhs[INDEX(x, y, z, m)]
 #undef rho_i
 #undef vs
 #undef speed
