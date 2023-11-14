@@ -18,7 +18,7 @@ void z_solve_one(
 }
 
 #undef rhs
-#define rhs(x, y, z, m) rhs[y + (z)*P_SIZE + (x)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
+#define rhs(x, y, z, m) rhs[INDEX(x, y, z, m)]
 
 #undef ws
 #undef speed
