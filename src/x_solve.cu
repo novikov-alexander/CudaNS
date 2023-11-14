@@ -23,9 +23,9 @@ void x_solve_one(
 #undef rho_i
 #undef vs
 #undef speed
-#define rho_i(x, y, z) rho_i[x + (z)*P_SIZE + (y)*P_SIZE * P_SIZE]
-#define us(x, y, z) us[x + (z)*P_SIZE + (y)*P_SIZE * P_SIZE]
-#define speed(x, y, z) speed[x + (z)*P_SIZE + (y)*P_SIZE * P_SIZE]
+#define rho_i(x, y, z) rho_i[INDEX_3D(x, z, y)]
+#define us(x, y, z) us[INDEX_3D(x, z, y)]
+#define speed(x, y, z) speed[INDEX_3D(x, z, y)]
 __global__ void x_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nx)
 {
     int i1, i2, m;

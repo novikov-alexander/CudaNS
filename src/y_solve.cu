@@ -22,9 +22,9 @@ void y_solve_one(
 #undef rho_i
 #undef vs
 #undef speed
-#define rho_i(x, y, z) rho_i[x + (z)*P_SIZE + (y)*P_SIZE * P_SIZE]
-#define vs(x, y, z) vs[x + (z)*P_SIZE + (y)*P_SIZE * P_SIZE]
-#define speed(x, y, z) speed[x + (z)*P_SIZE + (y)*P_SIZE * P_SIZE]
+#define rho_i(x, y, z) rho_i[INDEX_3D(x, z, y)]
+#define vs(x, y, z) vs[INDEX_3D(x, z, y)]
+#define speed(x, y, z) speed[INDEX_3D(x, z, y)]
 
 __global__ void y_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *vs, double *speed, double c3c4, double dy3, double con43, double dy5, double c1c5, double dy1, double dtty2, double dtty1, double dymax, double c2dtty1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int ny)
 {
