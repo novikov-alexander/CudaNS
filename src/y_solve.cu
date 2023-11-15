@@ -22,7 +22,7 @@ void y_solve_two1(
     double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *vs, double *speed, double c3c4, double dy3, double con43, double dy5, double c1c5, double dy1, double dtty2, double dtty1, double dymax, double c2dtty1, double comz1, double comz4, double comz5, double comz6,
     int nx2, int ny2, int nz2, int ny)
 {
-    solve_kernel_two1<<<blocks, threads>>>(blocks, threads, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)vs, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, nz2, ny2, ny);
+    solve_kernel_two1<<<blocks, threads>>>(blocks, threads, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)vs, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2, ny);
 }
 
 #undef rhs

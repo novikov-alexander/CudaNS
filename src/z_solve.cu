@@ -21,7 +21,7 @@ void z_solve_two1(
     dim3 blocks, dim3 threads,
     double *lhs_, double *lhsp_, double *lhsm_, double *rho_i, double *ws, double *speed, int nx2, int ny2, int nz2, double c3c4, double dz4, double con43, double dz5, double c1c5, double dzmax, double dz1, double dttz2, double dttz1, double c2dttz1, double comz1, double comz4, double comz5, double comz6)
 {
-    solve_kernel_two1<<<blocks, threads>>>(blocks, threads, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)ws, (double *)speed, nx2, ny2, nz2, c3c4, dz4, con43, dz5, c1c5, dzmax, dz1, dttz2, dttz1, c2dttz1, comz1, comz4, comz5, comz6);
+    solve_kernel_two1<<<blocks, threads>>>(blocks, threads, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)ws, (double *)speed, ny2, nx2, nz2, c3c4, dz4, con43, dz5, c1c5, dzmax, dz1, dttz2, dttz1, c2dttz1, comz1, comz4, comz5, comz6);
 }
 
 #undef rhs
