@@ -67,12 +67,12 @@ __global__ void solve_kernel_two1(
         lhsp_(i, j, k, 0) = lhs_(i, j, k, 0);
         lhsp_(i, j, k, 1) = lhs_(i, j, k, 1) - dttz2 * speed(k - 1, i, j);
         lhsp_(i, j, k, 2) = lhs_(i, j, k, 2);
-        lhsp_(i, i, k, 3) = lhs_(i, i, k, 3) + dttz2 * speed(k + 1, i, i);
-        lhsp_(i, i, k, 4) = lhs_(i, i, k, 4);
-        lhsm_(i, i, k, 0) = lhs_(i, i, k, 0);
-        lhsm_(i, i, k, 1) = lhs_(i, i, k, 1) + dttz2 * speed(k - 1, i, i);
-        lhsm_(i, i, k, 2) = lhs_(i, i, k, 2);
-        lhsm_(i, i, k, 3) = lhs_(j, i, k, 3) - dttz2 * speed(k + 1, j, i);
-        lhsm_(j, i, k, 4) = lhs_(j, i, k, 4);
+        lhsp_(i, j, k, 3) = lhs_(i, j, k, 3) + dttz2 * speed(k + 1, i, j);
+        lhsp_(i, j, k, 4) = lhs_(i, j, k, 4);
+        lhsm_(i, j, k, 0) = lhs_(i, j, k, 0);
+        lhsm_(i, j, k, 1) = lhs_(i, j, k, 1) + dttz2 * speed(k - 1, i, j);
+        lhsm_(i, j, k, 2) = lhs_(i, j, k, 2);
+        lhsm_(i, j, k, 3) = lhs_(i, j, k, 3) - dttz2 * speed(k + 1, i, j);
+        lhsm_(i, j, k, 4) = lhs_(i, j, k, 4);
     }
 };
