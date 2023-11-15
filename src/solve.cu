@@ -24,13 +24,13 @@ __global__ void solve_kernel_one(double *lhs_, double *lhsp_, double *lhsm_, int
     }
 }
 
-#undef s
+#undef us
 #undef speed
-#define s(x, y, z) s[INDEX_3D(y, z, x)]
+#define us(x, y, z) us[INDEX_3D(y, z, x)]
 #define speed(x, y, z) speed[INDEX_3D(y, z, x)]
 __global__ void solve_kernel_two1(
     double *lhs_, double *lhsp_, double *lhsm_,
-    double *rho_i, double *s, double *speed,
+    double *rho_i, double *us, double *speed,
     int ny2, int nx2, int nz2,
     double c3c4, double dz4, double con43, double dz5,
     double c1c5, double dzmax, double dz1, double dttz2, double dttz1,
@@ -49,7 +49,7 @@ __global__ void solve_kernel_two1(
 
         ru1 = c3c4 * rho_i(k - 1, i, j);
         rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 1) = -dttz2 * s(k - 1, i, j) - dttz1 * rhos1;
+        lhs_(i, j, k, 1) = -dttz2 * us(k - 1, i, j) - dttz1 * rhos1;
 
         ru1 = c3c4 * rho_i(k, i, j);
         rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
@@ -57,7 +57,7 @@ __global__ void solve_kernel_two1(
 
         ru1 = c3c4 * rho_i(k + 1, i, j);
         rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 3) = dttz2 * s(k + 1, i, j) - dttz1 * rhos1;
+        lhs_(i, j, k, 3) = dttz2 * us(k + 1, i, j) - dttz1 * rhos1;
         lhs_(i, j, k, 4) = 0.0;
 
         lhs_(i, j, k, 2) = lhs_(i, j, k, 2) + comz5;
