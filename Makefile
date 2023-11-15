@@ -26,8 +26,6 @@ ${OBJ}:
 # Include dependencies
 -include $(OBJS:.o=.d)
 
-.PHONY: clean cleanall
-
 clean:
 	rm -rf ${OBJ}/*.o ${OBJ}/*.d ${BINDIR}/${PROGRAM}
 
