@@ -20,12 +20,12 @@ void z_solve_one(
 #undef rhs
 #define rhs(x, y, z, m) rhs[INDEX(x, y, z, m)]
 
-#undef ws
+#undef s
 #undef speed
-#define ws(x, y, z) ws[INDEX_3D(y, z, x)]
+#define s(x, y, z) s[INDEX_3D(y, z, x)]
 #define speed(x, y, z) speed[INDEX_3D(y, z, x)]
 
-__global__ void z_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, double *rho_i, double *ws, double *speed, int nx2, int ny2, int nz2, double c3c4, double dz4, double con43, double dz5, double c1c5, double dzmax, double dz1, double dttz2, double dttz1, double c2dttz1, double comz1, double comz4, double comz5, double comz6)
+__global__ void z_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, double *rho_i, double *s, double *speed, int nx2, int ny2, int nz2, double c3c4, double dz4, double con43, double dz5, double c1c5, double dzmax, double dz1, double dttz2, double dttz1, double c2dttz1, double comz1, double comz4, double comz5, double comz6)
 {
     int m;
     double ru1, rhos1;
@@ -40,7 +40,7 @@ __global__ void z_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, 
 
         ru1 = c3c4 * rho_i(k - 1, j, i);
         rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(j, i, k, 1) = -dttz2 * ws(k - 1, j, i) - dttz1 * rhos1;
+        lhs_(j, i, k, 1) = -dttz2 * s(k - 1, j, i) - dttz1 * rhos1;
 
         ru1 = c3c4 * rho_i(k, j, i);
         rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
@@ -48,7 +48,7 @@ __global__ void z_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, 
 
         ru1 = c3c4 * rho_i(k + 1, j, i);
         rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(j, i, k, 3) = dttz2 * ws(k + 1, j, i) - dttz1 * rhos1;
+        lhs_(j, i, k, 3) = dttz2 * s(k + 1, j, i) - dttz1 * rhos1;
         lhs_(j, i, k, 4) = 0.0;
 
         lhs_(j, i, k, 2) = lhs_(j, i, k, 2) + comz5;
@@ -428,8 +428,8 @@ __global__ void z_solve_inversion(double *rhs, double *us, double *vs, double *w
     }
 }
 
-#define src(x, y, z, m) src[x + (y)*P_SIZE + (z)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-#define dst(x, y, z, m) dst[y + (z)*P_SIZE + (x)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
+#define src(x, y, z, m) src[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+#define dst(x, y, z, m) dst[y + (z) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 __global__ void z_solve_transpose(double *dst, double *src, int nx2, int ny2, int nz2)
 {
     int m;
@@ -449,7 +449,7 @@ __global__ void z_solve_transpose(double *dst, double *src, int nx2, int ny2, in
 }
 
 #undef src
-#define src(x, y, z, m) src[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
+#define src(x, y, z, m) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 __global__ void z_solve_inv_transpose(double *dst, double *src, int nx2, int ny2, int nz2)
 {
     int m;
@@ -471,8 +471,8 @@ __global__ void z_solve_inv_transpose(double *dst, double *src, int nx2, int ny2
 #undef src
 #undef dst
 
-#define src(x, y, z) src[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
-#define dst(x, y, z) dst[y + (z)*P_SIZE + (x)*P_SIZE * P_SIZE]
+#define src(x, y, z) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define dst(x, y, z) dst[y + (z) * P_SIZE + (x) * P_SIZE * P_SIZE]
 __global__ void z_solve_transpose_3D(double *dst, double *src, int nx2, int ny2, int nz2)
 {
     int m;

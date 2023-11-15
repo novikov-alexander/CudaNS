@@ -19,14 +19,15 @@ void y_solve_one(
 
 #undef rhs
 #define rhs(x, y, z, m) rhs[INDEX(x, y, z, m)]
+
 #undef rho_i
-#undef vs
+#undef s
 #undef speed
 #define rho_i(x, y, z) rho_i[INDEX_3D(x, z, y)]
-#define vs(x, y, z) vs[INDEX_3D(x, z, y)]
+#define s(x, y, z) s[INDEX_3D(x, z, y)]
 #define speed(x, y, z) speed[INDEX_3D(x, z, y)]
 
-__global__ void y_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *vs, double *speed, double c3c4, double dy3, double con43, double dy5, double c1c5, double dy1, double dtty2, double dtty1, double dymax, double c2dtty1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int ny)
+__global__ void y_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *s, double *speed, double c3c4, double dy3, double con43, double dy5, double c1c5, double dy1, double dtty2, double dtty1, double dymax, double c2dtty1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int ny)
 {
     int m;
     double ru1, rhoq1;
@@ -42,7 +43,7 @@ __global__ void y_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, 
 
         ru1 = c3c4 * rho_i(k, j - 1, i);
         rhoq1 = fmax(fmax(dy3 + con43 * ru1, dy5 + c1c5 * ru1), fmax(dymax + ru1, dy1));
-        lhs_(k, i, j, 1) = -dtty2 * vs(k, j - 1, i) - dtty1 * rhoq1;
+        lhs_(k, i, j, 1) = -dtty2 * s(k, j - 1, i) - dtty1 * rhoq1;
 
         ru1 = c3c4 * rho_i(k, j, i);
         rhoq1 = fmax(fmax(dy3 + con43 * ru1, dy5 + c1c5 * ru1), fmax(dymax + ru1, dy1));
@@ -50,7 +51,7 @@ __global__ void y_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, 
 
         ru1 = c3c4 * rho_i(k, j + 1, i);
         rhoq1 = fmax(fmax(dy3 + con43 * ru1, dy5 + c1c5 * ru1), fmax(dymax + ru1, dy1));
-        lhs_(k, i, j, 3) = dtty2 * vs(k, j + 1, i) - dtty1 * rhoq1;
+        lhs_(k, i, j, 3) = dtty2 * s(k, j + 1, i) - dtty1 * rhoq1;
         lhs_(k, i, j, 4) = 0.0;
 
         lhs_(k, i, j, 2) = lhs_(k, i, j, 2) + comz5;
@@ -426,8 +427,8 @@ __global__ void y_solve_inversion(double *rhs, double bt, int nx2, int ny2, int 
     }
 }
 
-#define src(x, y, z) src[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
-#define dst(x, y, z) dst[x + (z)*P_SIZE + (y)*P_SIZE * P_SIZE]
+#define src(x, y, z) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define dst(x, y, z) dst[x + (z) * P_SIZE + (y) * P_SIZE * P_SIZE]
 __global__ void y_solve_transpose_3D(double *dst, double *src, int nx2, int ny2, int nz2)
 {
     int m;

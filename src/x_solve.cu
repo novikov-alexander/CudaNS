@@ -21,12 +21,12 @@ void x_solve_one(
 #define rhs(x, y, z, m) rhs[INDEX(x, y, z, m)]
 
 #undef rho_i
-#undef vs
+#undef s
 #undef speed
 #define rho_i(x, y, z) rho_i[INDEX_3D(x, z, y)]
-#define us(x, y, z) us[INDEX_3D(x, z, y)]
+#define s(x, y, z) s[INDEX_3D(x, z, y)]
 #define speed(x, y, z) speed[INDEX_3D(x, z, y)]
-__global__ void x_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nx)
+__global__ void x_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *s, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nx)
 {
     int i1, i2, m;
     double ru1, rhon1;
@@ -41,7 +41,7 @@ __global__ void x_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, 
         lhs_(k, j, i, 0) = 0.0;
         ru1 = c3c4 * rho_i(k, j, i - 1);
         rhon1 = fmax(fmax(dx2 + con43 * ru1, dx5 + c1c5 * ru1), fmax(dxmax + ru1, dx1));
-        lhs_(k, j, i, 1) = -dttx2 * us(k, j, i - 1) - dttx1 * rhon1;
+        lhs_(k, j, i, 1) = -dttx2 * s(k, j, i - 1) - dttx1 * rhon1;
 
         ru1 = c3c4 * rho_i(k, j, i);
         rhon1 = fmax(fmax(dx2 + con43 * ru1, dx5 + c1c5 * ru1), fmax(dxmax + ru1, dx1));
@@ -49,7 +49,7 @@ __global__ void x_solve_kernel_two1(double *lhs_, double *lhsp_, double *lhsm_, 
 
         ru1 = c3c4 * rho_i(k, j, i + 1);
         rhon1 = fmax(fmax(dx2 + con43 * ru1, dx5 + c1c5 * ru1), fmax(dxmax + ru1, dx1));
-        lhs_(k, j, i, 3) = dttx2 * us(k, j, i + 1) - dttx1 * rhon1;
+        lhs_(k, j, i, 3) = dttx2 * s(k, j, i + 1) - dttx1 * rhon1;
         lhs_(k, j, i, 4) = 0.0;
 
         lhs_(k, j, i, 2) = lhs_(k, j, i, 2) + comz5;
@@ -419,8 +419,8 @@ __global__ void x_solve_inversion(double *rhs, double bt, int nx2, int ny2, int 
     }
 }
 
-#define src(x, y, z, m) src[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
-#define dst(x, y, z, m) dst[x + (y)*P_SIZE + (z)*P_SIZE * P_SIZE + (m)*P_SIZE * P_SIZE * P_SIZE]
+#define src(x, y, z, m) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
+#define dst(x, y, z, m) dst[x + (y) * P_SIZE + (z) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
 __global__ void x_solve_transpose(double *dst, double *src, int nx2, int ny2, int nz2)
 {
     int m;
@@ -441,8 +441,8 @@ __global__ void x_solve_transpose(double *dst, double *src, int nx2, int ny2, in
 
 #undef src
 #undef dst
-#define src(x, y, z) src[z + (y)*P_SIZE + (x)*P_SIZE * P_SIZE]
-#define dst(x, y, z) dst[x + (z)*P_SIZE + (y)*P_SIZE * P_SIZE]
+#define src(x, y, z) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
+#define dst(x, y, z) dst[x + (z) * P_SIZE + (y) * P_SIZE * P_SIZE]
 __global__ void x_solve_transpose_3D(double *dst, double *src, int nx2, int ny2, int nz2)
 {
     int m;
