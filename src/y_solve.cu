@@ -399,7 +399,7 @@ void y_solve()
         timer_start(t_ysolve);
 
     y_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuVs, nx2, ny2, nz2);
-    std::swap((double **)&gpuTmp3D, (double **)&gpuVs);
+    std::swap(gpuTmp3D, gpuVs);
     cudaDeviceSynchronize();
     y_solve_one(blocks2, threads2, (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, nx2, ny2, nz2);
 
@@ -427,11 +427,11 @@ void y_solve()
     if (timeron)
         timer_stop(t_pinvr);
 
-    std::swap((double **)&gpuTmp3D, (double **)&gpuRho_i);
+    std::swap(gpuTmp3D, gpuRho_i);
     y_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuRho_i, nx2, ny2, nz2);
-    std::swap((double **)&gpuTmp3D, (double **)&gpuVs);
+    std::swap(gpuTmp3D, gpuVs);
     y_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuVs, nx2, ny2, nz2);
-    std::swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
+    std::swap(gpuTmp3D, gpuSpeed);
     y_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuSpeed, nx2, ny2, nz2);
 
     if (timeron)

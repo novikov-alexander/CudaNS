@@ -429,13 +429,13 @@ void x_solve()
         timer_start(t_xsolve);
 
     x_solve_transpose<<<blockst, threadst>>>((double *)gpuTmp, (double *)gpuRhs, nx2, ny2, nz2);
-    std::swap((double **)&gpuTmp, (double **)&gpuRhs);
+    std::swap(gpuTmp, gpuRhs);
     x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuUs, nx2, ny2, nz2);
-    std::swap((double **)&gpuTmp3D, (double **)&gpuUs);
+    std::swap(gpuTmp3D, gpuUs);
     x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuSpeed, nx2, ny2, nz2);
-    std::swap((double **)&gpuTmp3D, (double **)&gpuSpeed);
+    std::swap(gpuTmp3D, gpuSpeed);
     x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuRho_i, nx2, ny2, nz2);
-    std::swap((double **)&gpuTmp3D, (double **)&gpuRho_i);
+    std::swap(gpuTmp3D, gpuRho_i);
 
     x_solve_one(blocks2, threads2, (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, nz2, ny2, nx2);
 
@@ -464,7 +464,7 @@ void x_solve()
     if (timeron)
         timer_stop(t_ninvr);
 
-    std::swap((double **)&gpuTmp3D, (double **)&gpuUs);
+    std::swap(gpuTmp3D, gpuUs);
     x_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuUs, nx2, ny2, nz2);
 
     // std::swap((double**)&gpuTmp, (double**)&gpuRhs);
