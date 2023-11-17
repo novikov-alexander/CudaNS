@@ -110,9 +110,7 @@ void y_solve()
     y_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuVs, nx2, ny2, nz2);
     std::swap(gpuTmp3D, gpuVs);
     cudaDeviceSynchronize();
-    y_solve_one(blocks2, threads2, (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, nx2, ny2, nz2);
 
-    cudaDeviceSynchronize();
     y_solve_two(
         blocks, threads,
         blocks2, threads2,
