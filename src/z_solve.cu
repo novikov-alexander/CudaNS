@@ -28,6 +28,10 @@ void z_solve_two(
     cudaDeviceSynchronize();
     solve_kernel_two_nz3<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRho_i, (double *)gpuWs, (double *)gpuSpeed, nx2, ny2, nz2, c3c4, dz4, con43, dz5, c1c5, dzmax, dz1, dttz2, dttz1, c2dttz1, comz1, comz4, comz5, comz6);
     solve_kernel_two_nz2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)ws, (double *)speed, ny2, nx2, nz2, c3c4, dz4, con43, dz5, c1c5, dzmax, dz1, dttz2, dttz1, c2dttz1, comz1, comz4, comz5, comz6);
+    cudaDeviceSynchronize();
+    z_solve_kernel_three<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuWs, (double *)gpuSpeed, nx2, ny2, nz2);
+    cudaDeviceSynchronize();
+    solve_kernel_four<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, ny2, nx2, nz2);
 }
 
 #undef rhs
@@ -155,30 +159,6 @@ __global__ void z_solve_kernel_three(double *lhs_, double *lhsp_, double *lhsm_,
                 rhs(k1, j, i, 3) = rhs(k1, j, i, 3) - lhsp_(j, i, k1, 3) * rhs(k2, j, i, 3);
                 rhs(k1, j, i, 4) = rhs(k1, j, i, 4) - lhsm_(j, i, k1, 3) * rhs(k2, j, i, 4);
             }
-        }
-    }
-}
-
-__global__ void z_solve_kernel_four(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, int nx2, int ny2, int nz2)
-{
-    int k1, k2, m;
-
-    int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
-    int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
-    int k;
-
-    if (j <= ny2 && i <= nx2)
-    {
-        for (k = nz2; k >= 1; k--)
-        {
-            k1 = k;
-            k2 = k + 1;
-
-            for (m = 0; m < 3; m++)
-                rhs(k - 1, j, i, m) = rhs(k - 1, j, i, m) - lhs_(j, i, k - 1, 3) * rhs(k1, j, i, m) - lhs_(j, i, k - 1, 4) * rhs(k2, j, i, m);
-
-            rhs(k - 1, j, i, 3) = rhs(k - 1, j, i, 3) - lhsp_(j, i, k - 1, 3) * rhs(k1, j, i, 3) - lhsp_(j, i, k - 1, 4) * rhs(k2, j, i, 3);
-            rhs(k - 1, j, i, 4) = rhs(k - 1, j, i, 4) - lhsm_(j, i, k - 1, 3) * rhs(k1, j, i, 4) - lhsm_(j, i, k - 1, 4) * rhs(k2, j, i, 4);
         }
     }
 }
@@ -339,12 +319,6 @@ void z_solve()
         blocks, threads,
         blocks2, threads2,
         (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRho_i, (double *)gpuWs, (double *)gpuSpeed, nx2, ny2, nz2, c3c4, dz4, con43, dz5, c1c5, dzmax, dz1, dttz2, dttz1, c2dttz1, comz1, comz4, comz5, comz6);
-
-    cudaDeviceSynchronize();
-    z_solve_kernel_three<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuWs, (double *)gpuSpeed, nx2, ny2, nz2);
-
-    cudaDeviceSynchronize();
-    z_solve_kernel_four<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, nx2, ny2, nz2);
 
     //---------------------------------------------------------------------
     // block-diagonal matrix-vector multiplication

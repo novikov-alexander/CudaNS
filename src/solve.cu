@@ -278,3 +278,29 @@ __global__ void solve_kernel_two(
         lhsm_(i, j, k, 4) = lhs_(i, j, k, 4);
     }
 };
+
+__global__ void solve_kernel_four(
+    double *lhs_, double *lhsp_, double *lhsm_,
+    double *rhs,
+    int nx2, int ny2, int nz2)
+{
+    int i1, i2, m, k;
+
+    int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
+    int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
+
+    // part 4
+    if ((j <= ny2) && (i <= nx2))
+    {
+        for (k = nz2; k >= 1; k--)
+        {
+            i1 = k;
+            i2 = k + 1;
+            for (m = 0; m < 3; m++)
+                rhs(i, j, k - 1, m) = rhs(i, j, k - 1, m) - lhs_(i, j, k - 1, 3) * rhs(i1, j, k - 1, m) - lhs_(i, j, k - 1, 4) * rhs(i2, j, k - 1, m);
+
+            rhs(i, j, k - 1, 3) = rhs(i, j, k - 1, 3) - lhsp_(i, j, k - 1, 3) * rhs(i1, j, k - 1, 3) - lhsp_(i, j, k - 1, 4) * rhs(i2, j, k - 1, 3);
+            rhs(i, j, k - 1, 4) = rhs(i, j, k - 1, 4) - lhsm_(i, j, k - 1, 3) * rhs(i1, j, k - 1, 4) - lhsm_(i, j, k - 1, 4) * rhs(i2, j, k - 1, 4);
+        }
+    }
+}

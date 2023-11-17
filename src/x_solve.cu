@@ -28,6 +28,10 @@ void x_solve_two(
     cudaDeviceSynchronize();
     solve_kernel_two_nz2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2);
     solve_kernel_two_nz3<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2);
+    cudaDeviceSynchronize();
+    x_solve_kernel_three<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
+    cudaDeviceSynchronize();
+    solve_kernel_four<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, nz2, ny2, nx2);
 }
 
 #undef rhs
@@ -154,29 +158,6 @@ __global__ void x_solve_kernel_three(double *lhs_, double *lhsp_, double *lhsm_,
                 rhs(k, j, i1, 3) = rhs(k, j, i1, 3) - lhsp_(k, j, i1, 3) * rhs(k, j, i2, 3);
                 rhs(k, j, i1, 4) = rhs(k, j, i1, 4) - lhsm_(k, j, i1, 3) * rhs(k, j, i2, 4);
             }
-        }
-    }
-}
-
-__global__ void x_solve_kernel_four(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nx)
-{
-    int i1, i2, m, i;
-
-    int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
-    int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
-
-    // part 4
-    if ((k <= nz2) && (j <= ny2))
-    {
-        for (i = nx2; i >= 1; i--)
-        {
-            i1 = i;
-            i2 = i + 1;
-            for (m = 0; m < 3; m++)
-                rhs(k, j, i - 1, m) = rhs(k, j, i - 1, m) - lhs_(k, j, i - 1, 3) * rhs(k, j, i1, m) - lhs_(k, j, i - 1, 4) * rhs(k, j, i2, m);
-
-            rhs(k, j, i - 1, 3) = rhs(k, j, i - 1, 3) - lhsp_(k, j, i - 1, 3) * rhs(k, j, i1, 3) - lhsp_(k, j, i - 1, 4) * rhs(k, j, i2, 3);
-            rhs(k, j, i - 1, 4) = rhs(k, j, i - 1, 4) - lhsm_(k, j, i - 1, 3) * rhs(k, j, i1, 4) - lhsm_(k, j, i - 1, 4) * rhs(k, j, i2, 4);
         }
     }
 }
@@ -313,11 +294,6 @@ void x_solve()
         blocks, threads,
         blocks2, threads2,
         (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
-    cudaDeviceSynchronize();
-    x_solve_kernel_three<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
-    cudaDeviceSynchronize();
-
-    x_solve_kernel_four<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
     cudaDeviceSynchronize();
 
     //---------------------------------------------------------------------

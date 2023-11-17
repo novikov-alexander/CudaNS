@@ -154,6 +154,11 @@ void solve_kernel_two_nz3(
     double c1c5, double dzmax, double dz1, double dttz2, double dttz1,
     double c2dttz1, double comz1, double comz4, double comz5, double comz6);
 
+void solve_kernel_four(
+    double *lhs_, double *lhsp_, double *lhsm_,
+    double *rhs,
+    int nx2, int ny2, int nz2);
+
 // verification
 void print_results(int niter, double time, logical verified, const char **timers);
 void verify(int no_time_steps, logical *verified);
