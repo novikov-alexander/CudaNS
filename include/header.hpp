@@ -138,6 +138,14 @@ void solve_kernel_two2(
     double c1c5, double dzmax, double dz1, double dttz2, double dttz1,
     double c2dttz1, double comz1, double comz4, double comz5, double comz6);
 
+void solve_kernel_two_nz2(
+    double *lhs_, double *lhsp_, double *lhsm_,
+    double *rho_i, double *us, double *speed,
+    int nx2, int ny2, int nz2,
+    double c3c4, double dz4, double con43, double dz5,
+    double c1c5, double dzmax, double dz1, double dttz2, double dttz1,
+    double c2dttz1, double comz1, double comz4, double comz5, double comz6);
+
 // verification
 void print_results(int niter, double time, logical verified, const char **timers);
 void verify(int no_time_steps, logical *verified);

@@ -127,6 +127,55 @@ __global__ void solve_kernel_two2(
     }
 };
 
+__global__ void solve_kernel_two_nz2(
+    double *lhs_, double *lhsp_, double *lhsm_,
+    double *rho_i, double *us, double *speed,
+    int nx2, int ny2, int nz2,
+    double c3c4, double dz4, double con43, double dz5,
+    double c1c5, double dzmax, double dz1, double dttz2, double dttz1,
+    double c2dttz1, double comz1, double comz4, double comz5, double comz6)
+{
+    int m;
+    double ru1, rhos1;
+
+    int i = threadIdx.y + blockIdx.y * blockDim.y + 1;
+    int j = threadIdx.x + blockIdx.x * blockDim.x + 1;
+    int k = nz - 2;
+
+    if (j <= ny2 && i <= nx2)
+    {
+        lhs_(i, j, k, 0) = 0.0;
+
+        ru1 = c3c4 * rho_i(k - 1, i, j);
+        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
+        lhs_(i, j, k, 1) = -dttz2 * us(k - 1, i, j) - dttz1 * rhos1;
+
+        ru1 = c3c4 * rho_i(k, i, j);
+        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
+        lhs_(i, j, k, 2) = 1.0 + c2dttz1 * rhos1;
+
+        ru1 = c3c4 * rho_i(k + 1, i, j);
+        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
+        lhs_(i, j, k, 3) = dttz2 * us(k + 1, i, j) - dttz1 * rhos1;
+        lhs_(i, j, k, 4) = 0.0;
+
+        lhs_(i, j, k, 0) = lhs_(i, j, k, 0) + comz1;
+        lhs_(i, j, k, 1) = lhs_(i, j, k, 1) - comz4;
+        lhs_(i, j, k, 2) = lhs_(i, j, k, 2) + comz5;
+
+        lhsp_(i, j, k, 0) = lhs_(i, j, k, 0);
+        lhsp_(i, j, k, 1) = lhs_(i, j, k, 1) - dttz2 * speed(k - 1, i, j);
+        lhsp_(i, j, k, 2) = lhs_(i, j, k, 2);
+        lhsp_(i, j, k, 3) = lhs_(i, j, k, 3) + dttz2 * speed(k + 1, i, j);
+        lhsp_(i, j, k, 4) = lhs_(i, j, k, 4);
+        lhsm_(i, j, k, 0) = lhs_(i, j, k, 0);
+        lhsm_(i, j, k, 1) = lhs_(i, j, k, 1) + dttz2 * speed(k - 1, i, j);
+        lhsm_(i, j, k, 2) = lhs_(i, j, k, 2);
+        lhsm_(i, j, k, 3) = lhs_(i, j, k, 3) - dttz2 * speed(k + 1, i, j);
+        lhsm_(i, j, k, 4) = lhs_(i, j, k, 4);
+    }
+};
+
 __global__ void solve_kernel_two(
     double *lhs_, double *lhsp_, double *lhsm_,
     double *rho_i, double *us, double *speed,
