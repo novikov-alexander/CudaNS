@@ -29,7 +29,7 @@ void x_solve_two(
     solve_kernel_two_nz2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2);
     solve_kernel_two_nz3<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2);
     cudaDeviceSynchronize();
-    x_solve_kernel_three<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
+    solve_kernel_three<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
     cudaDeviceSynchronize();
     solve_kernel_four<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, nz2, ny2, nx2);
 }
@@ -43,124 +43,6 @@ void x_solve_two(
 #define rho_i(x, y, z) rho_i[INDEX_3D(x, z, y)]
 #define s(x, y, z) s[INDEX_3D(x, z, y)]
 #define speed(x, y, z) speed[INDEX_3D(x, z, y)]
-__global__ void x_solve_kernel_three(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nx)
-{
-    int i1, i2, m;
-    double ru1, rhon1, fac1, fac2;
-
-    int i;
-    int k = threadIdx.x + blockIdx.x * blockDim.x;
-    int j = threadIdx.y + blockIdx.y * blockDim.y;
-
-    // part 3
-    if (k > 0 && k <= nz2 && j > 0 && j <= ny2)
-    {
-        for (i = 1; i <= nx2; i++)
-        {
-            i1 = i;
-            i2 = i + 1;
-            fac1 = 1.0 / lhs_(k, j, i - 1, 2);
-            lhs_(k, j, i - 1, 3) = fac1 * lhs_(k, j, i - 1, 3);
-            lhs_(k, j, i - 1, 4) = fac1 * lhs_(k, j, i - 1, 4);
-
-#pragma unroll 3
-            for (m = 0; m < 3; m++)
-                rhs(k, j, i - 1, m) = fac1 * rhs(k, j, i - 1, m);
-
-            lhs_(k, j, i1, 2) = lhs_(k, j, i1, 2) - lhs_(k, j, i1, 1) * lhs_(k, j, i - 1, 3);
-            lhs_(k, j, i1, 3) = lhs_(k, j, i1, 3) - lhs_(k, j, i1, 1) * lhs_(k, j, i - 1, 4);
-#pragma unroll 3
-            for (m = 0; m < 3; m++)
-                rhs(k, j, i1, m) = rhs(k, j, i1, m) - lhs_(k, j, i1, 1) * rhs(k, j, i - 1, m);
-
-            lhs_(k, j, i2, 1) = lhs_(k, j, i2, 1) - lhs_(k, j, i2, 0) * lhs_(k, j, i - 1, 3);
-            lhs_(k, j, i2, 2) = lhs_(k, j, i2, 2) - lhs_(k, j, i2, 0) * lhs_(k, j, i - 1, 4);
-#pragma unroll 3
-            for (m = 0; m < 3; m++)
-                rhs(k, j, i2, m) = rhs(k, j, i2, m) - lhs_(k, j, i2, 0) * rhs(k, j, i - 1, m);
-
-            if (i == nx2)
-            {
-                fac1 = 1.0 / lhs_(k, j, i1, 2);
-                lhs_(k, j, i1, 3) = fac1 * lhs_(k, j, i1, 3);
-                lhs_(k, j, i1, 4) = fac1 * lhs_(k, j, i1, 4);
-#pragma unroll 3
-                for (m = 0; m < 3; m++)
-                    rhs(k, j, i1, m) = fac1 * rhs(k, j, i1, m);
-
-                lhs_(k, j, i2, 2) = lhs_(k, j, i2, 2) - lhs_(k, j, i2, 1) * lhs_(k, j, i1, 3);
-                lhs_(k, j, i2, 3) = lhs_(k, j, i2, 3) - lhs_(k, j, i2, 1) * lhs_(k, j, i1, 4);
-#pragma unroll 3
-                for (m = 0; m < 3; m++)
-                    rhs(k, j, i2, m) = rhs(k, j, i2, m) - lhs_(k, j, i2, 1) * rhs(k, j, i1, m);
-
-                fac2 = 1.0 / lhs_(k, j, i2, 2);
-#pragma unroll 3
-                for (m = 0; m < 3; m++)
-                    rhs(k, j, i2, m) = fac2 * rhs(k, j, i2, m);
-            }
-
-            m = 3;
-            fac1 = 1.0 / lhsp_(k, j, i - 1, 2);
-            lhsp_(k, j, i - 1, 3) = fac1 * lhsp_(k, j, i - 1, 3);
-            lhsp_(k, j, i - 1, 4) = fac1 * lhsp_(k, j, i - 1, 4);
-            rhs(k, j, i - 1, m) = fac1 * rhs(k, j, i - 1, m);
-
-            lhsp_(k, j, i1, 2) = lhsp_(k, j, i1, 2) - lhsp_(k, j, i1, 1) * lhsp_(k, j, i - 1, 3);
-            lhsp_(k, j, i1, 3) = lhsp_(k, j, i1, 3) - lhsp_(k, j, i1, 1) * lhsp_(k, j, i - 1, 4);
-            rhs(k, j, i1, m) = rhs(k, j, i1, m) - lhsp_(k, j, i1, 1) * rhs(k, j, i - 1, m);
-
-            lhsp_(k, j, i2, 1) = lhsp_(k, j, i2, 1) - lhsp_(k, j, i2, 0) * lhsp_(k, j, i - 1, 3);
-            lhsp_(k, j, i2, 2) = lhsp_(k, j, i2, 2) - lhsp_(k, j, i2, 0) * lhsp_(k, j, i - 1, 4);
-            rhs(k, j, i2, m) = rhs(k, j, i2, m) - lhsp_(k, j, i2, 0) * rhs(k, j, i - 1, m);
-
-            m = 4;
-            fac1 = 1.0 / lhsm_(k, j, i - 1, 2);
-            lhsm_(k, j, i - 1, 3) = fac1 * lhsm_(k, j, i - 1, 3);
-            lhsm_(k, j, i - 1, 4) = fac1 * lhsm_(k, j, i - 1, 4);
-            rhs(k, j, i - 1, m) = fac1 * rhs(k, j, i - 1, m);
-            lhsm_(k, j, i1, 2) = lhsm_(k, j, i1, 2) - lhsm_(k, j, i1, 1) * lhsm_(k, j, i - 1, 3);
-            lhsm_(k, j, i1, 3) = lhsm_(k, j, i1, 3) - lhsm_(k, j, i1, 1) * lhsm_(k, j, i - 1, 4);
-            rhs(k, j, i1, m) = rhs(k, j, i1, m) - lhsm_(k, j, i1, 1) * rhs(k, j, i - 1, m);
-            lhsm_(k, j, i2, 1) = lhsm_(k, j, i2, 1) - lhsm_(k, j, i2, 0) * lhsm_(k, j, i - 1, 3);
-            lhsm_(k, j, i2, 2) = lhsm_(k, j, i2, 2) - lhsm_(k, j, i2, 0) * lhsm_(k, j, i - 1, 4);
-            rhs(k, j, i2, m) = rhs(k, j, i2, m) - lhsm_(k, j, i2, 0) * rhs(k, j, i - 1, m);
-
-            if (i == nx2)
-            {
-                m = 3;
-                fac1 = 1.0 / lhsp_(k, j, i1, 2);
-                lhsp_(k, j, i1, 3) = fac1 * lhsp_(k, j, i1, 3);
-                lhsp_(k, j, i1, 4) = fac1 * lhsp_(k, j, i1, 4);
-                rhs(k, j, i1, m) = fac1 * rhs(k, j, i1, m);
-
-                lhsp_(k, j, i2, 2) = lhsp_(k, j, i2, 2) - lhsp_(k, j, i2, 1) * lhsp_(k, j, i1, 3);
-                lhsp_(k, j, i2, 3) = lhsp_(k, j, i2, 3) - lhsp_(k, j, i2, 1) * lhsp_(k, j, i1, 4);
-                rhs(k, j, i2, m) = rhs(k, j, i2, m) - lhsp_(k, j, i2, 1) * rhs(k, j, i1, m);
-
-                m = 4;
-                fac1 = 1.0 / lhsm_(k, j, i1, 2);
-                lhsm_(k, j, i1, 3) = fac1 * lhsm_(k, j, i1, 3);
-                lhsm_(k, j, i1, 4) = fac1 * lhsm_(k, j, i1, 4);
-                rhs(k, j, i1, m) = fac1 * rhs(k, j, i1, m);
-
-                lhsm_(k, j, i2, 2) = lhsm_(k, j, i2, 2) - lhsm_(k, j, i2, 1) * lhsm_(k, j, i1, 3);
-                lhsm_(k, j, i2, 3) = lhsm_(k, j, i2, 3) - lhsm_(k, j, i2, 1) * lhsm_(k, j, i1, 4);
-                rhs(k, j, i2, m) = rhs(k, j, i2, m) - lhsm_(k, j, i2, 1) * rhs(k, j, i1, m);
-
-                rhs(k, j, i2, 3) = rhs(k, j, i2, 3) / lhsp_(k, j, i2, 2);
-                rhs(k, j, i2, 4) = rhs(k, j, i2, 4) / lhsm_(k, j, i2, 2);
-
-#pragma unroll 3
-                for (m = 0; m < 3; m++)
-                    rhs(k, j, i1, m) = rhs(k, j, i1, m) - lhs_(k, j, i1, 3) * rhs(k, j, i2, m);
-
-                rhs(k, j, i1, 3) = rhs(k, j, i1, 3) - lhsp_(k, j, i1, 3) * rhs(k, j, i2, 3);
-                rhs(k, j, i1, 4) = rhs(k, j, i1, 4) - lhsm_(k, j, i1, 3) * rhs(k, j, i2, 4);
-            }
-        }
-    }
-}
 
 __global__ void x_solve_inversion(double *rhs, double bt, int nx2, int ny2, int nz2)
 {

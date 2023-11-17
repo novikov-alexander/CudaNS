@@ -154,6 +154,12 @@ void solve_kernel_two_nz3(
     double c1c5, double dzmax, double dz1, double dttz2, double dttz1,
     double c2dttz1, double comz1, double comz4, double comz5, double comz6);
 
+void solve_kernel_three(
+    double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed,
+    double c3c4, double dx2, double con43, double dx5,
+    double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6,
+    int nx2, int ny2, int nz2, int nz);
+
 void solve_kernel_four(
     double *lhs_, double *lhsp_, double *lhsm_,
     double *rhs,

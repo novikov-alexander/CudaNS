@@ -279,6 +279,125 @@ __global__ void solve_kernel_two(
     }
 };
 
+void solve_kernel_three(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nz)
+{
+    int k1, k2, m;
+    double ru1, rhon1, fac1, fac2;
+
+    int k;
+    int i = threadIdx.x + blockIdx.x * blockDim.x;
+    int j = threadIdx.y + blockIdx.y * blockDim.y;
+
+    // part 3
+    if (i > 0 && i <= nx2 && j > 0 && j <= ny2)
+    {
+        for (k = 1; k <= nz2; k++)
+        {
+            k1 = k;
+            k2 = k + 1;
+            fac1 = 1.0 / lhs_(i, j, k - 1, 2);
+            lhs_(i, j, k - 1, 3) = fac1 * lhs_(i, j, k - 1, 3);
+            lhs_(i, j, k - 1, 4) = fac1 * lhs_(i, j, k - 1, 4);
+
+#pragma unroll 3
+            for (m = 0; m < 3; m++)
+                rhs(i, j, k - 1, m) = fac1 * rhs(i, j, k - 1, m);
+
+            lhs_(i, j, k1, 2) = lhs_(i, j, k1, 2) - lhs_(i, j, k1, 1) * lhs_(i, j, k - 1, 3);
+            lhs_(i, j, k1, 3) = lhs_(i, j, k1, 3) - lhs_(i, j, k1, 1) * lhs_(i, j, k - 1, 4);
+#pragma unroll 3
+            for (m = 0; m < 3; m++)
+                rhs(i, j, k1, m) = rhs(i, j, k1, m) - lhs_(i, j, k1, 1) * rhs(i, j, k - 1, m);
+
+            lhs_(i, j, k2, 1) = lhs_(i, j, k2, 1) - lhs_(i, j, k2, 0) * lhs_(i, j, k - 1, 3);
+            lhs_(i, j, k2, 2) = lhs_(i, j, k2, 2) - lhs_(i, j, k2, 0) * lhs_(i, j, k - 1, 4);
+#pragma unroll 3
+            for (m = 0; m < 3; m++)
+                rhs(i, j, k2, m) = rhs(i, j, k2, m) - lhs_(i, j, k2, 0) * rhs(i, j, k - 1, m);
+
+            if (k == nz2)
+            {
+                fac1 = 1.0 / lhs_(i, j, k1, 2);
+                lhs_(i, j, k1, 3) = fac1 * lhs_(i, j, k1, 3);
+                lhs_(i, j, k1, 4) = fac1 * lhs_(i, j, k1, 4);
+#pragma unroll 3
+                for (m = 0; m < 3; m++)
+                    rhs(i, j, k1, m) = fac1 * rhs(i, j, k1, m);
+
+                lhs_(i, j, k2, 2) = lhs_(i, j, k2, 2) - lhs_(i, j, k2, 1) * lhs_(i, j, k1, 3);
+                lhs_(i, j, k2, 3) = lhs_(i, j, k2, 3) - lhs_(i, j, k2, 1) * lhs_(i, j, k1, 4);
+#pragma unroll 3
+                for (m = 0; m < 3; m++)
+                    rhs(i, j, k2, m) = rhs(i, j, k2, m) - lhs_(i, j, k2, 1) * rhs(i, j, k1, m);
+
+                fac2 = 1.0 / lhs_(i, j, k2, 2);
+#pragma unroll 3
+                for (m = 0; m < 3; m++)
+                    rhs(i, j, k2, m) = fac2 * rhs(i, j, k2, m);
+            }
+
+            m = 3;
+            fac1 = 1.0 / lhsp_(i, j, k - 1, 2);
+            lhsp_(i, j, k - 1, 3) = fac1 * lhsp_(i, j, k - 1, 3);
+            lhsp_(i, j, k - 1, 4) = fac1 * lhsp_(i, j, k - 1, 4);
+            rhs(i, j, k - 1, m) = fac1 * rhs(i, j, k - 1, m);
+
+            lhsp_(i, j, k1, 2) = lhsp_(i, j, k1, 2) - lhsp_(i, j, k1, 1) * lhsp_(i, j, k - 1, 3);
+            lhsp_(i, j, k1, 3) = lhsp_(i, j, k1, 3) - lhsp_(i, j, k1, 1) * lhsp_(i, j, k - 1, 4);
+            rhs(i, j, k1, m) = rhs(i, j, k1, m) - lhsp_(i, j, k1, 1) * rhs(i, j, k - 1, m);
+
+            lhsp_(i, j, k2, 1) = lhsp_(i, j, k2, 1) - lhsp_(i, j, k2, 0) * lhsp_(i, j, k - 1, 3);
+            lhsp_(i, j, k2, 2) = lhsp_(i, j, k2, 2) - lhsp_(i, j, k2, 0) * lhsp_(i, j, k - 1, 4);
+            rhs(i, j, k2, m) = rhs(i, j, k2, m) - lhsp_(i, j, k2, 0) * rhs(i, j, k - 1, m);
+
+            m = 4;
+            fac1 = 1.0 / lhsm_(i, j, k - 1, 2);
+            lhsm_(i, j, k - 1, 3) = fac1 * lhsm_(i, j, k - 1, 3);
+            lhsm_(i, j, k - 1, 4) = fac1 * lhsm_(i, j, k - 1, 4);
+            rhs(i, j, k - 1, m) = fac1 * rhs(i, j, k - 1, m);
+            lhsm_(i, j, k1, 2) = lhsm_(i, j, k1, 2) - lhsm_(i, j, k1, 1) * lhsm_(i, j, k - 1, 3);
+            lhsm_(i, j, k1, 3) = lhsm_(i, j, k1, 3) - lhsm_(i, j, k1, 1) * lhsm_(i, j, k - 1, 4);
+            rhs(i, j, k1, m) = rhs(i, j, k1, m) - lhsm_(i, j, k1, 1) * rhs(i, j, k - 1, m);
+            lhsm_(i, j, k2, 1) = lhsm_(i, j, k2, 1) - lhsm_(i, j, k2, 0) * lhsm_(i, j, k - 1, 3);
+            lhsm_(i, j, k2, 2) = lhsm_(i, j, k2, 2) - lhsm_(i, j, k2, 0) * lhsm_(i, j, k - 1, 4);
+            rhs(i, j, k2, m) = rhs(i, j, k2, m) - lhsm_(i, j, k2, 0) * rhs(i, j, k - 1, m);
+
+            if (k == nz2)
+            {
+                m = 3;
+                fac1 = 1.0 / lhsp_(i, j, k1, 2);
+                lhsp_(i, j, k1, 3) = fac1 * lhsp_(i, j, k1, 3);
+                lhsp_(i, j, k1, 4) = fac1 * lhsp_(i, j, k1, 4);
+                rhs(i, j, k1, m) = fac1 * rhs(i, j, k1, m);
+
+                lhsp_(i, j, k2, 2) = lhsp_(i, j, k2, 2) - lhsp_(i, j, k2, 1) * lhsp_(i, j, k1, 3);
+                lhsp_(i, j, k2, 3) = lhsp_(i, j, k2, 3) - lhsp_(i, j, k2, 1) * lhsp_(i, j, k1, 4);
+                rhs(i, j, k2, m) = rhs(i, j, k2, m) - lhsp_(i, j, k2, 1) * rhs(i, j, k1, m);
+
+                m = 4;
+                fac1 = 1.0 / lhsm_(i, j, k1, 2);
+                lhsm_(i, j, k1, 3) = fac1 * lhsm_(i, j, k1, 3);
+                lhsm_(i, j, k1, 4) = fac1 * lhsm_(i, j, k1, 4);
+                rhs(i, j, k1, m) = fac1 * rhs(i, j, k1, m);
+
+                lhsm_(i, j, k2, 2) = lhsm_(i, j, k2, 2) - lhsm_(i, j, k2, 1) * lhsm_(i, j, k1, 3);
+                lhsm_(i, j, k2, 3) = lhsm_(i, j, k2, 3) - lhsm_(i, j, k2, 1) * lhsm_(i, j, k1, 4);
+                rhs(i, j, k2, m) = rhs(i, j, k2, m) - lhsm_(i, j, k2, 1) * rhs(i, j, k1, m);
+
+                rhs(i, j, k2, 3) = rhs(i, j, k2, 3) / lhsp_(i, j, k2, 2);
+                rhs(i, j, k2, 4) = rhs(i, j, k2, 4) / lhsm_(i, j, k2, 2);
+
+#pragma unroll 3
+                for (m = 0; m < 3; m++)
+                    rhs(i, j, k1, m) = rhs(i, j, k1, m) - lhs_(i, j, k1, 3) * rhs(i, j, k2, m);
+
+                rhs(i, j, k1, 3) = rhs(i, j, k1, 3) - lhsp_(i, j, k1, 3) * rhs(i, j, k2, 3);
+                rhs(i, j, k1, 4) = rhs(i, j, k1, 4) - lhsm_(i, j, k1, 3) * rhs(i, j, k2, 4);
+            }
+        }
+    }
+}
+
 __global__ void solve_kernel_four(
     double *lhs_, double *lhsp_, double *lhsm_,
     double *rhs,
