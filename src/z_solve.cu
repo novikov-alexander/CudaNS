@@ -14,7 +14,7 @@ void z_solve_one(
     int nx2, int ny2, int nz2)
 {
     // reassign dimensions
-    solve_kernel_one<<<blocks, threads>>>(lhs_gpu, lhsp_gpu, lhsm_gpu, ny2, nx2, nz2);
+    solve_kernel_one<<<blocks, threads>>>(lhs_, lhsp_, lhsm_, ny2, nx2, nz2);
 }
 
 void z_solve_two1(
