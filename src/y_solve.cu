@@ -8,31 +8,13 @@
 // systems for the y-lines. Boundary conditions are non-periodic
 //---------------------------------------------------------------------
 
-void y_solve_one(
-    dim3 blocks, dim3 threads,
-    double *lhs_, double *lhsp_, double *lhsm_,
-    int nx2, int ny2, int nz2)
-{
-    // reassign dimensions
-    solve_kernel_one<<<blocks, threads>>>(lhs_, lhsp_, lhsm_, nz2, nx2, ny2);
-}
-
 void y_solve_two(
     dim3 blocks, dim3 threads,
     dim3 blocks2, dim3 threads2,
     double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *vs, double *speed, double c3c4, double dy3, double con43, double dy5, double c1c5, double dy1, double dtty2, double dtty1, double dymax, double c2dtty1, double comz1, double comz4, double comz5, double comz6,
     int nx2, int ny2, int nz2, int ny)
 {
-    solve_kernel_two<<<blocks, threads>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)vs, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2);
-    solve_kernel_two1<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)vs, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2);
-    solve_kernel_two2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)vs, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2);
-    cudaDeviceSynchronize();
-    solve_kernel_two_nz3<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)vs, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2);
-    solve_kernel_two_nz2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)vs, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2);
-    cudaDeviceSynchronize();
-    solve_kernel_three<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuVs, (double *)gpuSpeed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2, ny);
-    cudaDeviceSynchronize();
-    solve_kernel_four<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, nz2, nx2, ny2);
+    run_solve_kernels(blocks, threads, blocks2, threads2, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, rhs, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2, ny);
 }
 
 #undef rhs
