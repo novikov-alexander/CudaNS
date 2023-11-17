@@ -16,13 +16,15 @@ void x_solve_one(
     // reassign x- and z- dimensions
     solve_kernel_one<<<blocks, threads>>>(lhs_, lhsp_, lhsm_, nz2, ny2, nx2);
 }
-void x_solve_two1(
+void x_solve_two(
     dim3 blocks, dim3 threads,
+    dim3 blocks2, dim3 threads2,
     double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6,
     int nx2, int ny2, int nz2, int nx)
 {
-    solve_kernel_two1<<<blocks, threads>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2, ny);
-    solve_kernel_two2<<<blocks, threads>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2, ny);
+    solve_kernel_two<<<blocks, threads>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2);
+    solve_kernel_two1<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2);
+    solve_kernel_two2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2);
 }
 
 #undef rhs
@@ -109,52 +111,6 @@ __global__ void x_solve_kernel_two_nx3(double *lhs_, double *lhsp_, double *lhsm
         lhs_(k, j, i, 1) = lhs_(k, j, i, 1) - comz4;
         lhs_(k, j, i, 2) = lhs_(k, j, i, 2) + comz6;
         lhs_(k, j, i, 3) = lhs_(k, j, i, 3) - comz4;
-
-        lhsp_(k, j, i, 0) = lhs_(k, j, i, 0);
-        lhsp_(k, j, i, 1) = lhs_(k, j, i, 1) - dttx2 * speed(k, j, i - 1);
-        lhsp_(k, j, i, 2) = lhs_(k, j, i, 2);
-        lhsp_(k, j, i, 3) = lhs_(k, j, i, 3) + dttx2 * speed(k, j, i + 1);
-        lhsp_(k, j, i, 4) = lhs_(k, j, i, 4);
-
-        lhsm_(k, j, i, 0) = lhs_(k, j, i, 0);
-        lhsm_(k, j, i, 1) = lhs_(k, j, i, 1) + dttx2 * speed(k, j, i - 1);
-        lhsm_(k, j, i, 2) = lhs_(k, j, i, 2);
-        lhsm_(k, j, i, 3) = lhs_(k, j, i, 3) - dttx2 * speed(k, j, i + 1);
-        lhsm_(k, j, i, 4) = lhs_(k, j, i, 4);
-    }
-}
-
-__global__ void x_solve_kernel_two(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nx)
-{
-    int i1, i2, m;
-    double ru1, rhon1;
-
-    int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
-    int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
-    int i = threadIdx.z + blockIdx.z * blockDim.z + 3;
-
-    // part 2
-    if (k <= nz2 && j <= ny2 && (i <= nx2 - 2))
-    {
-        lhs_(k, j, i, 0) = 0.0;
-        ru1 = c3c4 * rho_i(k, j, i - 1);
-        rhon1 = fmax(fmax(dx2 + con43 * ru1, dx5 + c1c5 * ru1), fmax(dxmax + ru1, dx1));
-        lhs_(k, j, i, 1) = -dttx2 * us(k, j, i - 1) - dttx1 * rhon1;
-
-        ru1 = c3c4 * rho_i(k, j, i);
-        rhon1 = fmax(fmax(dx2 + con43 * ru1, dx5 + c1c5 * ru1), fmax(dxmax + ru1, dx1));
-        lhs_(k, j, i, 2) = 1.0 + c2dttx1 * rhon1;
-
-        ru1 = c3c4 * rho_i(k, j, i + 1);
-        rhon1 = fmax(fmax(dx2 + con43 * ru1, dx5 + c1c5 * ru1), fmax(dxmax + ru1, dx1));
-        lhs_(k, j, i, 3) = dttx2 * us(k, j, i + 1) - dttx1 * rhon1;
-        lhs_(k, j, i, 4) = 0.0;
-
-        lhs_(k, j, i, 0) = lhs_(k, j, i, 0) + comz1;
-        lhs_(k, j, i, 1) = lhs_(k, j, i, 1) - comz4;
-        lhs_(k, j, i, 2) = lhs_(k, j, i, 2) + comz6;
-        lhs_(k, j, i, 3) = lhs_(k, j, i, 3) - comz4;
-        lhs_(k, j, i, 4) = lhs_(k, j, i, 4) + comz1;
 
         lhsp_(k, j, i, 0) = lhs_(k, j, i, 0);
         lhsp_(k, j, i, 1) = lhs_(k, j, i, 1) - dttx2 * speed(k, j, i - 1);
@@ -440,8 +396,10 @@ void x_solve()
     x_solve_one(blocks2, threads2, (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, nz2, ny2, nx2);
 
     cudaDeviceSynchronize();
-    x_solve_kernel_two<<<blocks, threads>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
-    x_solve_two1(blocks2, threads2, (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
+    x_solve_two(
+        blocks, threads,
+        blocks2, threads2,
+        (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
     cudaDeviceSynchronize();
     x_solve_kernel_two_nx2<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
     x_solve_kernel_two_nx3<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
