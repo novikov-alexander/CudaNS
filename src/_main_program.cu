@@ -105,12 +105,7 @@ int main(int argc, char *argv[])
 
     // main loop
     timer_start(t_total);
-    for (int step = 1; step <= niter; step++)
-    {
-        if ((step % 20) == 0 || step == 1)
-            printf(" Time step %4d\n", step);
-        solver->step();
-    }
+    solver->solve(niter);
     timer_stop(t_total);
     double tmax = timer_read(t_total);
 

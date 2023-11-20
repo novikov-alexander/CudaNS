@@ -3,5 +3,5 @@
 class Solver
 {
 public:
-    void step();
+    void solve(int niter);
 };
