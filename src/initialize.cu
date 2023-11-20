@@ -6,7 +6,7 @@
 // This subroutine initializes the field variable u using
 // tri-linear transfinite interpolation of the boundary values
 //---------------------------------------------------------------------
-void initialize()
+void init_u()
 {
     int i, j, k, m, ix, iy, iz;
     double xi, eta, zeta, Pface[2][3][5], Pxi, Peta, Pzeta, temp[5];

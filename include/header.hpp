@@ -101,7 +101,7 @@ struct CUDAParameters
 //-----------------------------------------------------------------------
 // initialize functions
 void set_constants();
-void initialize();
+void init_u();
 void exact_solution(double xi, double eta, double zeta, double dtemp[5]);
 void exact_rhs();
 logical inittrace(const char **t_names);
@@ -130,7 +130,7 @@ void run_solve_kernels(
     int nx2, int ny2, int nz2, int nx);
 
 // verification
-void print_results(int niter, double time, const char **timers);
+void print_results(int niter, const char **timers);
 
 // timers
 void timer_clear(int n);

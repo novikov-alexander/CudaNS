@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include "header.hpp"
 
-void print_results(int niter, double tmax, const char **t_names)
+void print_results(int niter, const char **t_names)
 {
     double mflops;
     double trecs[t_last + 1];
     int i;
+
+    double tmax = timer_read(t_total);
 
     if (tmax != 0.0)
     {

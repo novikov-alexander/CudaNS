@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
 
     // init
     exact_rhs();
+    init_u();
     auto solver = new Solver();
-    initialize();
 
     copyGridsToDevice();
 
@@ -101,11 +101,10 @@ int main(int argc, char *argv[])
     timer_start(t_total);
     solver->solve(niter);
     timer_stop(t_total);
-    double tmax = timer_read(t_total);
 
     copyGridsFromDevice();
 
-    print_results(niter, tmax, t_names);
+    print_results(niter, t_names);
 
     if (!deallocateArrays())
         return -2;
