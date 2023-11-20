@@ -16,6 +16,13 @@ class Solver
     }
 
 public:
+    Solver()
+    {
+        cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
+
+        set_constants();
+    }
+
     void solve(int niter)
     {
         for (int step = 1; step <= niter; step++)

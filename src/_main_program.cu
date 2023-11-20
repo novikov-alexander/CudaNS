@@ -91,14 +91,11 @@ int main(int argc, char *argv[])
         timer_clear(i);
 
     // init
-    auto solver = new Solver();
-    set_constants();
     exact_rhs();
+    auto solver = new Solver();
     initialize();
 
     copyGridsToDevice();
-
-    cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
 
     // main loop
     timer_start(t_total);
