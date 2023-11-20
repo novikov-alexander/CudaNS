@@ -9,11 +9,10 @@
 //---------------------------------------------------------------------
 
 void z_solve_two(
-    dim3 blocks, dim3 threads,
-    dim3 blocks2, dim3 threads2,
+    CUDAParameters cudaParams,
     double *lhs_, double *lhsp_, double *lhsm_, double *rho_i, double *ws, double *speed, int nx2, int ny2, int nz2, double c3c4, double dz4, double con43, double dz5, double c1c5, double dzmax, double dz1, double dttz2, double dttz1, double c2dttz1, double comz1, double comz4, double comz5, double comz6)
 {
-    run_solve_kernels(blocks, threads, blocks2, threads2, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rhs, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, ny2, nx2, nz2, ny);
+    run_solve_kernels(cudaParams, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rhs, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, ny2, nx2, nz2, ny);
 }
 
 void z_solve_inversion(dim3 blocks, dim3 threads, double *rhs, double bt, int ny2, int nx2, int nz2)
@@ -119,8 +118,7 @@ void z_solve()
     std::swap(gpuTmp3D, gpuSpeed);
 
     z_solve_two(
-        cudaParams.blocks, cudaParams.threads,
-        cudaParams.blocks2, cudaParams.threads2,
+        cudaParams,
         (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRho_i, (double *)gpuWs, (double *)gpuSpeed, nx2, ny2, nz2, c3c4, dz4, con43, dz5, c1c5, dzmax, dz1, dttz2, dttz1, c2dttz1, comz1, comz4, comz5, comz6);
 
     //---------------------------------------------------------------------

@@ -9,12 +9,11 @@
 //---------------------------------------------------------------------
 
 void y_solve_two(
-    dim3 blocks, dim3 threads,
-    dim3 blocks2, dim3 threads2,
+    CUDAParameters cudaParams,
     double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *vs, double *speed, double c3c4, double dy3, double con43, double dy5, double c1c5, double dy1, double dtty2, double dtty1, double dymax, double c2dtty1, double comz1, double comz4, double comz5, double comz6,
     int nx2, int ny2, int nz2, int ny)
 {
-    run_solve_kernels(blocks, threads, blocks2, threads2, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, rhs, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2, ny);
+    run_solve_kernels(cudaParams, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, rhs, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2, ny);
 }
 
 void y_solve_inversion(dim3 blocks, dim3 threads, double *rhs, double bt, int nx2, int ny2, int nz2)
@@ -70,8 +69,7 @@ void y_solve()
     cudaDeviceSynchronize();
 
     y_solve_two(
-        cudaParams.blocks, cudaParams.threads,
-        cudaParams.blocks2, cudaParams.threads2,
+        cudaParams,
         (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuVs, (double *)gpuSpeed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, ny);
 
     //---------------------------------------------------------------------

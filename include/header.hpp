@@ -125,8 +125,7 @@ CUDAParameters setupDimensions(int nx2, int ny2, int nz2, int nx, int ny, int nz
 void run_inversion_kernels(dim3 blocks, dim3 threads, double *rhs, double bt, int nx2, int ny2, int nz2);
 
 void run_solve_kernels(
-    dim3 blocks, dim3 threads,
-    dim3 blocks2, dim3 threads2,
+    CUDAParameters cudaParams,
     double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6,
     int nx2, int ny2, int nz2, int nx);
 
