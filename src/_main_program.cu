@@ -40,6 +40,39 @@ Grid3DPtr lhs_gpu, lhsp_gpu, lhsm_gpu;
 
 Grid2DPtr gpuTmp3D;
 
+void copyGridsToDevice()
+{
+    const int size5 = sizeof(double) * P_SIZE * P_SIZE * P_SIZE * 5;
+    const int size = sizeof(double) * P_SIZE * P_SIZE * P_SIZE;
+
+    CudaSafeCall(cudaMemcpy(gpuU, u, size5, cudaMemcpyHostToDevice));
+    CudaSafeCall(cudaMemcpy(gpuRho_i, rho_i, size, cudaMemcpyHostToDevice));
+    CudaSafeCall(cudaMemcpy(gpuUs, us, size, cudaMemcpyHostToDevice));
+    CudaSafeCall(cudaMemcpy(gpuVs, vs, size, cudaMemcpyHostToDevice));
+    CudaSafeCall(cudaMemcpy(gpuWs, ws, size, cudaMemcpyHostToDevice));
+    CudaSafeCall(cudaMemcpy(gpuQs, qs, size, cudaMemcpyHostToDevice));
+    CudaSafeCall(cudaMemcpy(gpuSquare, square, size, cudaMemcpyHostToDevice));
+    CudaSafeCall(cudaMemcpy(gpuSpeed, speed, size, cudaMemcpyHostToDevice));
+    CudaSafeCall(cudaMemcpy(gpuForcing, forcing, size5, cudaMemcpyHostToDevice));
+}
+
+void copyGridsFromDevice()
+{
+    const int size5 = sizeof(double) * P_SIZE * P_SIZE * P_SIZE * 5;
+    const int size = sizeof(double) * P_SIZE * P_SIZE * P_SIZE;
+
+    CudaSafeCall(cudaMemcpy(u, gpuU, size5, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(ws, gpuWs, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(qs, gpuQs, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(square, gpuSquare, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(forcing, gpuForcing, size5, cudaMemcpyDeviceToHost));
+    CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
+}
+
 int main(int argc, char *argv[])
 {
     printf("\n Program started \n");
@@ -65,18 +98,7 @@ int main(int argc, char *argv[])
     exact_rhs();
     initialize();
 
-    const int size5 = sizeof(double) * P_SIZE * P_SIZE * P_SIZE * 5;
-    const int size = sizeof(double) * P_SIZE * P_SIZE * P_SIZE;
-
-    CudaSafeCall(cudaMemcpy(gpuU, u, size5, cudaMemcpyHostToDevice));
-    CudaSafeCall(cudaMemcpy(gpuRho_i, rho_i, size, cudaMemcpyHostToDevice));
-    CudaSafeCall(cudaMemcpy(gpuUs, us, size, cudaMemcpyHostToDevice));
-    CudaSafeCall(cudaMemcpy(gpuVs, vs, size, cudaMemcpyHostToDevice));
-    CudaSafeCall(cudaMemcpy(gpuWs, ws, size, cudaMemcpyHostToDevice));
-    CudaSafeCall(cudaMemcpy(gpuQs, qs, size, cudaMemcpyHostToDevice));
-    CudaSafeCall(cudaMemcpy(gpuSquare, square, size, cudaMemcpyHostToDevice));
-    CudaSafeCall(cudaMemcpy(gpuSpeed, speed, size, cudaMemcpyHostToDevice));
-    CudaSafeCall(cudaMemcpy(gpuForcing, forcing, size5, cudaMemcpyHostToDevice));
+    copyGridsToDevice();
 
     cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
 
@@ -91,16 +113,7 @@ int main(int argc, char *argv[])
     timer_stop(t_total);
     tmax = timer_read(t_total);
 
-    CudaSafeCall(cudaMemcpy(u, gpuU, size5, cudaMemcpyDeviceToHost));
-    CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
-    CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
-    CudaSafeCall(cudaMemcpy(vs, gpuVs, size, cudaMemcpyDeviceToHost));
-    CudaSafeCall(cudaMemcpy(ws, gpuWs, size, cudaMemcpyDeviceToHost));
-    CudaSafeCall(cudaMemcpy(qs, gpuQs, size, cudaMemcpyDeviceToHost));
-    CudaSafeCall(cudaMemcpy(square, gpuSquare, size, cudaMemcpyDeviceToHost));
-    CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
-    CudaSafeCall(cudaMemcpy(forcing, gpuForcing, size5, cudaMemcpyDeviceToHost));
-    CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
+    copyGridsFromDevice();
 
     verify(niter, &verified);
     print_results(niter, tmax, verified, t_names);

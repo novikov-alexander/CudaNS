@@ -2,24 +2,11 @@
 #include <math.h>
 #include "header.hpp"
 
-//---------------------------------------------------------------------
-// verification routine
-//---------------------------------------------------------------------
-void verify(int no_time_steps, logical *verified)
+void copyFromHost()
 {
-    double xcrref[5], xceref[5], xcrdif[5], xcedif[5];
-    double epsilon, xce[5], xcr[5], dtref = 0.0;
-    int m;
-    char Class[0];
-    epsilon = 1.0e-08;
-
     const int size5 = sizeof(double) * P_SIZE * P_SIZE * P_SIZE * 5;
     const int size = sizeof(double) * P_SIZE * P_SIZE * P_SIZE;
-    //---------------------------------------------------------------------
-    // compute the error norm and the residual norm, and exit if not printing
-    //---------------------------------------------------------------------
-    error_norm(xce);
-    compute_rhs();
+
     CudaSafeCall(cudaMemcpy(u, gpuU, size5, cudaMemcpyDeviceToHost));
     CudaSafeCall(cudaMemcpy(rho_i, gpuRho_i, size, cudaMemcpyDeviceToHost));
     CudaSafeCall(cudaMemcpy(us, gpuUs, size, cudaMemcpyDeviceToHost));
@@ -30,6 +17,25 @@ void verify(int no_time_steps, logical *verified)
     CudaSafeCall(cudaMemcpy(speed, gpuSpeed, size, cudaMemcpyDeviceToHost));
     CudaSafeCall(cudaMemcpy(forcing, gpuForcing, size5, cudaMemcpyDeviceToHost));
     CudaSafeCall(cudaMemcpy(rhs, gpuRhs, size5, cudaMemcpyDeviceToHost));
+}
+
+//---------------------------------------------------------------------
+// verification routine
+//---------------------------------------------------------------------
+void verify(int no_time_steps, logical *verified)
+{
+    double xcrref[5], xceref[5], xcrdif[5], xcedif[5];
+    double epsilon, xce[5], xcr[5], dtref = 0.0;
+    int m;
+    char Class[1];
+    epsilon = 1.0e-08;
+
+    //---------------------------------------------------------------------
+    // compute the error norm and the residual norm, and exit if not printing
+    //---------------------------------------------------------------------
+    error_norm(xce);
+    compute_rhs();
+    copyFromHost();
     rhs_norm(xcr);
 
     for (m = 0; m < 5; m++)
