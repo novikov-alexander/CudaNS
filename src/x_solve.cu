@@ -18,41 +18,9 @@ void x_solve_two(
     run_solve_kernels(blocks, threads, blocks2, threads2, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, rhs, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, ny2, nx2, ny);
 }
 
-#undef rhs
-#define rhs(x, y, z, m) rhs[INDEX(x, y, z, m)]
-
-#undef rho_i
-#undef s
-#undef speed
-#define rho_i(x, y, z) rho_i[INDEX_3D(x, z, y)]
-#define s(x, y, z) s[INDEX_3D(x, z, y)]
-#define speed(x, y, z) speed[INDEX_3D(x, z, y)]
-
-__global__ void x_solve_inversion(double *rhs, double bt, int nx2, int ny2, int nz2)
+void x_solve_inversion(dim3 blocks, dim3 threads, double *rhs, double bt, int nx2, int ny2, int nz2)
 {
-    double r1, r2, r3, r4, r5, t1, t2;
-
-    int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
-    int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
-    int i = threadIdx.z + blockIdx.z * blockDim.z + 1;
-
-    if ((k <= nz2) && (j <= ny2) && (i <= nx2))
-    {
-        r1 = rhs(k, j, i, 0);
-        r2 = rhs(k, j, i, 1);
-        r3 = rhs(k, j, i, 2);
-        r4 = rhs(k, j, i, 3);
-        r5 = rhs(k, j, i, 4);
-
-        t1 = bt * r3;
-        t2 = 0.5 * (r4 + r5);
-
-        rhs(k, j, i, 0) = -r2;
-        rhs(k, j, i, 1) = r1;
-        rhs(k, j, i, 2) = bt * (r4 - r5);
-        rhs(k, j, i, 3) = -t1 + t2;
-        rhs(k, j, i, 4) = t1 + t2;
-    }
+    run_inversion_kernels(blocks, threads, rhs, bt, nz2, ny2, nx2);
 }
 
 #define src(x, y, z, m) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE + (m) * P_SIZE * P_SIZE * P_SIZE]
@@ -109,23 +77,6 @@ __global__ void x_solve_inv_transpose_3D(double *dst, double *src, int nx2, int 
 
 #undef src
 #undef dst
-/*__global__ void x_solve_inv_transpose(double *dst, double *src, int nx2, int ny2, int nz2){
-    int m;
-
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
-    int j = threadIdx.y + blockIdx.y * blockDim.y;
-    int k = threadIdx.z + blockIdx.z * blockDim.z;
-
-    if ((k <= nz2 + 1) && (j <= ny2 + 1) && (i <= nx2 + 1))
-    {
-        #pragma unroll 5
-        for (m = 0; m < 5; m++)
-        {
-            src(i,j,k,m) = dst(i,j,k,m);
-        }
-    }
-}
-*/
 
 void x_solve()
 {
@@ -157,7 +108,7 @@ void x_solve()
     if (timeron)
         timer_start(t_ninvr);
 
-    x_solve_inversion<<<cudaParams.blocks, cudaParams.threads>>>((double *)gpuRhs, bt, nx2, ny2, nz2);
+    x_solve_inversion(cudaParams.blocks, cudaParams.threads, (double *)gpuRhs, bt, nx2, ny2, nz2);
 
     if (timeron)
         timer_stop(t_ninvr);
