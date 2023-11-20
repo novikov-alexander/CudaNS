@@ -80,15 +80,12 @@ int main(int argc, char *argv[])
 
     int niter;
     const char *t_names[t_last + 1];
-
     timeron = inittrace(t_names);
+
     if (!initparameters(argc, argv, &niter))
         return -1;
     if (!allocateArrays())
         return -2;
-
-    for (int i = 1; i <= t_last; i++)
-        timer_clear(i);
 
     // init
     exact_rhs();

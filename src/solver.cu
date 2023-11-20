@@ -25,6 +25,9 @@ public:
 
     void solve(int niter)
     {
+        for (int i = 1; i <= t_last; i++)
+            timer_clear(i);
+
         timer_start(t_total);
 
         for (int step = 1; step <= niter; step++)
