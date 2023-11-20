@@ -25,11 +25,15 @@ public:
 
     void solve(int niter)
     {
+        timer_start(t_total);
+
         for (int step = 1; step <= niter; step++)
         {
             if ((step % printStep) == 0 || step == 1)
                 printf(" Time step %4d\n", step);
             this->step();
         }
+
+        timer_stop(t_total);
     }
 };

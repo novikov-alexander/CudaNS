@@ -98,9 +98,7 @@ int main(int argc, char *argv[])
     copyGridsToDevice();
 
     // main loop
-    timer_start(t_total);
     solver->solve(niter);
-    timer_stop(t_total);
 
     copyGridsFromDevice();
 
