@@ -22,8 +22,9 @@ void copyFromHost()
 //---------------------------------------------------------------------
 // verification routine
 //---------------------------------------------------------------------
-void verify(int no_time_steps, logical *verified)
+bool verify(int no_time_steps)
 {
+    logical verified;
     double xcrref[5], xceref[5], xcrdif[5], xcedif[5];
     double epsilon, xce[5], xcr[5], dtref = 0.0;
     int m;
@@ -42,7 +43,7 @@ void verify(int no_time_steps, logical *verified)
         xcr[m] = xcr[m] / dt;
 
     *Class = 'U';
-    *verified = true;
+    verified = true;
 
     for (m = 0; m < 5; m++)
     {
@@ -240,7 +241,7 @@ void verify(int no_time_steps, logical *verified)
         xceref[4] = 0.1575330146156e+03;
     }
     else
-        *verified = false;
+        verified = false;
 
     for (m = 0; m < 5; m++)
     {
@@ -255,8 +256,8 @@ void verify(int no_time_steps, logical *verified)
     {
         printf(" Verification being performed for class %c\n", *Class);
         printf(" accuracy setting for epsilon = %20.13E\n", epsilon);
-        *verified = (fabs(dt - dtref) <= epsilon);
-        if (!(*verified))
+        verified = (fabs(dt - dtref) <= epsilon);
+        if (!verified)
         {
             *Class = 'U';
             printf(" DT does not match the reference value of %15.8E\n", dtref);
@@ -289,7 +290,7 @@ void verify(int no_time_steps, logical *verified)
         }
         else
         {
-            *verified = false;
+            verified = false;
             printf(" FAILURE: %2d%20.13E%20.13E%20.13E\n",
                    m + 1, xcr[m], xcrref[m], xcrdif[m]);
         }
@@ -317,7 +318,7 @@ void verify(int no_time_steps, logical *verified)
         }
         else
         {
-            *verified = false;
+            verified = false;
             printf(" FAILURE: %2d%20.13E%20.13E%20.13E\n",
                    m + 1, xce[m], xceref[m], xcedif[m]);
         }
@@ -328,7 +329,7 @@ void verify(int no_time_steps, logical *verified)
         printf(" No reference values provided\n");
         printf(" No verification performed\n");
     }
-    else if (*verified)
+    else if (verified)
     {
         printf(" Verification Successful\n");
     }

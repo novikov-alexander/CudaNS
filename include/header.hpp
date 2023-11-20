@@ -130,8 +130,7 @@ void run_solve_kernels(
     int nx2, int ny2, int nz2, int nx);
 
 // verification
-void print_results(int niter, double time, logical verified, const char **timers);
-void verify(int no_time_steps, logical *verified);
+void print_results(int niter, double time, const char **timers);
 
 // timers
 void timer_clear(int n);

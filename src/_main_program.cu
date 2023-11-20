@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
     printf("\n Program started \n");
 
     int niter;
-    logical verified;
     const char *t_names[t_last + 1];
 
     timeron = inittrace(t_names);
@@ -109,8 +108,7 @@ int main(int argc, char *argv[])
 
     copyGridsFromDevice();
 
-    verify(niter, &verified);
-    print_results(niter, tmax, verified, t_names);
+    print_results(niter, tmax, t_names);
 
     if (!deallocateArrays())
         return -2;

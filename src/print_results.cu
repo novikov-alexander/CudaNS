@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "header.hpp"
 
-void print_results(int niter, double tmax, logical verified, const char **t_names)
+void print_results(int niter, double tmax, const char **t_names)
 {
     double mflops;
     double trecs[t_last + 1];
@@ -21,10 +21,6 @@ void print_results(int niter, double tmax, logical verified, const char **t_name
     printf(" Iterations      =             %12d\n", niter);
     printf(" Time in seconds =             %12.2lf\n", tmax);
     printf(" Mop/s total     =          %15.2lf\n", mflops);
-    if (verified)
-        printf(" Verification    =             %12s\n", "SUCCESSFUL");
-    else
-        printf(" Verification    =             %12s\n", "UNSUCCESSFUL");
 
     if (timeron)
     {
