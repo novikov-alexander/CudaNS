@@ -1,7 +1,42 @@
 #include "adi.hpp"
 #include "solver.hpp"
+#include <array>
 
 constexpr int printStep = 20;
+
+void Solver::allocateArrays()
+{
+    const int size_5x3d = sizeof(double) * nx * ny * nz * 5;
+    const int size_3d = sizeof(double) * nx * ny * nz;
+
+    std::array<void *, 7> gpu_pointers_5x3d = {
+        &gpuU, &gpuRhs, &gpuForcing, &gpuTmp,
+        &lhs_gpu, &lhsp_gpu, &lhsm_gpu};
+
+    for (void *gpu_ptr : gpu_pointers_5x3d)
+    {
+        CudaSafeCall(cudaMalloc((void **)&gpu_ptr, size_5x3d));
+    }
+    std::array<void *, 7> gpu_pointers_3d = {
+        &gpuRho_i, &gpuUs, &gpuVs, &gpuWs, &gpuQs, &gpuSquare, &gpuSpeed};
+
+    for (void *gpu_ptr : gpu_pointers_3d)
+    {
+        CudaSafeCall(cudaMalloc((void **)&gpu_ptr, size_3d));
+    }
+}
+
+void Solver::deallocateArrays()
+{
+    std::array<void *, 14> gpu_pointers = {
+        &gpuU, &gpuRhs, &gpuRho_i, &gpuUs, &gpuVs, &gpuWs, &gpuQs, &gpuSquare, &gpuSpeed, &gpuForcing, &gpuTmp,
+        &lhs_gpu, &lhsp_gpu, &lhsm_gpu};
+
+    for (void *gpu_ptr : gpu_pointers)
+    {
+        cudaFree(gpu_ptr);
+    }
+}
 
 void Solver::step()
 {
@@ -18,6 +53,13 @@ Solver::Solver()
     cudaDeviceSetCacheConfig(cudaFuncCachePreferL1);
 
     set_constants();
+
+    allocateArrays();
+}
+
+Solver::~Solver()
+{
+    deallocateArrays();
 }
 
 void Solver::solve(int niter)

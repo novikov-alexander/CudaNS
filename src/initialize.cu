@@ -199,28 +199,9 @@ int allocateArrays()
     const int size_5x3d = sizeof(double) * nx * ny * nz * 5;
     const int size_3d = sizeof(double) * nx * ny * nz;
 
-    CudaSafeCall(cudaMalloc((void **)&lhs_gpu, size_5x3d));
-    CudaSafeCall(cudaMalloc((void **)&lhsp_gpu, size_5x3d));
-    CudaSafeCall(cudaMalloc((void **)&lhsm_gpu, size_5x3d));
-
-    CudaSafeCall(cudaMalloc((void **)&gpuTmp3D, size_3d));
-
-    CudaSafeCall(cudaMalloc((void **)&gpuU, size_5x3d));
-    CudaSafeCall(cudaMalloc((void **)&gpuRhs, size_5x3d));
-    CudaSafeCall(cudaMalloc((void **)&gpuForcing, size_5x3d));
-    CudaSafeCall(cudaMalloc((void **)&gpuTmp, size_5x3d));
-
     u = (double(*)[P_SIZE][P_SIZE][P_SIZE])malloc(size_5x3d);
     rhs = (double(*)[P_SIZE][P_SIZE][P_SIZE])malloc(size_5x3d);
     forcing = (double(*)[P_SIZE][P_SIZE][P_SIZE])malloc(size_5x3d);
-
-    CudaSafeCall(cudaMalloc((void **)&gpuUs, size_3d));
-    CudaSafeCall(cudaMalloc((void **)&gpuVs, size_3d));
-    CudaSafeCall(cudaMalloc((void **)&gpuWs, size_3d));
-    CudaSafeCall(cudaMalloc((void **)&gpuQs, size_3d));
-    CudaSafeCall(cudaMalloc((void **)&gpuRho_i, size_3d));
-    CudaSafeCall(cudaMalloc((void **)&gpuSpeed, size_3d));
-    CudaSafeCall(cudaMalloc((void **)&gpuSquare, size_3d));
 
     us = (double(*)[P_SIZE][P_SIZE])malloc(size_3d);
     vs = (double(*)[P_SIZE][P_SIZE])malloc(size_3d);
@@ -235,20 +216,6 @@ int allocateArrays()
 
 int deallocateArrays()
 {
-    cudaFree(gpuU);
-    cudaFree(gpuRhs);
-    cudaFree(gpuRho_i);
-    cudaFree(gpuUs);
-    cudaFree(gpuVs);
-    cudaFree(gpuWs);
-    cudaFree(gpuQs);
-    cudaFree(gpuSquare);
-    cudaFree(gpuSpeed);
-    cudaFree(gpuForcing);
-    cudaFree(lhs_gpu);
-    cudaFree(lhsp_gpu);
-    cudaFree(lhsm_gpu);
-
     free(u);
     free(rhs);
     free(forcing);
