@@ -1,5 +1,37 @@
 #include "header.hpp"
 
+void run_inversion_kernels(dim3 blocks, dim3 threads, double *rhs, double bt, int nx2, int ny2, int nz2)
+{
+    inversion_kernel<<<blocks, threads>>>(rhs, bt, nx2, ny2, nz2);
+}
+
+__global__ void inversion_kernel(double *rhs, double bt, int nx2, int ny2, int nz2)
+{
+    int i = threadIdx.z + blockIdx.z * blockDim.z + 1;
+    int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
+    int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
+
+    double r1, r2, r3, r4, r5, t1, t2;
+
+    if ((i <= nx2) && (j <= ny2) && (k <= nz2))
+    {
+        r1 = rhs(i, j, k, 0);
+        r2 = rhs(i, j, k, 1);
+        r3 = rhs(i, j, k, 2);
+        r4 = rhs(i, j, k, 3);
+        r5 = rhs(i, j, k, 4);
+
+        t1 = bt * r3;
+        t2 = 0.5 * (r4 + r5);
+
+        rhs(i, j, k, 0) = -r2;
+        rhs(i, j, k, 1) = r1;
+        rhs(i, j, k, 2) = bt * (r4 - r5);
+        rhs(i, j, k, 3) = -t1 + t2;
+        rhs(i, j, k, 4) = t1 + t2;
+    }
+}
+
 void run_solve_kernels(
     dim3 blocks, dim3 threads,
     dim3 blocks2, dim3 threads2,

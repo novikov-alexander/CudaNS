@@ -17,41 +17,9 @@ void y_solve_two(
     run_solve_kernels(blocks, threads, blocks2, threads2, (double *)lhs_, (double *)lhsp_, (double *)lhsm_, rhs, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nz2, nx2, ny2, ny);
 }
 
-#undef rhs
-#define rhs(x, y, z, m) rhs[INDEX(x, y, z, m)]
-
-#undef rho_i
-#undef s
-#undef speed
-#define rho_i(x, y, z) rho_i[INDEX_3D(x, z, y)]
-#define s(x, y, z) s[INDEX_3D(x, z, y)]
-#define speed(x, y, z) speed[INDEX_3D(x, z, y)]
-
-__global__ void y_solve_inversion(double *rhs, double bt, int nx2, int ny2, int nz2)
+void y_solve_inversion(dim3 blocks, dim3 threads, double *rhs, double bt, int nx2, int ny2, int nz2)
 {
-    double r1, r2, r3, r4, r5, t1, t2;
-
-    int k = threadIdx.x + blockIdx.x * blockDim.x + 1;
-    int j = threadIdx.y + blockIdx.y * blockDim.y + 1;
-    int i = threadIdx.z + blockIdx.z * blockDim.z + 1;
-
-    if ((k <= nz2) && (j <= ny2) && (i <= nx2))
-    {
-        r1 = rhs(k, j, i, 0);
-        r2 = rhs(k, j, i, 1);
-        r3 = rhs(k, j, i, 2);
-        r4 = rhs(k, j, i, 3);
-        r5 = rhs(k, j, i, 4);
-
-        t1 = bt * r1;
-        t2 = 0.5 * (r4 + r5);
-
-        rhs(k, j, i, 0) = bt * (r4 - r5);
-        rhs(k, j, i, 1) = -r3;
-        rhs(k, j, i, 2) = r2;
-        rhs(k, j, i, 3) = -t1 + t2;
-        rhs(k, j, i, 4) = t1 + t2;
-    }
+    run_inversion_kernels(blocks, threads, rhs, bt, nz2, nx2, ny2);
 }
 
 #define src(x, y, z) src[z + (y) * P_SIZE + (x) * P_SIZE * P_SIZE]
@@ -122,7 +90,7 @@ void y_solve()
     if (timeron)
         timer_start(t_pinvr);
 
-    y_solve_inversion<<<blocks, threads>>>((double *)gpuRhs, bt, nx2, ny2, nz2);
+    y_solve_inversion(blocks, threads, (double *)gpuRhs, bt, nx2, ny2, nz2);
 
     if (timeron)
         timer_stop(t_pinvr);

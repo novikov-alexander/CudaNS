@@ -110,6 +110,8 @@ void z_solve();
 void error_norm(double rms[5]);
 void rhs_norm(double rms[5]);
 
+void run_inversion_kernels(dim3 blocks, dim3 threads, double *rhs, double bt, int nx2, int ny2, int nz2);
+
 void run_solve_kernels(
     dim3 blocks, dim3 threads,
     dim3 blocks2, dim3 threads2,
