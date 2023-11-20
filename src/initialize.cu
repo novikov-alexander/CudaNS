@@ -148,10 +148,8 @@ logical inittrace(const char **t_names)
     return timeron;
 }
 
-int initparameters(int argc, char **argv, int *niter)
+bool initparameters(int argc, char **argv, int *niter)
 {
-    int OK = true;
-
     FILE *fp;
     if ((fp = fopen("input.data", "r")) != NULL)
     {
@@ -184,7 +182,7 @@ int initparameters(int argc, char **argv, int *niter)
     {
         printf(" %d, %d, %d\n", nx, ny, nz);
         printf(" Problem size too big for compiled array sizes\n");
-        OK = false;
+        return false;
     }
     else
     {
@@ -193,7 +191,7 @@ int initparameters(int argc, char **argv, int *niter)
         nz2 = nz - 2;
     }
 
-    return OK;
+    return true;
 }
 
 int allocateArrays()

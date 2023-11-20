@@ -78,16 +78,14 @@ int main(int argc, char *argv[])
 {
     printf("\n Program started \n");
 
-    int niter, result;
+    int niter;
     logical verified;
     const char *t_names[t_last + 1];
 
     timeron = inittrace(t_names);
-    result = initparameters(argc, argv, &niter);
-    if (result == 0)
+    if (!initparameters(argc, argv, &niter))
         return -1;
-    result = allocateArrays();
-    if (result == 0)
+    if (!allocateArrays())
         return -2;
 
     for (int i = 1; i <= t_last; i++)
@@ -114,8 +112,7 @@ int main(int argc, char *argv[])
     verify(niter, &verified);
     print_results(niter, tmax, verified, t_names);
 
-    result = deallocateArrays();
-    if (result == 0)
+    if (!deallocateArrays())
         return -2;
     return 0;
 }

@@ -105,7 +105,7 @@ void initialize();
 void exact_solution(double xi, double eta, double zeta, double dtemp[5]);
 void exact_rhs();
 logical inittrace(const char **t_names);
-int initparameters(int argc, char **argv, int *niter);
+bool initparameters(int argc, char **argv, int *niter);
 int allocateArrays();
 int deallocateArrays();
 
