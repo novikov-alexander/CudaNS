@@ -132,30 +132,23 @@ void x_solve()
     int i, j, k, i1, i2, m;
     double ru1, rhon1, fac1, fac2;
 
-    dim3 blocks = dim3(nx2 / 32 + 1, ny2, nz2);
-    dim3 threads = dim3(32, 1, 1);
-
-    dim3 blocks2 = dim3(ny2 / 32 + 1, nz2 / 8 + 1);
-    dim3 threads2 = dim3(32, 8);
-
-    dim3 blockst = dim3(nx / 8 + 1, ny / 8 + 1, nz / 8 + 1);
-    dim3 threadst = dim3(8, 8, 8);
+    CUDAParameters cudaParams = setupDimensions(nx2, ny2, nz2, nx, ny, nz);
 
     if (timeron)
         timer_start(t_xsolve);
 
-    x_solve_transpose<<<blockst, threadst>>>((double *)gpuTmp, (double *)gpuRhs, nx2, ny2, nz2);
+    x_solve_transpose<<<cudaParams.blockst, cudaParams.threadst>>>((double *)gpuTmp, (double *)gpuRhs, nx2, ny2, nz2);
     std::swap(gpuTmp, gpuRhs);
-    x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuUs, nx2, ny2, nz2);
+    x_solve_transpose_3D<<<cudaParams.blockst, cudaParams.threadst>>>((double *)gpuTmp3D, (double *)gpuUs, nx2, ny2, nz2);
     std::swap(gpuTmp3D, gpuUs);
-    x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuSpeed, nx2, ny2, nz2);
+    x_solve_transpose_3D<<<cudaParams.blockst, cudaParams.threadst>>>((double *)gpuTmp3D, (double *)gpuSpeed, nx2, ny2, nz2);
     std::swap(gpuTmp3D, gpuSpeed);
-    x_solve_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuRho_i, nx2, ny2, nz2);
+    x_solve_transpose_3D<<<cudaParams.blockst, cudaParams.threadst>>>((double *)gpuTmp3D, (double *)gpuRho_i, nx2, ny2, nz2);
     std::swap(gpuTmp3D, gpuRho_i);
 
     x_solve_two(
-        blocks, threads,
-        blocks2, threads2,
+        cudaParams.blocks, cudaParams.threads,
+        cudaParams.blocks2, cudaParams.threads2,
         (double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
 
     //---------------------------------------------------------------------
@@ -164,13 +157,13 @@ void x_solve()
     if (timeron)
         timer_start(t_ninvr);
 
-    x_solve_inversion<<<blocks, threads>>>((double *)gpuRhs, bt, nx2, ny2, nz2);
+    x_solve_inversion<<<cudaParams.blocks, cudaParams.threads>>>((double *)gpuRhs, bt, nx2, ny2, nz2);
 
     if (timeron)
         timer_stop(t_ninvr);
 
     std::swap(gpuTmp3D, gpuUs);
-    x_solve_inv_transpose_3D<<<blockst, threadst>>>((double *)gpuTmp3D, (double *)gpuUs, nx2, ny2, nz2);
+    x_solve_inv_transpose_3D<<<cudaParams.blockst, cudaParams.threadst>>>((double *)gpuTmp3D, (double *)gpuUs, nx2, ny2, nz2);
 
     // std::swap((double**)&gpuTmp, (double**)&gpuRhs);
 

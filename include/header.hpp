@@ -88,6 +88,16 @@ extern double (*lhsm_gpu)[P_SIZE][P_SIZE][P_SIZE];
 
 extern double (*gpuTmp3D)[P_SIZE][P_SIZE];
 
+struct CUDAParameters
+{
+    dim3 blocks;
+    dim3 threads;
+    dim3 blocks2;
+    dim3 threads2;
+    dim3 blockst;
+    dim3 threadst;
+};
+
 //-----------------------------------------------------------------------
 // initialize functions
 void set_constants();
@@ -109,6 +119,8 @@ void z_solve();
 // errors
 void error_norm(double rms[5]);
 void rhs_norm(double rms[5]);
+
+CUDAParameters setupDimensions(int nx2, int ny2, int nz2, int nx, int ny, int nz);
 
 void run_inversion_kernels(dim3 blocks, dim3 threads, double *rhs, double bt, int nx2, int ny2, int nz2);
 
