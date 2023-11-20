@@ -56,7 +56,6 @@ __global__ void add_kernel(double *u, double *rhs, int nx2, int ny2, int nz2)
 
 void xinvr()
 {
-
     dim3 blocks = dim3(nx / 8 + 1, ny / 8 + 1, nz);
     dim3 threads = dim3(8, 8, 1);
 
@@ -82,14 +81,4 @@ void add()
 
     if (timeron)
         timer_stop(t_add);
-}
-
-void adi()
-{
-    compute_rhs(); //+
-    xinvr();       //+
-    x_solve();
-    y_solve();
-    z_solve();
-    add(); //+
 }

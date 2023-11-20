@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "header.hpp"
+#include "solver.hpp"
 
 /* global parameters */
 int nx2, ny2, nz2, nx, ny, nz;
@@ -94,6 +95,7 @@ int main(int argc, char *argv[])
         timer_clear(i);
 
     // init
+    auto solver = new Solver();
     set_constants();
     exact_rhs();
     initialize();
@@ -108,7 +110,7 @@ int main(int argc, char *argv[])
     {
         if ((step % 20) == 0 || step == 1)
             printf(" Time step %4d\n", step);
-        adi();
+        solver->step();
     }
     timer_stop(t_total);
     tmax = timer_read(t_total);
