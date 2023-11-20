@@ -78,8 +78,7 @@ int main(int argc, char *argv[])
 {
     printf("\n Program started \n");
 
-    int i, niter, step, result;
-    double tmax;
+    int niter, result;
     logical verified;
     const char *t_names[t_last + 1];
 
@@ -91,7 +90,7 @@ int main(int argc, char *argv[])
     if (result == 0)
         return -2;
 
-    for (i = 1; i <= t_last; i++)
+    for (int i = 1; i <= t_last; i++)
         timer_clear(i);
 
     // init
@@ -106,14 +105,14 @@ int main(int argc, char *argv[])
 
     // main loop
     timer_start(t_total);
-    for (step = 1; step <= niter; step++)
+    for (int step = 1; step <= niter; step++)
     {
         if ((step % 20) == 0 || step == 1)
             printf(" Time step %4d\n", step);
         solver->step();
     }
     timer_stop(t_total);
-    tmax = timer_read(t_total);
+    double tmax = timer_read(t_total);
 
     copyGridsFromDevice();
 
