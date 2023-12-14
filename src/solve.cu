@@ -78,6 +78,24 @@ __global__ void solve_kernel_one(double *lhs_, double *lhsp_, double *lhsm_, int
     }
 }
 
+__device__ inline void update_lhs(double &lhs, double &ru1, double &rhos1, double factor1, double factor2, double factor3)
+{
+    lhs = factor1 * ru1;
+    rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
+    lhs = factor2 * us(k - 1, i, j) - factor3 * rhos1;
+}
+
+__device__ inline void update_lhs_values(int i, int j, int k, double &lhs_0, double &lhs_1, double &lhs_2, double &lhs_3, double &lhs_4)
+{
+    lhs_0 = 0.0;
+
+    update_lhs(lhs_1, c3c4 * rho_i(k - 1, i, j), rhos1, -dttz2, -dttz1, 0.0);
+    update_lhs(lhs_2, c3c4 * rho_i(k, i, j), rhos1, 1.0, c2dttz1, 0.0);
+    update_lhs(lhs_3, c3c4 * rho_i(k + 1, i, j), rhos1, dttz2, -dttz1, 0.0);
+
+    lhs_4 = 0.0;
+}
+
 #undef us
 #undef speed
 #define us(x, y, z) us[INDEX_3D(y, z, x)]
@@ -99,20 +117,7 @@ __global__ void solve_kernel_two1(
 
     if (j <= ny2 && i <= nx2)
     {
-        lhs_(i, j, k, 0) = 0.0;
-
-        ru1 = c3c4 * rho_i(k - 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 1) = -dttz2 * us(k - 1, i, j) - dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 2) = 1.0 + c2dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k + 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 3) = dttz2 * us(k + 1, i, j) - dttz1 * rhos1;
-        lhs_(i, j, k, 4) = 0.0;
+        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
 
         lhs_(i, j, k, 1) = lhs_(i, j, k, 1) - comz4;
         lhs_(i, j, k, 2) = lhs_(i, j, k, 2) + comz6;
@@ -149,20 +154,7 @@ __global__ void solve_kernel_two2(
 
     if (j <= ny2 && i <= nx2)
     {
-        lhs_(i, j, k, 0) = 0.0;
-
-        ru1 = c3c4 * rho_i(k - 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 1) = -dttz2 * us(k - 1, i, j) - dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 2) = 1.0 + c2dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k + 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 3) = dttz2 * us(k + 1, i, j) - dttz1 * rhos1;
-        lhs_(i, j, k, 4) = 0.0;
+        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
 
         lhs_(i, j, k, 1) = lhs_(i, j, k, 1) - comz4;
         lhs_(i, j, k, 2) = lhs_(i, j, k, 2) + comz5;
@@ -199,20 +191,7 @@ __global__ void solve_kernel_two_nz2(
 
     if (j <= ny2 && i <= nx2)
     {
-        lhs_(i, j, k, 0) = 0.0;
-
-        ru1 = c3c4 * rho_i(k - 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 1) = -dttz2 * us(k - 1, i, j) - dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 2) = 1.0 + c2dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k + 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 3) = dttz2 * us(k + 1, i, j) - dttz1 * rhos1;
-        lhs_(i, j, k, 4) = 0.0;
+        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
 
         lhs_(i, j, k, 0) = lhs_(i, j, k, 0) + comz1;
         lhs_(i, j, k, 1) = lhs_(i, j, k, 1) - comz4;
@@ -248,20 +227,7 @@ __global__ void solve_kernel_two_nz3(
 
     if (j <= ny2 && i <= nx2)
     {
-        lhs_(i, j, k, 0) = 0.0;
-
-        ru1 = c3c4 * rho_i(k - 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 1) = -dttz2 * us(k - 1, i, j) - dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 2) = 1.0 + c2dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k + 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 3) = dttz2 * us(k + 1, i, j) - dttz1 * rhos1;
-        lhs_(i, j, k, 4) = 0.0;
+        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
 
         lhs_(i, j, k, 0) = lhs_(i, j, k, 0) + comz1;
         lhs_(i, j, k, 1) = lhs_(i, j, k, 1) - comz4;
@@ -298,20 +264,7 @@ __global__ void solve_kernel_two(
 
     if (j <= ny2 && i <= nx2 && (k <= nz2 - 2))
     {
-        lhs_(i, j, k, 0) = 0.0;
-
-        ru1 = c3c4 * rho_i(k - 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 1) = -dttz2 * us(k - 1, i, j) - dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 2) = 1.0 + c2dttz1 * rhos1;
-
-        ru1 = c3c4 * rho_i(k + 1, i, j);
-        rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
-        lhs_(i, j, k, 3) = dttz2 * us(k + 1, i, j) - dttz1 * rhos1;
-        lhs_(i, j, k, 4) = 0.0;
+        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
 
         lhs_(i, j, k, 0) = lhs_(i, j, k, 0) + comz1;
 
