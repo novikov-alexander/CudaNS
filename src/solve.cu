@@ -78,10 +78,10 @@ __global__ void solve_kernel_one(double *lhs_, double *lhsp_, double *lhsm_, int
     }
 }
 
-__device__ inline void update_lhs(double &lhs, double &ru1, double &rhos1, double factor1, double factor2, double factor3)
+__device__ inline void update_lhs(double &lhs, double &ru1, double factor1, double factor2, double factor3)
 {
     lhs = factor1 * ru1;
-    rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
+    auto rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
     lhs = factor2 * us(k - 1, i, j) - factor3 * rhos1;
 }
 
@@ -89,9 +89,9 @@ __device__ inline void update_lhs_values(int i, int j, int k, double &lhs_0, dou
 {
     lhs_0 = 0.0;
 
-    update_lhs(lhs_1, c3c4 * rho_i(k - 1, i, j), rhos1, -dttz2, -dttz1, 0.0);
-    update_lhs(lhs_2, c3c4 * rho_i(k, i, j), rhos1, 1.0, c2dttz1, 0.0);
-    update_lhs(lhs_3, c3c4 * rho_i(k + 1, i, j), rhos1, dttz2, -dttz1, 0.0);
+    update_lhs(lhs_1, c3c4 * rho_i(k - 1, i, j), -dttz2, -dttz1, 0.0);
+    update_lhs(lhs_2, c3c4 * rho_i(k, i, j), 1.0, c2dttz1, 0.0);
+    update_lhs(lhs_3, c3c4 * rho_i(k + 1, i, j), dttz2, -dttz1, 0.0);
 
     lhs_4 = 0.0;
 }
