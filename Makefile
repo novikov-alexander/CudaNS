@@ -8,7 +8,7 @@ CC = nvcc
 C_LIB = -lm
 COMMON_FLAGS = -w -m64 -Xptxas -dlcm=ca -D_FORCE_INLINES -Xcompiler -Wall -O3
 ARCH = sm_60
-CFLAGS = ${COMMON_FLAGS} -I${INC} -x cu -arch=${ARCH}
+CFLAGS = ${COMMON_FLAGS} -I${INC} -x cu -arch=${ARCH} -std=c++20
 CLINKFLAGS = ${COMMON_FLAGS} -arch=${ARCH}
 
 SRCS = $(wildcard $(SRC)/*.cu)
