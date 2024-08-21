@@ -7,5 +7,7 @@ class Solver
     void deallocateArrays();
 
 public:
+    Solver();
+    ~Solver();
     void solve(int niter);
 };

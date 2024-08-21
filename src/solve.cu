@@ -1,10 +1,5 @@
 #include "header.hpp"
 
-void run_inversion_kernels(dim3 blocks, dim3 threads, double *rhs, double bt, int nx2, int ny2, int nz2)
-{
-    inversion_kernel<<<blocks, threads>>>(rhs, bt, nx2, ny2, nz2);
-}
-
 __global__ void inversion_kernel(double *rhs, double bt, int nx2, int ny2, int nz2)
 {
     int i = threadIdx.z + blockIdx.z * blockDim.z + 1;
@@ -32,26 +27,9 @@ __global__ void inversion_kernel(double *rhs, double bt, int nx2, int ny2, int n
     }
 }
 
-void run_solve_kernels(
-    CUDAParameters cudaParams,
-    double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6,
-    int nx2, int ny2, int nz2, int nx)
+void run_inversion_kernels(dim3 blocks, dim3 threads, double *rhs, double bt, int nx2, int ny2, int nz2)
 {
-    auto [blocks, threads, blocks2, threads2] = cudaParams;
-
-    cudaDeviceSynchronize();
-    solve_kernel_one<<<blocks, threads>>>(lhs_, lhsp_, lhsm_, nz2, ny2, nx2);
-    solve_kernel_two<<<blocks, threads>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2);
-    solve_kernel_two1<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2);
-    solve_kernel_two2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2);
-    cudaDeviceSynchronize();
-    solve_kernel_two_nz2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2);
-    solve_kernel_two_nz3<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2);
-    cudaDeviceSynchronize();
-    solve_kernel_three<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
-    cudaDeviceSynchronize();
-    solve_kernel_four<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, nx2, ny2, nz2);
-    cudaDeviceSynchronize();
+    inversion_kernel<<<blocks, threads>>>(rhs, bt, nx2, ny2, nz2);
 }
 
 __global__ void solve_kernel_one(double *lhs_, double *lhsp_, double *lhsm_, int nx2, int ny2, int nz2)
@@ -78,20 +56,23 @@ __global__ void solve_kernel_one(double *lhs_, double *lhsp_, double *lhsm_, int
     }
 }
 
-__device__ inline void update_lhs(double &lhs, double &ru1, double &rhos1, double factor1, double factor2, double factor3)
+__device__ inline void update_lhs(int i, int j, int k, double *us, double &lhs, const double ru1, double factor1, double factor2, double factor3,
+    double dz1, double dz4, double dz5, double dzmax, double c1c5, double con43)
 {
     lhs = factor1 * ru1;
-    rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
+    auto rhos1 = fmax(fmax(dz4 + con43 * ru1, dz5 + c1c5 * ru1), fmax(dzmax + ru1, dz1));
     lhs = factor2 * us(k - 1, i, j) - factor3 * rhos1;
 }
 
-__device__ inline void update_lhs_values(int i, int j, int k, double &lhs_0, double &lhs_1, double &lhs_2, double &lhs_3, double &lhs_4)
+__device__ inline void update_lhs_values(int i, int j, int k, double *rho_i, double *us, double &lhs_0, double &lhs_1, double &lhs_2, double &lhs_3, double &lhs_4,
+    double dz1, double dz4, double dz5, double dzmax, double c1c5, double con43,
+    double c3c4, double dttz1, double dttz2, double c2dttz1)
 {
     lhs_0 = 0.0;
 
-    update_lhs(lhs_1, c3c4 * rho_i(k - 1, i, j), rhos1, -dttz2, -dttz1, 0.0);
-    update_lhs(lhs_2, c3c4 * rho_i(k, i, j), rhos1, 1.0, c2dttz1, 0.0);
-    update_lhs(lhs_3, c3c4 * rho_i(k + 1, i, j), rhos1, dttz2, -dttz1, 0.0);
+    update_lhs(i, j, k, us, lhs_1, c3c4 * rho_i(k - 1, i, j), -dttz2, -dttz1, 0.0,dz1,dz4,dz5,dzmax,c1c5,con43);
+    update_lhs(i, j, k, us, lhs_2, c3c4 * rho_i(k, i, j), 1.0, c2dttz1, 0.0,dz1,dz4,dz5,dzmax,c1c5,con43);
+    update_lhs(i, j, k, us, lhs_3, c3c4 * rho_i(k + 1, i, j), dttz2, -dttz1, 0.0,dz1,dz4,dz5,dzmax,c1c5,con43);
 
     lhs_4 = 0.0;
 }
@@ -117,7 +98,7 @@ __global__ void solve_kernel_two1(
 
     if (j <= ny2 && i <= nx2)
     {
-        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
+        update_lhs_values(i, j, k, rho_i, us, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4),dz1,dz4,dz5,dzmax,c1c5,con43,c3c4,dttz1,dttz2,c2dttz1);
 
         lhs_(i, j, k, 1) = lhs_(i, j, k, 1) - comz4;
         lhs_(i, j, k, 2) = lhs_(i, j, k, 2) + comz6;
@@ -154,7 +135,7 @@ __global__ void solve_kernel_two2(
 
     if (j <= ny2 && i <= nx2)
     {
-        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
+        update_lhs_values(i, j, k, rho_i, us, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4),dz1,dz4,dz5,dzmax,c1c5,con43,c3c4,dttz1,dttz2,c2dttz1);
 
         lhs_(i, j, k, 1) = lhs_(i, j, k, 1) - comz4;
         lhs_(i, j, k, 2) = lhs_(i, j, k, 2) + comz5;
@@ -180,7 +161,7 @@ __global__ void solve_kernel_two_nz2(
     int nx2, int ny2, int nz2,
     double c3c4, double dz4, double con43, double dz5,
     double c1c5, double dzmax, double dz1, double dttz2, double dttz1,
-    double c2dttz1, double comz1, double comz4, double comz5, double comz6)
+    double c2dttz1, double comz1, double comz4, double comz5, double comz6, double nz)
 {
     int m;
     double ru1, rhos1;
@@ -191,7 +172,7 @@ __global__ void solve_kernel_two_nz2(
 
     if (j <= ny2 && i <= nx2)
     {
-        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
+        update_lhs_values(i, j, k, rho_i, us, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4),dz1,dz4,dz5,dzmax,c1c5,con43,c3c4,dttz1,dttz2,c2dttz1);
 
         lhs_(i, j, k, 0) = lhs_(i, j, k, 0) + comz1;
         lhs_(i, j, k, 1) = lhs_(i, j, k, 1) - comz4;
@@ -216,7 +197,7 @@ __global__ void solve_kernel_two_nz3(
     int nx2, int ny2, int nz2,
     double c3c4, double dz4, double con43, double dz5,
     double c1c5, double dzmax, double dz1, double dttz2, double dttz1,
-    double c2dttz1, double comz1, double comz4, double comz5, double comz6)
+    double c2dttz1, double comz1, double comz4, double comz5, double comz6, double nz)
 {
     int m;
     double ru1, rhos1;
@@ -227,7 +208,7 @@ __global__ void solve_kernel_two_nz3(
 
     if (j <= ny2 && i <= nx2)
     {
-        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
+        update_lhs_values(i, j, k, rho_i, us, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4),dz1,dz4,dz5,dzmax,c1c5,con43,c3c4,dttz1,dttz2,c2dttz1);
 
         lhs_(i, j, k, 0) = lhs_(i, j, k, 0) + comz1;
         lhs_(i, j, k, 1) = lhs_(i, j, k, 1) - comz4;
@@ -264,7 +245,7 @@ __global__ void solve_kernel_two(
 
     if (j <= ny2 && i <= nx2 && (k <= nz2 - 2))
     {
-        update_lhs_values(i, j, k, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4));
+        update_lhs_values(i, j, k, rho_i, us, lhs_(i, j, k, 0), lhs_(i, j, k, 1), lhs_(i, j, k, 2), lhs_(i, j, k, 3), lhs_(i, j, k, 4),dz1,dz4,dz5,dzmax,c1c5,con43,c3c4,dttz1,dttz2,c2dttz1);
 
         lhs_(i, j, k, 0) = lhs_(i, j, k, 0) + comz1;
 
@@ -286,7 +267,7 @@ __global__ void solve_kernel_two(
     }
 };
 
-void solve_kernel_three(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nz)
+__global__ void solve_kernel_three(double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6, int nx2, int ny2, int nz2, int nz)
 {
     int k1, k2, m;
     double ru1, rhon1, fac1, fac2;
@@ -429,4 +410,26 @@ __global__ void solve_kernel_four(
             rhs(i, j, k - 1, 4) = rhs(i, j, k - 1, 4) - lhsm_(i, j, k - 1, 3) * rhs(i1, j, k - 1, 4) - lhsm_(i, j, k - 1, 4) * rhs(i2, j, k - 1, 4);
         }
     }
+}
+
+void run_solve_kernels(
+    CUDAParameters cudaParams,
+    double *lhs_, double *lhsp_, double *lhsm_, double *rhs, double *rho_i, double *us, double *speed, double c3c4, double dx2, double con43, double dx5, double c1c5, double dx1, double dttx2, double dttx1, double dxmax, double c2dttx1, double comz1, double comz4, double comz5, double comz6,
+    int nx2, int ny2, int nz2, int nx)
+{
+    auto [blocks, threads, blocks2, threads2, blockst, threadst] = cudaParams;
+
+    cudaDeviceSynchronize();
+    solve_kernel_one<<<blocks, threads>>>(lhs_, lhsp_, lhsm_, nz2, ny2, nx2);
+    solve_kernel_two<<<blocks, threads>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2);
+    solve_kernel_two1<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2);
+    solve_kernel_two2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2);
+    cudaDeviceSynchronize();
+    solve_kernel_two_nz2<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
+    solve_kernel_two_nz3<<<blocks2, threads2>>>((double *)lhs_, (double *)lhsp_, (double *)lhsm_, (double *)rho_i, (double *)us, (double *)speed, c3c4, dy3, con43, dy5, c1c5, dy1, dtty2, dtty1, dymax, c2dtty1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
+    cudaDeviceSynchronize();
+    solve_kernel_three<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, (double *)gpuRho_i, (double *)gpuUs, (double *)gpuSpeed, c3c4, dx2, con43, dx5, c1c5, dx1, dttx2, dttx1, dxmax, c2dttx1, comz1, comz4, comz5, comz6, nx2, ny2, nz2, nx);
+    cudaDeviceSynchronize();
+    solve_kernel_four<<<blocks2, threads2>>>((double *)lhs_gpu, (double *)lhsp_gpu, (double *)lhsm_gpu, (double *)gpuRhs, nx2, ny2, nz2);
+    cudaDeviceSynchronize();
 }
